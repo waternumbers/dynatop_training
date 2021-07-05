@@ -1,0 +1,9 @@
+---
+title: "dynatopGIS & dynatop"
+---
+
+- opinionated implimentation of dynamic TOPMODEL concepts
+- Modular framework
+- OO to encase
+- flow diagram
+- what is implimented 

@@ -1,0 +1,44 @@
+name: "dynatop Training"
+navbar:
+  title: "dynatop Training"
+  left:
+    - text: "Home"
+      href: index.html
+  right:
+    - text: "Programme"
+      menu:
+        - text: "Getting Started"
+        - text: "Prerequisites"
+          href: prerequisite.html
+        - text: "Background"
+        - text: "Dynamic TOPMODEL"
+          href: dynamic_topmodel.html
+        - text: "dynatopGIS & dynatop"
+          href: dynatopGIS_dynatop.html
+        - text: "Training Example"
+          href: "training_example.Rmd"
+        - text: "dynatopGIS Usage"
+        - text: "Initial GIS processing"
+          href: initial_gis.html
+        - text: "Building a model"
+          href: model_building.html
+        - text: "Resolution and Model Complexity"
+          href: resolution_complexity.html
+        - text: "dynatop Usage"
+        - text: "Processing Observed Series"
+          href: observed_series.html
+        - text: "Simulation"
+          href: simulation.html
+        - text: "Visualisation"
+          href: visualisation.html
+        - text: "Monte Carlo Simulations"
+          href: monte_carlo.html
+        - text: "Developing dynatop"
+        - text: "Using Git"
+          href: using_github.html
+        - text: "Package Structure"
+          href: package_structure.html  
+        - text: "Building the package"
+          href: building_dynatop.html
+        - text: "Altering the code"
+          href: altering_dynatop.html

@@ -1,0 +1,32 @@
+---
+title: "Prerequisites"
+---
+
+## Target Audience
+
+Since this is a course on hydrological modelling using a R software package
+it is presumed that you have at least a basic knowledge of hydrology and
+R. Useful primers for R can be found on multiple websites such as that of
+[Hadley Wickham](https://adv-r.hadley.nz/) or on
+[CRAN](https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf) but
+complete knowledge of their contents is not expected.
+
+## Software
+
+To make use of the example an installation R and suitable text editor for
+altering the R scripts is required. Installation instructions for R are available from
+[CRAN]{https://cran.r-project.org/} for Linux, Windows and Mac. A version
+newer then R4.1 is required. 
+
+While it is possible to complete the course using the built in `R` GUIs for
+Windows and Mac it is recomended to to install editor with syntax
+highlighting. Popular choices include the [Rstudio
+IDE](https://www.rstudio.com/products/rstudio/download/#download), VSCode
+(Instructions
+[here](https://www.r-bloggers.com/2021/01/setup-visual-studio-code-to-run-r-on-vscode-2021/))
+or emacs with [ESS](https://ess.r-project.org/index.php?Section=home).
+
+For completing the example of developing dynatop an installation of the git
+version control system is required. Instructions on installation can be found [here]{https://git-scm.com/downloads}
+
+ 
