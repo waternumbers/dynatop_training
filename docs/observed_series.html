@@ -11,9 +11,9 @@
 
 
 
-<title>observed_series.knit</title>
+<title>Processing Observed data</title>
 
-<script src="site_libs/header-attrs-2.8/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.9/header-attrs.js"></script>
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
@@ -265,43 +265,43 @@ $(document).ready(function () {
       <a href="dynatopGIS_dynatop.html">dynatopGIS &amp; dynatop</a>
     </li>
     <li>
-      <a href="training_example.Rmd">Training Example</a>
+      <a href="eden.html">Training Example</a>
     </li>
-    <li class="dropdown-header">dynatopGIS Usage</li>
+    <li class="dropdown-header">Building a Model</li>
     <li>
-      <a href="initial_gis.html">Initial GIS processing</a>
-    </li>
-    <li>
-      <a href="dynatopGIS.html">Using dynatopGIS</a>
+      <a href="initial_gis.html">Initial GIS Processing</a>
     </li>
     <li>
-      <a href="resolution_complexity.html">Resolution and Model Complexity</a>
-    </li>
-    <li class="dropdown-header">Using dynatop</li>
-    <li>
-      <a href="observed_series.html">Processing Observed Series</a>
+      <a href="observed_series.html">Processing Observed Data</a>
     </li>
     <li>
-      <a href="simulation.html">Simulation</a>
+      <a href="model_building.html">Model Generation</a>
     </li>
     <li>
-      <a href="visualisation.html">Visualisation</a>
+      <a href="resolution_complexity.html">Resolution &amp; Complexity</a>
+    </li>
+    <li class="dropdown-header">Running a model</li>
+    <li>
+      <a href="simulation.html">Setting up a Simulation</a>
     </li>
     <li>
-      <a href="monte_carlo.html">Monte Carlo Simulations</a>
+      <a href="visualisation.html">Visualising the Output</a>
+    </li>
+    <li>
+      <a href="monte_carlo.html">Monte-Carlo Runs</a>
     </li>
     <li class="dropdown-header">Developing dynatop</li>
     <li>
-      <a href="using_github.html">Using Git</a>
+      <a href="using_github.html">Using github</a>
     </li>
     <li>
       <a href="package_structure.html">Package Structure</a>
     </li>
     <li>
-      <a href="building_dynatop.html">Building the package</a>
+      <a href="building_dynatop.html">Building dynatop</a>
     </li>
     <li>
-      <a href="altering_dynatop.html">Altering the code</a>
+      <a href="altering_dynatop.html">Altering dynatop</a>
     </li>
   </ul>
 </li>
@@ -314,11 +314,18 @@ $(document).ready(function () {
 
 
 
+<h1 class="title toc-ignore">Processing Observed data</h1>
 
 </div>
 
 
-
+<ul>
+<li>Units and time periods</li>
+<li>Converting gridded precip into correct format</li>
+<li>generating PET</li>
+</ul>
+<p>It is expected that the precipitation and potential evapotranspiration inputs series are given in <span class="math inline">\(m\)</span> accrued over the proceeding time step. So if the data has a time step <span class="math inline">\(\Delta t\)</span> the value given at <span class="math inline">\(t+\Delta t\)</span> is accrued in the interval between time <span class="math inline">\(t\)</span> and time <span class="math inline">\(t+\Delta t\)</span>.</p>
+<p>The data series for the diffuse and point inputs used in the channel routing should be in <span class="math inline">\(m^3/s\)</span>. In the channel HRU solution the value given at time <span class="math inline">\(t+\Delta t\)</span> is presumed to be constant over the interval <span class="math inline">\(t\)</span> to <span class="math inline">\(t+\Delta t\)</span>.</p>
 
 
 

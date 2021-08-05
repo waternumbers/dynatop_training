@@ -1,1 +1,7 @@
- 
+---
+title: "Resolution & Complexity"
+---
+
+*THIS WILL PROBABLY BE DROPPED*
+
+- Discuss resolution of grid vs #HRUS

@@ -1,1 +1,18 @@
+---
+title: "Processing Observed data"
+---
+
+- Units and time periods
+- Converting gridded precip into correct format
+- generating PET
+
+
+It is expected that the precipitation and potential evapotranspiration inputs series are
+given in $m$ accrued over the proceeding time step. So if the data has a time
+step $\Delta t$ the value given at $t+\Delta t$ is accrued in the interval between time $t$
+and time $t+\Delta t$.
+
+The data series for the diffuse and point inputs used in the channel routing
+should be in $m^3/s$. In the channel HRU solution the value given at time
+$t+\Delta t$ is presumed to be constant over the interval $t$ to $t+\Delta t$.
  

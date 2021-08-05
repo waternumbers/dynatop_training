@@ -13,7 +13,7 @@
 
 <title>Prerequisites</title>
 
-<script src="site_libs/header-attrs-2.8/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.9/header-attrs.js"></script>
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
@@ -265,43 +265,43 @@ $(document).ready(function () {
       <a href="dynatopGIS_dynatop.html">dynatopGIS &amp; dynatop</a>
     </li>
     <li>
-      <a href="training_example.Rmd">Training Example</a>
+      <a href="eden.html">Training Example</a>
     </li>
-    <li class="dropdown-header">dynatopGIS Usage</li>
+    <li class="dropdown-header">Building a Model</li>
     <li>
-      <a href="initial_gis.html">Initial GIS processing</a>
-    </li>
-    <li>
-      <a href="model_building.html">Building a model</a>
+      <a href="initial_gis.html">Initial GIS Processing</a>
     </li>
     <li>
-      <a href="resolution_complexity.html">Resolution and Model Complexity</a>
-    </li>
-    <li class="dropdown-header">dynatop Usage</li>
-    <li>
-      <a href="observed_series.html">Processing Observed Series</a>
+      <a href="observed_series.html">Processing Observed Data</a>
     </li>
     <li>
-      <a href="simulation.html">Simulation</a>
+      <a href="model_building.html">Model Generation</a>
     </li>
     <li>
-      <a href="visualisation.html">Visualisation</a>
+      <a href="resolution_complexity.html">Resolution &amp; Complexity</a>
+    </li>
+    <li class="dropdown-header">Running a model</li>
+    <li>
+      <a href="simulation.html">Setting up a Simulation</a>
     </li>
     <li>
-      <a href="monte_carlo.html">Monte Carlo Simulations</a>
+      <a href="visualisation.html">Visualising the Output</a>
+    </li>
+    <li>
+      <a href="monte_carlo.html">Monte-Carlo Runs</a>
     </li>
     <li class="dropdown-header">Developing dynatop</li>
     <li>
-      <a href="using_github.html">Using Git</a>
+      <a href="using_github.html">Using github</a>
     </li>
     <li>
       <a href="package_structure.html">Package Structure</a>
     </li>
     <li>
-      <a href="building_dynatop.html">Building the package</a>
+      <a href="building_dynatop.html">Building dynatop</a>
     </li>
     <li>
-      <a href="altering_dynatop.html">Altering the code</a>
+      <a href="altering_dynatop.html">Altering dynatop</a>
     </li>
   </ul>
 </li>
@@ -319,15 +319,30 @@ $(document).ready(function () {
 </div>
 
 
-<div id="target-audience" class="section level2">
-<h2>Target Audience</h2>
-<p>Since this is a course on hydrological modelling using a <code>R</code> software pacakge it is presumed that you have at least a basic knowledge of hydrology and <code>R</code>. Useful primers for <code>R</code> can be found on multiple websites such as that of <a href="https://adv-r.hadley.nz/">Hadley Wickham</a> or on <a href="https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf">CRAN</a> but complete knowledge of their contents is not expected.</p>
-</div>
+<p>This is a course on hydrological modelling using a R software package. It is presumed that you have at least a basic knowledge of hydrology and ideally some experience of R.</p>
+<p>Useful primers for R can be found on multiple websites such as that of <a href="https://adv-r.hadley.nz/">Hadley Wickham</a> or on <a href="https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf">CRAN</a> but complete knowledge of their contents is not expected.</p>
 <div id="software" class="section level2">
 <h2>Software</h2>
-<p>To make use of the example an installation <code>R</code> and suitable text editor for altering the <code>R</code> scripts is required. Installation instructions for <code>R</code> are available from [CRAN]{<a href="https://cran.r-project.org/" class="uri">https://cran.r-project.org/</a>} for Linux, Windows and Max.</p>
-<p>While it is possible to complete the course using the built in <code>R</code> GUIs for Windows and Mac it is recomended to to install editor with syntax highlighting. Popular choices include the <a href="https://www.rstudio.com/products/rstudio/download/#download">Rstudio IDE</a>, VSCode (Instructions <a href="https://www.r-bloggers.com/2021/01/setup-visual-studio-code-to-run-r-on-vscode-2021/">here</a>) or emacs with <a href="https://ess.r-project.org/index.php?Section=home">ESS</a>.</p>
-<p>For completing the example of developing dynatop an installation of the git version control system is required. Instructions on installation can be found [here]{<a href="https://git-scm.com/downloads" class="uri">https://git-scm.com/downloads</a>}</p>
+<p>To make use of the examples on which the course is based requires</p>
+<ul>
+<li>An installation of R 4.1.0 or above</li>
+<li>A suitable text editor for altering the R scripts.</li>
+</ul>
+<p>Installation instructions for R are available from <a href="https://cran.r-project.org/">CRAN</a> for Linux, Windows and Mac.</p>
+<p>While it is possible to complete the course using the built in R GUIs for Windows and Mac it is recomended to to install editor with syntax highlighting. Popular choices include the <a href="https://www.rstudio.com/products/rstudio/download/#download">Rstudio IDE</a>, VSCode (Instructions <a href="https://www.r-bloggers.com/2021/01/setup-visual-studio-code-to-run-r-on-vscode-2021/">here</a>) or emacs with <a href="https://ess.r-project.org/index.php?Section=home">ESS</a>.</p>
+<p>For completing the final part of the course which focuses on developing dynatop further software is required.</p>
+<ul>
+<li>An installation of the git version control system</li>
+<li>Tools for building R packages which include source code</li>
+<li>An account on <a href="https://github.com/">github</a></li>
+</ul>
+<p>Details on installing git can be found on the softwares <a href="https://git-scm.com/downloads">webpage</a> .</p>
+<p>The most efficent method of installing the tools required for building R packages depends upon the platform:</p>
+<ul>
+<li>Windows: a single toolchain <a href="https://cran.r-project.org/bin/windows/Rtools/">Rtools</a> is available.</li>
+<li>Mac: requires Apple Xcode and GNU Fortran compiler. Details of the GNU Fortran compiler version and other libraries that may be required are provided on <a href="https://mac.r-project.org/tools/">CRAN</a></li>
+<li>Linux: ensure that the gcc and gcc-c++ compliers are installed</li>
+</ul>
 </div>
 
 

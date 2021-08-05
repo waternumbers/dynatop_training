@@ -1,1 +1,6 @@
+---
+title: "Building dynatop"
+---
  
+- show build_script.R explain different lines
+- Get users to build package

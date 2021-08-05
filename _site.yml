@@ -1,4 +1,6 @@
 name: "dynatop Training"
+output_dir: "docs"
+exclude: ["eden_data"]
 navbar:
   title: "dynatop Training"
   left:
@@ -16,29 +18,30 @@ navbar:
         - text: "dynatopGIS & dynatop"
           href: dynatopGIS_dynatop.html
         - text: "Training Example"
-          href: "training_example.Rmd"
-        - text: "dynatopGIS Usage"
-        - text: "Initial GIS processing"
+          href: eden.html
+        - text: "Building a Model"
+        - text: "Initial GIS Processing"
           href: initial_gis.html
-        - text: "Building a model"
-          href: model_building.html
-        - text: "Resolution and Model Complexity"
-          href: resolution_complexity.html
-        - text: "dynatop Usage"
-        - text: "Processing Observed Series"
+        - text: "Processing Observed Data" 
           href: observed_series.html
-        - text: "Simulation"
+        - text: "Model Generation"
+          href: model_building.html
+        - text: "Resolution & Complexity"
+          href: resolution_complexity.html
+        - text: "Running a model"
+        - text: "Setting up a Simulation"
           href: simulation.html
-        - text: "Visualisation"
+        - text: "Visualising the Output"
           href: visualisation.html
-        - text: "Monte Carlo Simulations"
+        - text: "Monte-Carlo Runs"
           href: monte_carlo.html
         - text: "Developing dynatop"
-        - text: "Using Git"
+        - text: "Using github"
           href: using_github.html
         - text: "Package Structure"
-          href: package_structure.html  
-        - text: "Building the package"
+          href: package_structure.html
+        - text: "Building dynatop"
           href: building_dynatop.html
-        - text: "Altering the code"
+        - text: "Altering dynatop"
           href: altering_dynatop.html
+  
