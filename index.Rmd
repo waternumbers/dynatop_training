@@ -2,8 +2,18 @@
 title: "dynatop Training"
 ---
 
-- Provide training in the use a developemnt of dynatop
-- Who was involved
-- Funding
-- Feedback
-- Work through Progamme in order
+This course is split into two parts. The first part aims to:
+
+- Provide an outline of Dynamic TOPMODEL as implemented in the `dynatop` and
+  `dynatopGIS` packages
+- Demonstrate the use the the packages with a hands on example
+
+The second part of the course extend this building an more in depth knowledge
+by:
+
+- Look at the source code of `dynatop` by forking and cloning the software repository
+- Show the process of altering and building the source code through a hands on example
+
+<!-- - Funding -->
+<!-- - Feedback -->
+<!-- - Work through Progamme in order -->

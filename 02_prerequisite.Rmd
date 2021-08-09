@@ -1,0 +1,59 @@
+---
+title: "Prerequisites"
+---
+
+This is a course on hydrological modelling using a R software package.
+It is presumed that you have at least a basic knowledge of hydrology and
+ideally some experience of R.
+
+Useful primers for R can be found on multiple websites such as that of
+[Hadley Wickham](https://adv-r.hadley.nz/) or on
+[CRAN](https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf) but
+complete knowledge of their contents is not expected.
+
+## Software
+
+To make use of the examples on which the course is based requires
+
+- An installation of R 4.1.0 or above
+- A suitable text editor for altering the R scripts.
+
+Installation instructions for R are available from
+[CRAN](https://cran.r-project.org/) for Linux, Windows and Mac.
+
+While it is possible to complete the course using the built in R GUI's for
+Windows and Mac it is recommended to install editor with syntax
+highlighting. Popular choices include the [Rstudio
+IDE](https://www.rstudio.com/products/rstudio/download/#download), VSCode
+(Instructions
+[here](https://www.r-bloggers.com/2021/01/setup-visual-studio-code-to-run-r-on-vscode-2021/))
+or Emacs with [ESS](https://ess.r-project.org/index.php?Section=home) all of
+which provide an integrated development environment.
+
+For completing the final part of the course which focuses on developing
+dynatop further software is required. 
+
+- An installation of the git version control system
+- Tools for building R packages which include source code
+- An account on [github](https://github.com/)
+
+Details on installing git can be found on the software's [webpage](https://git-scm.com/downloads)
+.
+
+The most efficient method of installing the tools required for building R
+packages depends upon the platform:
+
+- Windows: a single tool chain
+ [Rtools](https://cran.r-project.org/bin/windows/Rtools/) is available.
+- Mac: requires Apple Xcode and GNU Fortran compiler. Details of the GNU
+  Fortran compiler version and other libraries that may be required are
+  provided on [CRAN](https://mac.r-project.org/tools/)
+- Linux: ensure that gcc and gcc-c++ compilers are installed along with the
+  boost libraries and development headers
+
+## Data
+
+[Download](eden_example.zip) the data for the examples as a zip
+file. Extracting this should give a directory "eden_data" with four
+subdirectories. In the code provided is is presumed that the working directory
+of the R session is "eden_data".

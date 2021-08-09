@@ -1,8 +1,0 @@
----
-title: "Using github"
----
-
-- git terms: fork branch clone pull push add commit
-- git workflow
-- get people to fork dynatop and clone to local machine
-- get people to edit DESCRIPTION then commit

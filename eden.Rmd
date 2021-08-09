@@ -1,8 +1,0 @@
----
-title: "River Eden Example"
----
- 
-- A bit about the Eden
-- A bit about the data
-
-

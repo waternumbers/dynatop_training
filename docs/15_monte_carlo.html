@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Monte-Carlo Runs</title>
+
+<script src="site_libs/header-attrs-2.9/header-attrs.js"></script>
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">dynatop Training</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Programme
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li class="dropdown-header">Getting Started</li>
+    <li>
+      <a href="02_prerequisite.html">Prerequisites</a>
+    </li>
+    <li class="dropdown-header">Part 1: Using dynatop &amp; dynatopGIS</li>
+    <li>
+      <a href="03_dynamic_topmodel.html">Dynamic TOPMODEL</a>
+    </li>
+    <li>
+      <a href="04_dynatopGIS_dynatop.html">dynatopGIS &amp; dynatop</a>
+    </li>
+    <li>
+      <a href="05_eden.html">Training Example</a>
+    </li>
+    <li>
+      <a href="10_initial_gis.html">Initial GIS Processing</a>
+    </li>
+    <li>
+      <a href="11_observed_series.html">Processing Observed Data</a>
+    </li>
+    <li>
+      <a href="13_model_building.html">Model Generation</a>
+    </li>
+    <li class="dropdown-header">Running a model</li>
+    <li>
+      <a href="14_model_simulation.html">Setting up a Simulation</a>
+    </li>
+    <li>
+      <a href="15_monte_carlo.html">Monte-Carlo Runs</a>
+    </li>
+    <li class="dropdown-header">Part2: Developing dynatop</li>
+    <li>
+      <a href="20_using_github.html">Using github</a>
+    </li>
+    <li>
+      <a href="21_package_structure.html">Package Structure</a>
+    </li>
+    <li>
+      <a href="22_building_dynatop.html">Building dynatop</a>
+    </li>
+    <li>
+      <a href="23_altering_dynatop.html">Altering dynatop</a>
+    </li>
+  </ul>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Monte-Carlo Runs</h1>
+
+</div>
+
+
+<div id="aim" class="section level2">
+<h2>Aim</h2>
+<p>Outline how to parallelise multiple simulations effectively on one or more machines.</p>
+</div>
+<div id="target-problem" class="section level2">
+<h2>Target Problem</h2>
+<p>The aim of this section is to address how to efficiently perform multiple independent runs of dynatop. In the code below we outline how to set up 10000 simulations with the same observed data but different parameters. Since the simulations do not interact the memory used (at least for storing the dynatop object) must be separate for each parallel simulation. This means the problem is distinct from using multiple computational processes to act on the same memory to speed up a single simulation.</p>
+</div>
+<div id="work-flow" class="section level2">
+<h2>Work Flow</h2>
+<p>A simple but effective workflow is</p>
+<ul>
+<li>Generate and save a pattern for determining which parameter values in the model are replaced by which values in the random sample</li>
+<li>Generate and save a random sample of parameter values</li>
+<li>Construct a function for evaluating the performance and saving output</li>
+<li>Write a script using the above to perform the simulation</li>
+</ul>
+</div>
+<div id="a-pattern-for-replacing-the-parameters" class="section level2">
+<h2>A Pattern for replacing the parameters</h2>
+<p>As shown <a href="./model_simulation.html">earlier</a> determining which HRU’s parameters to change can be time consuming. Rather then do this for each simulation let us specify a structure which determines which values are replace.</p>
+<pre class="r"><code>## start by loading the model for reference
+mdl &lt;- readRDS(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;atb_band_model.rds&quot;))
+## Our pattern will be the a named list.
+## The names will be the names of the values in the random sample
+## Each list element will contain the name of the data.frame in the model, the HRU id&#39;s to apply the value to and the column in the data.frame in which the value is to be placed
+pattern &lt;- list(
+  m1 = list(hru=&quot;hillslope&quot;, # which data.frame in in the model
+            id = mdl$hillslope$id[mdl$hillslope$atb_bar&lt;20], ## id&#39;s of HRU to have values replaced
+            column = &quot;m&quot;), # column to put the number in
+  m2 = list(hru=&quot;hillslope&quot;,
+            id = mdl$hillslope$id[mdl$hillslope$atb_bar&gt;=20],
+            column = &quot;m&quot;),
+  Dpth = list(hru=&quot;hillslope&quot;,
+              id = mdl$hillslope$id,
+              column = &quot;D&quot;),
+  Td = list(hru=&quot;hillslope&quot;,
+            id = mdl$hillslope$id,
+            column = &quot;t_d&quot;),
+  csf = list(hru=&quot;hillslope&quot;,
+             id = mdl$hillslope$id,
+             column = &quot;c_sf&quot;),
+  vch = list(hru=&quot;channel&quot;,
+             id = mdl$channel$id,
+             column = &quot;v_ch&quot;)
+)
+## save the pattern
+saveRDS(pattern,file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;pattern.rds&quot;))</code></pre>
+</div>
+<div id="random-sample" class="section level2">
+<h2>Random Sample</h2>
+<p>Generate a random sample of the values used in the pattern, along with a sample identifier. This is stored in a numeric matrix. Generating all the samples at once avoids many issues of repeatability and uniqueness which may arise if they are generated separately.</p>
+<pre class="r"><code>## start by loading the model for reference
+nsim &lt;- 10000
+sample &lt;- cbind(
+  sid = 1:nsim, ## the simulation identifier number
+  Td = runif(nsim,0.1,120),
+  m1 = runif(nsim,0.005,0.06),
+  m2 = runif(nsim,0.005,0.06),
+  Dpth = runif(nsim,2,10),
+  csf = runif(nsim,0.05,0.5),
+  vch = runif(nsim,0.2,1.4))
+## save the random sample
+saveRDS(sample,file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;sample.rds&quot;))</code></pre>
+</div>
+<div id="evaluation-function" class="section level2">
+<h2>Evaluation function</h2>
+<p>The purpose of the evaluation function is to</p>
+<ul>
+<li>perform the simulation</li>
+<li>evaluate the performance of the model against the observed data</li>
+<li>act to save data if required</li>
+</ul>
+<p>Below is an example of such a function</p>
+<pre class="r"><code>## normally this function would be entered into its own file.
+## Here to show it we enter it then add it to a file
+## inputs are i the index of a row of sample and the model - which is altered by the function
+## It expects the sample, pattern, obs and q0 to be present in the workspace fMC is called from
+## it does not need its own copy of these since they are not changed
+fMC &lt;- function(i,mdl){
+  x &lt;- sample[i,] # the values to substitute in
+  ## put sample values into model
+  for(ii in names(pattern)){## ii is the name of the value in x
+    p &lt;- pattern[[ii]] ## take this part of the pattern
+    mdl[[p$hru]] [ mdl[[p$hru]]$id %in% p$id, p$column ] &lt;- x[ii] ## put the value to the model
+  }
+
+  ## simulate the model
+  dt &lt;- dynatop$new(mdl)$add_data(obs)$initialise(q0)$sim()
+
+  mb &lt;- dt$get_mass_errors()
+  mb$err &lt;- rowSums(mb)
+  if( any(abs(mb$err)&gt;1) ){ ## this is an error of greater then 1m^3
+    stop(&quot;Mass Balance error in sid &quot;,x[&quot;sid&quot;])
+  }
+    
+  ##ch_in &lt;- dt$get_channel_inflow()
+  gf &lt;- dt$get_gauge_flow()
+  if(any(is.na(gf))){
+    stop(&quot;non-finite flow returned&quot;)
+  }
+  ## ns = nash-sutcliffe
+  ns &lt;- 1 - sum((obs$Sheepmount_obs-gf$Sheepmount)^2,na.rm=TRUE) /
+    sum((obs$Sheepmount_obs -mean(obs$Sheepmount_obs,na.rm=TRUE))^2,na.rm=TRUE)
+    
+  if(ns&gt;0.5){ ## if good performance save some outputs to use
+    saveRDS(
+      list(sid = x[&quot;sid&quot;],
+           gauge_flow=gf,
+           mass_balance = mb,
+           channel_inflow = dt$get_channel_inflow()),
+      file.path(&quot;.&quot;,&quot;dyna&quot;,paste0(&quot;Simulation_&quot;,x[&quot;sid&quot;],&quot;.rds&quot;))
+    )
+  }
+  
+  return(ns)
+}
+
+## save the function
+writeLines(deparse(fMC),file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;fMC.R&quot;))</code></pre>
+</div>
+<div id="execution" class="section level2">
+<h2>Execution</h2>
+<p>To run the simulations on a single R process an example script would be</p>
+<pre class="r"><code>library(dynatop)
+source( file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;fMC.R&quot;) ) ## source the function so it is available
+## load model
+mdl &lt;- readRDS(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;atb_band_model.rds&quot;))
+## load obs
+obs &lt;- readRDS(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;obs.rds&quot;))
+## load pattern
+pattern &lt;- file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;pattern.rds&quot;)
+## load sample
+sample &lt;- file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;sample.rds&quot;)
+
+q0 &lt;- obs$Sheepmount_obs[1] / sum(mdl$hillslope$area)
+
+## this wraps the fMC function to catch any errors and stop then killing the simulation 
+fout &lt;- function(i){
+  tryCatch({fMC(i,mdl)},
+           error=function(e){e$message}) ## if an error return the message
+}
+
+## use lapply to iterate over the parameter sets - this will run on a single R process
+out &lt;- lapply(seq_len(nrow(sample)), fout)
+
+## on linux/mac use mclapply to run across multiple cores on the same machine
+## alter mc.cores to match the machine being used
+## out &lt;- mclapply(L,fMC,mdl=mdl,obs=obs,mc.cores=6,mc.preschedule = FALSE)
+## on windows/linux/mac you could use parLapply but the set up is more complex
+
+
+## save out after naming with the simulation number
+names(out) &lt;- paste0(&quot;sid_&quot;,sample[,&quot;sid&quot;])
+saveRDS(out,&quot;output.rds&quot;)</code></pre>
+<p>The above script could be run from a shell command line using</p>
+<pre><code>Rscript &lt;my_script_name&gt;.R</code></pre>
+<p>many HPC job submission systems allow for the submission of <span class="math inline">\(n_j\)</span> multiple, near identical jobs, identified as job <span class="math inline">\(j\)</span> of <span class="math inline">\(n_j\)</span>.</p>
+<p>The above script can be adapted for this using command line arguments to receive <span class="math inline">\(j\)</span> and <span class="math inline">\(jn\)</span></p>
+<pre class="r"><code>
+## prices the command line arguments
+arg &lt;- as.integer(commandArgs(trailingOnly = TRUE))
+if(!all(is.finite(arg))){ stop(&quot;Invalid command line arguments&quot;) }
+j &lt;- arg[1]
+nj &lt;- arg[2]
+    
+
+library(dynatop)
+source( file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;fMC.R&quot;) ) ## source the function so it is available
+## load model
+mdl &lt;- readRDS(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;atb_band_model.rds&quot;))
+## load obs
+obs &lt;- readRDS(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;obs.rds&quot;))
+## load pattern
+pattern &lt;- file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;pattern.rds&quot;)
+## load sample
+sample &lt;- file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;sample.rds&quot;)
+
+q0 &lt;- obs$Sheepmount_obs[1] / sum(mdl$hillslope$area)
+
+## this wraps the fMC function to catch any errors and stop then killing the simulation 
+fout &lt;- function(i){
+  tryCatch({fMC(i,mdl)},
+           error=function(e){e$message}) ## if an error return the message
+}
+
+## use lapply to iterate over the parameter sets - this will run on a single R process
+idx &lt;- seq(j,nrow(sample),by=nj) ## evaluate every nj rows
+out &lt;- lapply(idx, fout)
+
+## save out after naming with the simulation number
+names(out) &lt;- paste0(&quot;sid_&quot;,sample[idx,&quot;sid&quot;])
+saveRDS(out,paste0(&quot;output_&quot;,j,&quot;.rds&quot;))</code></pre>
+<p>This script could be run from a shell command line for job <span class="math inline">\(j=1\)</span> of <span class="math inline">\(n_j=10\)</span> with</p>
+<pre><code>Rscript &lt;my_script_name&gt;.R 1 10</code></pre>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,289 @@
+---
+title: "Running a Simulation"
+---
+  
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+                    collapse = TRUE,
+                    comment = "#>"
+                  )
+knitr::opts_knit$set(root.dir = "./eden_data")
+```
+
+## Aim
+
+To simulate a Dynamic TOPMODEL of the Eden catchment, visualise the output and
+show how the parameters may be altered.
+
+## Installing required R packages
+
+No further packages are required beyond those used in processing the [GIS
+processing](./10_initial_gis.html) and [observed](./11_observed_series.html) data.
+
+## A Simulation
+
+The minimum data need to perform a simulation with dynatop is a model, such
+as that output by dynatopGIS in the [previous
+section](./13_model_build.html) and observed data in the format introduced
+[earlier](./11_observed_series.html).
+
+Load the previously created data
+
+```{r load_data}
+mdl <- readRDS(file.path(".","processed","atb_band_model.rds"))
+obs <- readRDS(file.path(".","processed","obs.rds"))
+```
+
+Attach the dynatop package so it is available in the R session then
+initialise a dynatop object by loading the model
+
+```{r load_model}
+library(dynatop)
+ctch_mdl <- dynatop$new(mdl)
+```
+This step performs some basis checks on the model for consistency.
+The data can then be added; again simple checks are performed.
+
+```{r add_data}
+ctch_mdl$add_data(obs)
+```
+
+There are two types of HRU; hill-slope and
+channel. These can be run individually with the sim_hillslope and
+sim_channel methods or sequentially with the sim method. The individual
+methods check that suitable input data is available, but not how it was generated.
+
+The initial states of the simulations can be specified in the model
+object. If, as in the case of this example, the states are not specified then
+any attempt to perform a simulation will fail.
+
+```{r sim_fail, error=TRUE, purl=FALSE}
+## expect a failure
+ctch_mdl$sim()
+```
+
+The states need to be initialised using the initialise method. This
+presumes:
+
+- The surface is dry
+- The root zone is partially full (the s_rz0 parameter)
+- There is a specified (see below) uniform maximum recharge rate representing the flow
+  from the unsaturated to saturated zone
+- the saturated zone is at a steady state
+- the unsaturated zone storage ensures that the recharge rate from the
+unsaturated zone to the saturated zone is as close to the maximum as possible
+
+The uniform maximum recharge rate is input to the method call. A simple way
+of getting an initial estimate of this is to divide the observed discharge at
+the outlet of the catchment for the first time step by the hill-slope surface area. This works best if
+the first time step has no rainfall and is close to base-flow.
+
+```{r q0}
+## determining the initial recharge rate
+q0 <- obs$Sheepmount_obs[1] / sum(mdl$hillslope$area)
+```
+
+In the following we initialise the states and then perform the simulation, using the chaining of commands.
+
+```{r initial_sim}
+ctch_mdl$initialise(q0)$sim() #plot_state("s_sz") -->
+```
+
+### Mass balance
+
+It is possible to output the mass balance for each time step of the
+simulation using the `get_mass_errors` method. The returns an xts object giving
+the volumes in the hill-slope states at the start and end of the time step along with the
+other fluxes as volumes. This can easily be used to plot the errors as shown below.
+
+```{r mass_check}
+mb <- ctch_mdl$get_mass_errors()
+head(mb) ## note the negative signs existing or outward flow to allow mass balance to be computed by summation
+mb$err <- rowSums(mb) ## the total error in m^3
+plot( mb$err , main="Mass balance error",ylab="m^3")
+```
+
+## Visualisations
+
+After a simulation it is possible to get or plot output. Three types of output
+are available:
+
+- the flow at the gauges after simulating the channel HRUs
+- the inflows to the channel HRUs after simulating the Hill-slope HRUs
+- the current states of the system after simulating the Hill-slope Grus
+
+All have methods for plotting the data or returning in as a variable as shown
+in the following
+
+### Gauge flows
+```{r gauge_flow}
+## For simulated flows at the gauge sites
+sim_gauge <- ctch_mdl$get_gauge_flow() ## extract the flow as an xts object
+head(sim_gauge)
+
+## Plot the simulated flows at the gauges
+ctch_mdl$plot_gauge_flow()
+```
+
+The observed gauge data is readily added and plotted
+```{r gauge_flow_merge}
+plot( merge(obs$Sheepmount_obs,sim_gauge),main="Simulated and observed flows",
+     legend.loc='topright')
+```
+### Channel Inflow
+
+```{r channel_flow}
+## For inflows to the Channel HRU from the Hill-slope HRUs
+
+channel_inflow <- ctch_mdl$get_channel_inflow() ## extract the flow as an xts object
+## there is one column for each Channel HRU. The column names are the Channel HRU IDs (as strings)
+## For example to see the start of the inflows to the 23,560 and 1602 channel HRUS
+head(channel_inflow[,c("23","560","1602")])
+
+## Plot the total inflow to all channel HRUs from the Hill-slopes
+ctch_mdl$plot_channel_inflow(total=TRUE)
+## setting total to FALSE plots all the channel HRUs inflows individually
+```
+
+While the total channel HRU inflow is useful it may also be desirable to see
+if the flux is coming from the surface or saturated zones. 
+
+```{r sep_channel_flow}
+## To get the inflows to the Channel HRU from the Hill-slope HRUs separated by surface and saturated zone contributions
+sep_channel_inflow <- ctch_mdl$get_channel_inflow(separate=TRUE)
+## for example the start of the inflow to the Channel HRUs with ID 23, 560 and 1602
+head(sep_channel_inflow$saturated[,c("23","560","1602")]) ## inflow from the saturated zone
+head(sep_channel_inflow$surface[,c("23","560","1602")]) ## inflow from the surface zone
+
+## For an overall picture
+ctch_mdl$plot_channel_inflow(total=TRUE,separate=TRUE)
+```
+
+### Current States
+
+The current states of the model can be extracted and plotted.
+
+```{r current_states}
+## extract the current states as a data.frame
+current_state <- ctch_mdl$get_states()
+## columns correspond to the Hill-slope HRU ID, and the storage's in each of the four zones
+head(current_state)
+
+## a single state can be plotted at one time
+ctch_mdl$plot_state("s_sz")
+```
+
+## Changing Parameters
+
+The parameters are stored in the model as which is made up of standard R
+data.frame's. 
+Using the properties within the data frame simple parameter changes are
+straightforward
+
+```{r simple_parameter_change}
+## Some simple manipulations of the Hill-slope HRU parameters
+
+## set all Hill-slope HRU exponential decay (m) parameters to 0.03
+mdl$hillslope$m <- 0.03
+
+## set all Hill-slope HRU maximum depth parameters (D) to 10m
+## where the average topographic index (atb_bar) is > 20
+mdl$hillslope$D[ mdl$hillslope$atb_bar > 20 ] <- 10
+```
+
+To change a parameter for all the HRUs with a specific value of one of the
+classification variables requires more work
+
+```{r complex_parameter_change}
+## A more complex change - set the surface velocity (c_sf) for all HRUs in band 1 to 1 m/s
+
+## First read in the band and HRU id maps
+band <- raster(file.path(".","dynaGIS","band.tif"))
+hru_id<- raster(file.path(".","dynaGIS","atb_band_model.tif"))
+## find the unique HRU id values which have a band value of 1
+u_hru_id <- unique(hru_id[band==1]) ## find unique hru id value
+## in case we want to use the information again lets add an extra column to the model hillslope table
+mdl$hillslope$in_band_1 <- FALSE ## be careful with the name in case it classes with an existing property, parameter or state
+mdl$hillslope$in_band_1[mdl$hillslope$id %in% u_hru_id] <- TRUE
+## Now change the parameter
+mdl$hillslope$c_sf[mdl$hillslope$in_band_1] <- 1
+## to see the changes
+head(mdl$hillslope,20)
+```
+
+## Extracting Intermediate States
+
+Unless requested dynatop keeps only the current state during a
+simulation. To request that states are other time steps are kept a vector of times
+must be passed in the call to the sim or sim_hillslope method
+
+```{r keep_states}
+## Let us repeat the same simulation
+## keeping the states for every other time step
+keep_times <- index(obs)[seq(2,nrow(obs),by=2)] ## an vector of time steps
+ctch_mdl$initialise(q0)$sim(keep_states=keep_times) ## passing the vector of time steps to the call
+```
+
+The record of the states can know be extracted. While there is an entry for
+every time step only those request will be populated
+
+```{r state_record}
+## extract the record of the states at each time step
+state_rec <- ctch_mdl$get_states(record=TRUE) ## returns the whole record of states
+head(names(state_rec)) ## the elements in state_rec are named after the time
+head(state_rec[[format(keep_times[1])]]) ## those in keep_times are populated
+head(state_rec[[format(index(obs)[1])]]) ## those not in keep_times are empty
+```
+
+The visualisation of the state record is possible either as a time series
+
+```{r time_series_states}
+## Create a time series plot of the saturated zone deficit
+s_sz_rec <- lapply(state_rec,function(x){x$s_sz}) ## extra the saturated deficit from each time step
+s_sz_rec <- do.call(rbind,s_sz_rec) ## convert them into a matrix
+head(rownames(s_sz_rec)) ## the row names are the the times carried over from the names in state_rec
+s_sz_rec <- as.xts(s_sz_rec) ## convert to and xts object using the rownames as times
+names(s_sz_rec) <- paste(state_rec[[format(keep_times[1])]]$id) ## give column names as the HRU id
+## for a the Hill-slope HRUs with IDs 2487, 3598 and 5201 the start of the time series are
+head(s_sz_rec[,c("2487","3598","5201")])
+## and a plot can be generated
+plot(s_sz_rec[,c("2487","3598","5201")],main="Saturated zone deficit for select HRU",legend.loc="topright")
+```
+
+or as a map
+
+```{r time_series_states_map}
+## Create a map of the root zone storage at 2020-02-03 02:00:00
+s_rz_val <- state_rec[["2020-02-03 02:00:00"]][,c("id","s_rz")] ## extract the id and rz storage
+## create a map of values by substituting s_rz for the id in the hru_id map
+s_rz_map<- raster::subs(hru_id, s_rz_val) ## substitute values into the map of HRU id numbers
+## and plot
+plot(s_rz_map,main="Root zone storage at 2020-02-03 02:00:00")
+```
+
+## Hot Starting and Saving
+
+Hot starting; that is starting a simulation with the final states of a
+previous simulation can be achieved by simply not re-initialising the
+dynatop object before the next call to sim
+
+```{r sim2}
+## initialise and simulate the model
+ctch_mdl$initialise(q0)$sim()
+head(ctch_mdl$get_states()) ## state values after the initial run
+## run again without initialising
+## This will use the final states of the last simulation as the starting states
+ctch_mdl$sim()
+head(ctch_mdl$get_states()) ## different state values after the second run
+```
+
+If you want to save the model and current states at the end of a simulation do
+not save the dynatop object. Instead extract and save he model including the
+current states and save that.
+
+```{r get_model}
+new_mdl <- ctch_mdl$get_model() ## get the model structure from the dynatop object
+head(new_mdl$hillslope) ## as the original model but will final states included
+```
+
+

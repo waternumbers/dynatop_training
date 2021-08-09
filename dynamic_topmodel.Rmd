@@ -1,8 +1,0 @@
----
-title: "Dynamic TOPMODEL"
----
-
-- background
-- seperation of landscape
-- idea of HRUs
-- idea of flexible modular toolkit

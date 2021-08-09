@@ -1,0 +1,30 @@
+This folder contains the some fo the orginal data and measn to create the
+input data used for the training
+
+File Lists
+----
+
+Flow data : 
+
+Corresponding_obs.mat - Matlab .mat file containing water levels as used in
+Smith etal. JFRM 2013
+Eden_Ratings.csv - rating curves for gauges on the River Eden. Processed from
+data made available to the QNFM project
+EdenSheepmout_Q.csv - Flow at Sheepmount from QNFM project
+create_obs_csv_desmond.R - Process Corresponding_obs.mat and Eden_Ratings.csv to flow
+series for storm desmond *NOT FINISHED*
+create_obs_csv.R - Repackages EdenSheepmount_Q.csv
+
+Catchment maps from NFRA:
+
+76007: Eden at Sheepmount
+76003: Eamont at Udford
+76005: Eden at Temple Sowerby
+76017: Eden at Great Corby
+76008: Irthing at Greenholme
+76010: Petteril at Harraby Green
+76022: Caldew at Cummersdale
+
+process_spatial.R - processes larger spatail data - relies of files outside
+the repository
+

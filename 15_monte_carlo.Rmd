@@ -1,0 +1,245 @@
+---
+title: "Monte-Carlo Runs"
+---
+  
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+                    collapse = TRUE,
+                    comment = "#>"
+                  )
+knitr::opts_knit$set(root.dir = "./eden_data")
+```
+
+## Aim
+
+Outline how to parallelise multiple simulations effectively on one or more machines.
+
+## Target Problem
+
+The aim of this section is to address how to efficiently perform multiple
+independent runs of dynatop. In the code below we outline how to set up 10000
+simulations with the same observed data but different parameters. Since the
+simulations do not interact the memory used (at least for storing the dynatop
+object) must be separate for each parallel simulation. This means the problem
+is distinct from using multiple computational processes to act on the same
+memory to speed up a single simulation.
+
+## Work Flow
+
+A simple but effective workflow is
+
+- Generate and save a pattern for determining which parameter values in the model are
+replaced by which values in the random sample
+- Generate and save a random sample of parameter values
+- Construct a function for evaluating the performance and saving output
+- Write a script using the above to perform the simulation
+
+## A Pattern for replacing the parameters
+
+As shown [earlier](./model_simulation.html) determining which HRU's parameters
+to change can be time consuming. Rather then do this for each simulation let
+us specify a structure which determines which values are replace.
+
+```{r pattern}
+## start by loading the model for reference
+mdl <- readRDS(file.path(".","processed","atb_band_model.rds"))
+## Our pattern will be the a named list.
+## The names will be the names of the values in the random sample
+## Each list element will contain the name of the data.frame in the model, the HRU id's to apply the value to and the column in the data.frame in which the value is to be placed
+pattern <- list(
+  m1 = list(hru="hillslope", # which data.frame in in the model
+            id = mdl$hillslope$id[mdl$hillslope$atb_bar<20], ## id's of HRU to have values replaced
+            column = "m"), # column to put the number in
+  m2 = list(hru="hillslope",
+            id = mdl$hillslope$id[mdl$hillslope$atb_bar>=20],
+            column = "m"),
+  Dpth = list(hru="hillslope",
+              id = mdl$hillslope$id,
+              column = "D"),
+  Td = list(hru="hillslope",
+            id = mdl$hillslope$id,
+            column = "t_d"),
+  csf = list(hru="hillslope",
+             id = mdl$hillslope$id,
+             column = "c_sf"),
+  vch = list(hru="channel",
+             id = mdl$channel$id,
+             column = "v_ch")
+)
+## save the pattern
+saveRDS(pattern,file.path(".","dyna","pattern.rds"))
+```
+
+## Random Sample
+
+Generate a random sample of the values used in the pattern, along with a
+sample identifier. This is stored in a numeric matrix. Generating all the samples
+at once avoids many issues of repeatability and uniqueness which may arise if
+they are generated separately.
+
+```{r sample}
+## start by loading the model for reference
+nsim <- 10000
+sample <- cbind(
+  sid = 1:nsim, ## the simulation identifier number
+  Td = runif(nsim,0.1,120),
+  m1 = runif(nsim,0.005,0.06),
+  m2 = runif(nsim,0.005,0.06),
+  Dpth = runif(nsim,2,10),
+  csf = runif(nsim,0.05,0.5),
+  vch = runif(nsim,0.2,1.4))
+## save the random sample
+saveRDS(sample,file.path(".","dyna","sample.rds"))
+```
+
+## Evaluation function
+
+The purpose of the evaluation function is to 
+
+- perform the simulation
+- evaluate the performance of the model against the observed data
+- act to save data if required
+
+Below is an example of such a function
+
+```{r perf}
+## normally this function would be entered into its own file.
+## Here to show it we enter it then add it to a file
+## inputs are i the index of a row of sample and the model - which is altered by the function
+## It expects the sample, pattern, obs and q0 to be present in the workspace fMC is called from
+## it does not need its own copy of these since they are not changed
+fMC <- function(i,mdl){
+  x <- sample[i,] # the values to substitute in
+  ## put sample values into model
+  for(ii in names(pattern)){## ii is the name of the value in x
+    p <- pattern[[ii]] ## take this part of the pattern
+    mdl[[p$hru]] [ mdl[[p$hru]]$id %in% p$id, p$column ] <- x[ii] ## put the value to the model
+  }
+
+  ## simulate the model
+  dt <- dynatop$new(mdl)$add_data(obs)$initialise(q0)$sim()
+
+  mb <- dt$get_mass_errors()
+  mb$err <- rowSums(mb)
+  if( any(abs(mb$err)>1) ){ ## this is an error of greater then 1m^3
+    stop("Mass Balance error in sid ",x["sid"])
+  }
+    
+  ##ch_in <- dt$get_channel_inflow()
+  gf <- dt$get_gauge_flow()
+  if(any(is.na(gf))){
+    stop("non-finite flow returned")
+  }
+  ## ns = nash-sutcliffe
+  ns <- 1 - sum((obs$Sheepmount_obs-gf$Sheepmount)^2,na.rm=TRUE) /
+    sum((obs$Sheepmount_obs -mean(obs$Sheepmount_obs,na.rm=TRUE))^2,na.rm=TRUE)
+    
+  if(ns>0.5){ ## if good performance save some outputs to use
+    saveRDS(
+      list(sid = x["sid"],
+           gauge_flow=gf,
+           mass_balance = mb,
+           channel_inflow = dt$get_channel_inflow()),
+      file.path(".","dyna",paste0("Simulation_",x["sid"],".rds"))
+    )
+  }
+  
+  return(ns)
+}
+
+## save the function
+writeLines(deparse(fMC),file.path(".","dyna","fMC.R"))
+```
+
+## Execution
+
+To run the simulations on a single R process an example script would be
+
+```{r basic_eval, eval=FALSE}
+library(dynatop)
+source( file.path(".","dyna","fMC.R") ) ## source the function so it is available
+## load model
+mdl <- readRDS(file.path(".","processed","atb_band_model.rds"))
+## load obs
+obs <- readRDS(file.path(".","processed","obs.rds"))
+## load pattern
+pattern <- file.path(".","dyna","pattern.rds")
+## load sample
+sample <- file.path(".","dyna","sample.rds")
+
+q0 <- obs$Sheepmount_obs[1] / sum(mdl$hillslope$area)
+
+## this wraps the fMC function to catch any errors and stop then killing the simulation 
+fout <- function(i){
+  tryCatch({fMC(i,mdl)},
+           error=function(e){e$message}) ## if an error return the message
+}
+
+## use lapply to iterate over the parameter sets - this will run on a single R process
+out <- lapply(seq_len(nrow(sample)), fout)
+
+## on linux/mac use mclapply to run across multiple cores on the same machine
+## alter mc.cores to match the machine being used
+## out <- mclapply(L,fMC,mdl=mdl,obs=obs,mc.cores=6,mc.preschedule = FALSE)
+## on windows/linux/mac you could use parLapply but the set up is more complex
+
+
+## save out after naming with the simulation number
+names(out) <- paste0("sid_",sample[,"sid"])
+saveRDS(out,"output.rds")
+```
+
+The above script could be run from a shell command line using 
+
+```
+Rscript <my_script_name>.R
+```
+
+many HPC job submission systems allow for the submission of $n_j$ multiple, near
+identical jobs, identified as job $j$ of $n_j$.
+
+The above script can be adapted for this using command line arguments to
+receive $j$ and $jn$
+
+```{r parallel_job, eval=FALSE}
+
+## prices the command line arguments
+arg <- as.integer(commandArgs(trailingOnly = TRUE))
+if(!all(is.finite(arg))){ stop("Invalid command line arguments") }
+j <- arg[1]
+nj <- arg[2]
+    
+
+library(dynatop)
+source( file.path(".","dyna","fMC.R") ) ## source the function so it is available
+## load model
+mdl <- readRDS(file.path(".","processed","atb_band_model.rds"))
+## load obs
+obs <- readRDS(file.path(".","processed","obs.rds"))
+## load pattern
+pattern <- file.path(".","dyna","pattern.rds")
+## load sample
+sample <- file.path(".","dyna","sample.rds")
+
+q0 <- obs$Sheepmount_obs[1] / sum(mdl$hillslope$area)
+
+## this wraps the fMC function to catch any errors and stop then killing the simulation 
+fout <- function(i){
+  tryCatch({fMC(i,mdl)},
+           error=function(e){e$message}) ## if an error return the message
+}
+
+## use lapply to iterate over the parameter sets - this will run on a single R process
+idx <- seq(j,nrow(sample),by=nj) ## evaluate every nj rows
+out <- lapply(idx, fout)
+
+## save out after naming with the simulation number
+names(out) <- paste0("sid_",sample[idx,"sid"])
+saveRDS(out,paste0("output_",j,".rds"))
+```
+
+This script could be run from a shell command line for job $j=1$ of $n_j=10$ with
+
+```
+Rscript <my_script_name>.R 1 10
+```

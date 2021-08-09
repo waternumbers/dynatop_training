@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Model Building</title>
+
+<script src="site_libs/header-attrs-2.9/header-attrs.js"></script>
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">dynatop Training</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Programme
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li class="dropdown-header">Getting Started</li>
+    <li>
+      <a href="02_prerequisite.html">Prerequisites</a>
+    </li>
+    <li class="dropdown-header">Part 1: Using dynatop &amp; dynatopGIS</li>
+    <li>
+      <a href="03_dynamic_topmodel.html">Dynamic TOPMODEL</a>
+    </li>
+    <li>
+      <a href="04_dynatopGIS_dynatop.html">dynatopGIS &amp; dynatop</a>
+    </li>
+    <li>
+      <a href="05_eden.html">Training Example</a>
+    </li>
+    <li>
+      <a href="10_initial_gis.html">Initial GIS Processing</a>
+    </li>
+    <li>
+      <a href="11_observed_series.html">Processing Observed Data</a>
+    </li>
+    <li>
+      <a href="13_model_building.html">Model Generation</a>
+    </li>
+    <li class="dropdown-header">Running a model</li>
+    <li>
+      <a href="14_model_simulation.html">Setting up a Simulation</a>
+    </li>
+    <li>
+      <a href="15_monte_carlo.html">Monte-Carlo Runs</a>
+    </li>
+    <li class="dropdown-header">Part2: Developing dynatop</li>
+    <li>
+      <a href="20_using_github.html">Using github</a>
+    </li>
+    <li>
+      <a href="21_package_structure.html">Package Structure</a>
+    </li>
+    <li>
+      <a href="22_building_dynatop.html">Building dynatop</a>
+    </li>
+    <li>
+      <a href="23_altering_dynatop.html">Altering dynatop</a>
+    </li>
+  </ul>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Model Building</h1>
+
+</div>
+
+
+<div id="aim" class="section level2">
+<h2>Aim</h2>
+<p>To process the GIS data into a Dynamic TOPMODEL structure of the Eden catchment and to show how to adapt this.</p>
+</div>
+<div id="installing-required-r-packages" class="section level2">
+<h2>Installing required R packages</h2>
+<p>This exercise builds upon the early <a href="./10_initial_gis.html">initial GIS processing</a>, using the outputs generated during that exercise. As well as the packages already used you will require the dynatopGIS package. This can be installed with</p>
+<pre class="r"><code>install.packages(&quot;dynatopGIS&quot;, repos = c(&quot;https://waternumbers.github.io/drat&quot;, &quot;http://cran.rstudio.com&quot;))</code></pre>
+</div>
+<div id="getting-started" class="section level2">
+<h2>Getting started</h2>
+<p>The dynatopGIS packages works through a number of steps to generate a dynamic TOPMODEL object suitable for use in with the dynatop package. Each step generates one or more layers which are saved as raster or shape files into the projects working directory (which is not necessarily the R working directory). A record of these layers is kept in the json format meta data file.</p>
+<p>To start first load the library</p>
+<pre class="r"><code>library(&quot;dynatopGIS&quot;)</code></pre>
+<p>Initialise the analysis by creating a new dynatopGIS object specifying the location of the meta data file, which will be created if it doesn’t exist.</p>
+<pre class="r"><code>ctch &lt;- dynatopGIS$new(file.path(&quot;.&quot;,&quot;dynaGIS&quot;,&quot;meta.json&quot;))
+#&gt; Warning in initialize(...): Creating meta file at./dynaGIS/meta.json
+#&gt; Warning in private$check_meta(verbose): No checks on the meta are currently
+#&gt; performed</code></pre>
+</div>
+<div id="adding-catchment-data" class="section level2">
+<h2>Adding catchment data</h2>
+<p>The basis of the analysis is a raster Digital Elevation Model (DEM) of the catchment and a vector representation of the river network with attributes. Currently these can be in any format supported by the raster and sp packages respectively.</p>
+<p>However, within the calculations used for sink filling, flow routing and topographic index calculations the DEM is presumed to be projected so that is has square cells such that the difference between the cell centres (in meters) does not alter.</p>
+<p>Either the DEM or channel files can be added to the project first. In this case add the DEM processed during the initial GIS analysis:</p>
+<pre class="r"><code>ctch$add_dem(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;dem.tif&quot;))
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+#&gt; Loading required namespace: igraph
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition</code></pre>
+<p>As part of loading the DEM any blocks of <code>NA</code> values within the DEM are filled to appear as sinks. This can be turned off which may significantly speed up the loading of large DEM’s.</p>
+<blockquote>
+<p><strong>Note</strong> An additional row and column of <code>NA</code> values is added to each edge of the DEM. All raster layers in the project have the same projection, resolution and extent of the extended DEM.</p>
+</blockquote>
+<p>Adding river channel data is more complex. The add_channel method requires a R object of class SpatialLinesDataFrame or SpatialPolygonsDataFrame (see the sp package for details of these classes) which represent either spatial lines or polygons with attribute data. Each line or polygon results in a single Channel HRU. The data.frame of attributes must contain the following properties</p>
+<ul>
+<li>a label for the downstream end of the river length</li>
+<li>a label for the upstream end of the river length</li>
+<li>the length in meters</li>
+</ul>
+<p>The names of the columns in the data.frame containing the required properties are specified through the property_names input to the add_channel method.</p>
+<p>If the channel data is specified using spatial lines an optional extra property; the width of the channel; can be provided. If this is not provided and is required the value of the default_width input to the add_channel method is used.</p>
+<blockquote>
+<p><strong>NOTE</strong> All further columns of the data.frame are kept without change by the add_channel method with the exception of columns names id. This are copied to a column named original_id with a warning since the name id is used internally.</p>
+</blockquote>
+<p>Looking at the data from the example</p>
+<pre class="r"><code>channel &lt;- shapefile(file.path(&quot;.&quot;,&quot;unprocessed&quot;,&quot;Eden_River_Network&quot;))
+#&gt; Warning in OGRSpatialRef(dsn, layer, morphFromESRI = morphFromESRI, dumpSRS =
+#&gt; dumpSRS, : Discarded datum OSGB_1936 in Proj4 definition: +proj=tmerc +lat_0=49
+#&gt; +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs
+head(channel@data)
+#&gt;            name1                           identifier
+#&gt; 0           &lt;NA&gt; 71496043-333C-4644-814E-B3149484421A
+#&gt; 1 Rowantree Gill C1E710A3-ED27-4F9A-BF57-9E2314535C60
+#&gt; 2      Lady Sike 0B92A0E8-4B7B-43D0-9C01-CECD46AD3942
+#&gt; 3           &lt;NA&gt; 223E669F-BC1A-4610-B0C4-D77DC60F805B
+#&gt; 4    Potter Sike D0D77BE7-8F5F-45A8-9AD4-9EABE2534027
+#&gt; 5     Molds Sike EB6B86F7-4DDD-4FEC-BA86-EAA608D2DF52
+#&gt;                              startNode                              endNode
+#&gt; 0 785AA707-7ACC-433F-8418-BDDA18FABB2C FD4A9B62-950E-4362-B4AC-0713D63B99D1
+#&gt; 1 FD4A9B62-950E-4362-B4AC-0713D63B99D1 323B8FBC-8D31-4130-B924-A236F14BC96D
+#&gt; 2 76150301-B4E4-4B35-8CB0-C562296976A1 41DAD94A-AF47-4302-96B6-06F390CA0D5E
+#&gt; 3 2AF34735-BB17-4A00-BED6-B158A3F3C2A8 86D4F84F-FEDF-42C1-B041-A314D1A45EAD
+#&gt; 4 23347D8B-CEAA-460E-8851-96B8EE7291DC 41DAD94A-AF47-4302-96B6-06F390CA0D5E
+#&gt; 5 86D4F84F-FEDF-42C1-B041-A314D1A45EAD 3AD38B31-B2E8-492C-A4BA-D05440776857
+#&gt;          form         flow fictitious length name2
+#&gt; 0 inlandRiver in direction      false     31  &lt;NA&gt;
+#&gt; 1 inlandRiver in direction      false    986  &lt;NA&gt;
+#&gt; 2 inlandRiver in direction      false    321  &lt;NA&gt;
+#&gt; 3 inlandRiver in direction      false    743  &lt;NA&gt;
+#&gt; 4 inlandRiver in direction      false    263  &lt;NA&gt;
+#&gt; 5 inlandRiver in direction      false     71  &lt;NA&gt;</code></pre>
+<p>we see that all the required properties are present, but no width is given. Using a constant width of 5 meters for all channels can be achieved by setting</p>
+<pre class="r"><code>ctch$add_channel(channel,property_names = c(length = &quot;length&quot;, startNode = &quot;startNode&quot;, endNode = &quot;endNode&quot;),default_width=5)
+#&gt; Warning in private$apply_add_channel(channel, property_names, default_width):
+#&gt; Modifying to spatial polygons using default width</code></pre>
+<p>Alternatively an additional column containg the width could be added to the channel data.</p>
+<pre class="r"><code>channel$width &lt;- 5 ## add column of widths to data frame, could be variable values
+## add channels with a constant width of 5m
+ctch$add_channel(channel)
+## this is short for
+## ctch$add_channel(channel,property_names = c(length = &quot;length&quot;, startNode = &quot;startNode&quot;, endNode = &quot;endNode&quot;,width=&quot;width&quot;))
+## since the default value of property_names are valid</code></pre>
+</div>
+<div id="computing-basic-properties" class="section level2">
+<h2>Computing Basic Properties</h2>
+<p>So far, the DEM and channel data exist in isolation. Next, we compute some basic summaries for each cell in the DEM, specifically: - land area - the area in the DEM cell covered by land - channel area - the area in the DEM cell covered by channel - channel id - the id of the channel within the cell, corresponding to the id in the channel object.</p>
+<p>If multiple river lengths intersect a DEM cell the properties of the channel length with the largest area of intersection are used.</p>
+<p>This computation is done by calling</p>
+<pre class="r"><code>ctch$compute_areas()
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+#&gt; Warning in OGRSpatialRef(dsn, layer, morphFromESRI = morphFromESRI, dumpSRS =
+#&gt; dumpSRS, : Discarded datum OSGB_1936 in Proj4 definition: +proj=tmerc +lat_0=49
+#&gt; +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs
+#&gt; Warning in .local(x, ...): This function is only useful for Raster* objects with
+#&gt; a longitude/latitude coordinates
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition</code></pre>
+</div>
+<div id="getting-and-plotting-catchment-information" class="section level2">
+<h2>Getting and plotting catchment information</h2>
+<p>The dynatopGIS class has methods for returning and plotting the GIS data in the project. The names of all the different GIS layers stored by dynatopGIS is returned by</p>
+<pre class="r"><code>ctch$get_layer()
+#&gt; [1] &quot;dem&quot;          &quot;channel&quot;      &quot;land_area&quot;    &quot;channel_area&quot; &quot;channel_id&quot;</code></pre>
+<p>The complete meta data which includes the paths to the files for each layer can be retrieved with</p>
+<pre class="r"><code>head(ctch$get_meta())
+#&gt; $crs
+#&gt; CRS arguments:
+#&gt;  +proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000
+#&gt; +y_0=-100000 +ellps=airy +units=m +no_defs 
+#&gt; 
+#&gt; $extent
+#&gt; class      : Extent 
+#&gt; xmin       : 325900 
+#&gt; xmax       : 389000 
+#&gt; ymin       : 495350 
+#&gt; ymax       : 581850 
+#&gt; 
+#&gt; $resolution
+#&gt; [1] 100 100
+#&gt; 
+#&gt; $layers
+#&gt; $layers$dem
+#&gt; $layers$dem$type
+#&gt; [1] &quot;reserved&quot;
+#&gt; 
+#&gt; $layers$dem$file
+#&gt; [1] &quot;/home/paul/Documents/Software/dynatop_training/eden_data/dynaGIS/dem.tif&quot;
+#&gt; 
+#&gt; 
+#&gt; $layers$channel
+#&gt; $layers$channel$type
+#&gt; [1] &quot;reserved&quot;
+#&gt; 
+#&gt; $layers$channel$file
+#&gt; [1] &quot;/home/paul/Documents/Software/dynatop_training/eden_data/dynaGIS/channel.shp&quot;
+#&gt; 
+#&gt; 
+#&gt; $layers$filled_dem
+#&gt; $layers$filled_dem$type
+#&gt; [1] &quot;reserved&quot;
+#&gt; 
+#&gt; $layers$filled_dem$file
+#&gt; list()
+#&gt; 
+#&gt; 
+#&gt; $layers$land_area
+#&gt; $layers$land_area$type
+#&gt; [1] &quot;reserved&quot;
+#&gt; 
+#&gt; $layers$land_area$file
+#&gt; [1] &quot;/home/paul/Documents/Software/dynatop_training/eden_data/dynaGIS/land_area.tif&quot;
+#&gt; 
+#&gt; 
+#&gt; $layers$channel_area
+#&gt; $layers$channel_area$type
+#&gt; [1] &quot;reserved&quot;
+#&gt; 
+#&gt; $layers$channel_area$file
+#&gt; [1] &quot;/home/paul/Documents/Software/dynatop_training/eden_data/dynaGIS/channel_area.tif&quot;
+#&gt; 
+#&gt; 
+#&gt; $layers$channel_id
+#&gt; $layers$channel_id$type
+#&gt; [1] &quot;reserved&quot;
+#&gt; 
+#&gt; $layers$channel_id$file
+#&gt; [1] &quot;/home/paul/Documents/Software/dynatop_training/eden_data/dynaGIS/channel_id.tif&quot;
+#&gt; 
+#&gt; 
+#&gt; $layers$gradient
+#&gt; $layers$gradient$type
+#&gt; [1] &quot;reserved&quot;
+#&gt; 
+#&gt; $layers$gradient$file
+#&gt; list()
+#&gt; 
+#&gt; 
+#&gt; $layers$upslope_area
+#&gt; $layers$upslope_area$type
+#&gt; [1] &quot;reserved&quot;
+#&gt; 
+#&gt; $layers$upslope_area$file
+#&gt; list()
+#&gt; 
+#&gt; 
+#&gt; $layers$atb
+#&gt; $layers$atb$type
+#&gt; [1] &quot;reserved&quot;
+#&gt; 
+#&gt; $layers$atb$file
+#&gt; list()
+#&gt; 
+#&gt; 
+#&gt; $layers$band
+#&gt; $layers$band$type
+#&gt; [1] &quot;reserved&quot;
+#&gt; 
+#&gt; $layers$band$file
+#&gt; list()
+#&gt; 
+#&gt; 
+#&gt; $layers$shortest_flow_length
+#&gt; $layers$shortest_flow_length$type
+#&gt; [1] &quot;reserved&quot;
+#&gt; 
+#&gt; $layers$shortest_flow_length$file
+#&gt; list()
+#&gt; 
+#&gt; 
+#&gt; $layers$dominant_flow_length
+#&gt; $layers$dominant_flow_length$type
+#&gt; [1] &quot;reserved&quot;
+#&gt; 
+#&gt; $layers$dominant_flow_length$file
+#&gt; list()
+#&gt; 
+#&gt; 
+#&gt; $layers$expected_flow_length
+#&gt; $layers$expected_flow_length$type
+#&gt; [1] &quot;reserved&quot;
+#&gt; 
+#&gt; $layers$expected_flow_length$file
+#&gt; list()</code></pre>
+<p>Individual layers can be plotted (with or without the channel), for example</p>
+<pre class="r"><code>ctch$plot_layer(&quot;dem&quot;, add_channel=TRUE)
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+#&gt; Warning in OGRSpatialRef(dsn, layer, morphFromESRI = morphFromESRI, dumpSRS =
+#&gt; dumpSRS, : Discarded datum OSGB_1936 in Proj4 definition: +proj=tmerc +lat_0=49
+#&gt; +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs</code></pre>
+<p><img src="13_model_building_files/figure-html/plot-1.png" width="672" /></p>
+<p>or returned to the R workspace, for example</p>
+<pre class="r"><code>ctch$get_layer(&quot;dem&quot;)
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+#&gt; class      : RasterLayer 
+#&gt; dimensions : 865, 631, 545815  (nrow, ncol, ncell)
+#&gt; resolution : 100, 100  (x, y)
+#&gt; extent     : 325900, 389000, 495350, 581850  (xmin, xmax, ymin, ymax)
+#&gt; crs        : +proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs 
+#&gt; source     : dem.tif 
+#&gt; names      : dem 
+#&gt; values     : 9.475, 923.425  (min, max)</code></pre>
+</div>
+<div id="filling-sinks" class="section level2">
+<h2>Filling sinks</h2>
+<p>For the hill slope to be connected to the river network all DEM cells must drain to those that intersect with the river network.</p>
+<p>The algorithm implemented in the sink_fill method ensures this is the case. Since the algorithm is iterative the execution time of the function is limited by capping the maximum number of iterations. If this limit is reached without completion the method can call again with the “hot start” option to continue from where it finished.</p>
+<p>For the Eden the DEM is already well conditions and the algorithm only alters a small areas of the catchment.</p>
+<pre class="r"><code>ctch$sink_fill()
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+raster::plot( ctch$get_layer(&#39;filled_dem&#39;) - ctch$get_layer(&#39;dem&#39;),
+             main=&quot;Changes to height&quot;)
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition</code></pre>
+<p><img src="13_model_building_files/figure-html/sink_fill-1.png" width="672" /></p>
+</div>
+<div id="computing-properties" class="section level2">
+<h2>Computing properties</h2>
+<p>Two sets of properties are required for Dynamic TOPMODEL. The first set is those required within the evaluation of the Hill slope HRU; gradient and contour length. The second set are those used for dividing the catchment up into different response classes. Traditionally the summary used for the separation of the classes is the topographic index, which is the natural logarithm of the up slope area divided by gradient.</p>
+<p>These properties are computed using the formulae in <a href="https://doi.org/10.1002/hyp.3360050106">Quinn et al. 1991</a>.</p>
+<p>The upstream area is computed by routing down slope with the fraction of the area being routed to the next downstream pixel being proportional to the gradient times the contour length.</p>
+<p>The local value of the gradient is computed using the average of a subset of between pixel gradients. For a normal ‘hill slope’ cell these are the gradients to down-slope pixels weighted by contour length. In the case of pixels which contain river channels the average of the gradients from up-slope pixels weighted by contour length us used.</p>
+<p>These properties are computed in an algorithm that passes over the data once in descending height. It is called as follows</p>
+<pre class="r"><code>ctch$compute_properties()
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition</code></pre>
+<p>The plot of the topographic index shows a pattern of increasing values closer to the river channels</p>
+<pre class="r"><code>##plot of topographic index (log(a/tan b))
+ctch$plot_layer(&#39;atb&#39;)
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+#&gt; Warning in OGRSpatialRef(dsn, layer, morphFromESRI = morphFromESRI, dumpSRS =
+#&gt; dumpSRS, : Discarded datum OSGB_1936 in Proj4 definition: +proj=tmerc +lat_0=49
+#&gt; +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs</code></pre>
+<p><img src="13_model_building_files/figure-html/plot_atb-1.png" width="672" /></p>
+</div>
+<div id="adding-additional-layers" class="section level2">
+<h2>Adding additional Layers</h2>
+<p>Properties for use in the classification of HRUs or for determining input series may be added as additional raster GIS layers.</p>
+<p>In the initial GIS analysis two layers where generated, one of sub-catchments and one of urban areas. To add these we first need to extend them to match the extent of the DEM which is padded with NA on import by dynatopGIS:</p>
+<pre class="r"><code>## read in urban areas raster
+tmp &lt;- raster(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;urban.tif&quot;))
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+tmp &lt;- extend(tmp,1,NA) ## extent with a row/column of NA on each edge
+writeRaster(tmp,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;extended_urban.tif&quot;)) ## write out
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+## similar for the sub-catchments
+tmp &lt;- raster(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;eden.tif&quot;))
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+tmp &lt;- extend(tmp,1,NA) ## extent with a row/column of NA on each edge
+writeRaster(tmp,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;extended_eden.tif&quot;)) ## write out
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition</code></pre>
+<p>These can now be added to the dynatopGIS catchment representation</p>
+<pre class="r"><code>ctch$add_layer(&quot;urban&quot;,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;extended_urban.tif&quot;))
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+ctch$add_layer(&quot;subcatch&quot;,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;extended_eden.tif&quot;))
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition</code></pre>
+<p>A similar process allows the grid of rainfall series identifiers to be added</p>
+<pre class="r"><code>tmp &lt;- raster(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;precip_id.tif&quot;))
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+tmp &lt;- extend(tmp,1,NA) ## extent with a row/column of NA on each edge
+writeRaster(tmp,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;extended_precip_id.tif&quot;)) ## write out
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+ctch$add_layer(&quot;precip_id&quot;,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;extended_precip_id.tif&quot;)) ## add to dynatopGIS catchment
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition</code></pre>
+<p>Calling the get_layer method shows these are added to the project</p>
+<pre class="r"><code>ctch$get_layer()
+#&gt;  [1] &quot;dem&quot;          &quot;channel&quot;      &quot;filled_dem&quot;   &quot;land_area&quot;    &quot;channel_area&quot;
+#&gt;  [6] &quot;channel_id&quot;   &quot;gradient&quot;     &quot;upslope_area&quot; &quot;atb&quot;          &quot;urban&quot;       
+#&gt; [11] &quot;subcatch&quot;     &quot;precip_id&quot;</code></pre>
+</div>
+<div id="flow-distances-and-ordering" class="section level1">
+<h1>Flow distances and ordering</h1>
+<p>Since dynatop simulations make use of ordered HRUs, a metric is required to perform the ordering. The calculation of four such metrics is supported</p>
+<ul>
+<li><em>shortest flow length</em> - the shortest length based on the pixel flow paths to a channel</li>
+<li><em>Dominant flow length</em> - the distance to a channel moving in the dominant (largest fraction) flow direction from any grid cell</li>
+<li><em>Expected flow length</em> - the distance to the channel based on a weighted average of the down-slope flow lengths. Weights are given by the fraction of flow in each direction.</li>
+<li><em>Band</em> - A strict computational order, starting at the channel and arranged such that if all pixels in band <span class="math inline">\(i+1,i+2,\ldots\)</span> are evaluated the inflows to band <span class="math inline">\(i\)</span> are known.</li>
+</ul>
+<p>The computation is initiated with</p>
+<pre class="r"><code>ctch$compute_flow_lengths()
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition</code></pre>
+<p>The additional layers can be examined as expected –&gt;</p>
+<pre class="r"><code>ctch$get_layer()
+#&gt;  [1] &quot;dem&quot;                  &quot;channel&quot;              &quot;filled_dem&quot;          
+#&gt;  [4] &quot;land_area&quot;            &quot;channel_area&quot;         &quot;channel_id&quot;          
+#&gt;  [7] &quot;gradient&quot;             &quot;upslope_area&quot;         &quot;atb&quot;                 
+#&gt; [10] &quot;band&quot;                 &quot;shortest_flow_length&quot; &quot;dominant_flow_length&quot;
+#&gt; [13] &quot;expected_flow_length&quot; &quot;urban&quot;                &quot;subcatch&quot;            
+#&gt; [16] &quot;precip_id&quot;
+ctch$plot_layer(&quot;band&quot;)
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+#&gt; Warning in OGRSpatialRef(dsn, layer, morphFromESRI = morphFromESRI, dumpSRS =
+#&gt; dumpSRS, : Discarded datum OSGB_1936 in Proj4 definition: +proj=tmerc +lat_0=49
+#&gt; +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs</code></pre>
+<p><img src="13_model_building_files/figure-html/flow_length_plot-1.png" width="672" /></p>
+<div id="classifying-into-hydrological-response-units" class="section level2">
+<h2>Classifying into Hydrological Response Units</h2>
+<p>Methods are provided for the classification of the catchment. The classifications generated in this process are augmented with a further distance based separation when generating a dynatop model (see following section).</p>
+<p>By definition each channel length is treated as a single class with its own Channel HRU. Two ways are provided for dividing the hill-slope up into classes. The first way is <em>cutting</em> where one or more landscape properties are divided up into classes and HRUs defined by each unique combination of classes. The second <em>burning</em> enforces classes onto distinct areas.</p>
+<p>The classify method of a dynatopGIS allows the use of both methods, first <em>cutting</em> then <em>burning</em> to create hill-slope HRUs.</p>
+<div id="cutting" class="section level3">
+<h3>Cutting</h3>
+<p>To split a catchment into HRUs using cuts the breaks between the classes need to be specified. This is done by forming a named list of cuts. The names correspond to layers of GIS data within the dynatopGIS object. The values of the variables should be numeric and are used as follows:</p>
+<ul>
+<li><code>NA</code>: use the layer ‘as is’; i.e. presume it is already classified</li>
+<li>Single value: defines the number of splits which are automatically selected</li>
+<li>Vector of values: treated as the breaks between classes</li>
+</ul>
+<p>To demonstrate the use of cuts alone consider a model where the HRUs are defined by the topographic index value divided into 21 classes and the band (see distance ordering) providing a spatial ordering.</p>
+<pre class="r"><code>ctch$classify(&quot;atb_band_cut&quot;,cuts=list(atb=20,band=NA))
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition</code></pre>
+<p>The sub-catchments could be added alongside this as a further cut</p>
+<pre class="r"><code>ctch$classify(&quot;atb_subcatch_band_cut&quot;,cuts=list(atb=20,subcatch=NA,band=NA))
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition</code></pre>
+</div>
+<div id="burning" class="section level3">
+<h3>Burning</h3>
+<p>Layers burnt into the classification are added after the cuts are applied and treated as directly defined HRUs. In the example it may be desirable to burn in the Urban areas since these will have a different hydrological behaviour.</p>
+<p>Since the layer burnt in are applied with no alteration to their values the values specified may clash with those already defined by the cuts. One method that <em>nearly</em> always avoid this is to burn in classes with negative values. Let us then adapt the urban layer to have negative values</p>
+<pre class="r"><code>tmp &lt;- -ctch$get_layer(&quot;urban&quot;)
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+writeRaster(tmp,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;neg_extended_eden.tif&quot;)) ## write out
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+ctch$add_layer(&quot;neg_urban&quot;,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;neg_extended_eden.tif&quot;))
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition</code></pre>
+<pre class="r"><code>ctch$classify(&quot;atb_band_cut_neg_urban_burn&quot;,cuts=list(atb=20,band=NA),burns=&quot;neg_urban&quot;)
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition</code></pre>
+<p>In the meta data the cuts and burns used to generate the layer are recorded. These can be retrieved with</p>
+<pre class="r"><code>ctch$get_class_method(&quot;atb_band_cut_neg_urban_burn&quot;)
+#&gt; $cuts
+#&gt; $cuts$atb
+#&gt;  [1]  9.598579 10.372985 11.147390 11.921795 12.696200 13.470605 14.245011
+#&gt;  [8] 15.019416 15.793821 16.568226 17.342631 18.117037 18.891442 19.665847
+#&gt; [15] 20.440252 21.214657 21.989062 22.763468 23.537873 24.312278 25.086683
+#&gt; 
+#&gt; $cuts$band
+#&gt; [1] NA
+#&gt; 
+#&gt; 
+#&gt; $burns
+#&gt; [1] &quot;neg_urban&quot;
+## returns the list of break points for the cuts and layers burnt in</code></pre>
+</div>
+<div id="complexity" class="section level3">
+<h3>Complexity</h3>
+<p>The number of Hill-slope classes resulting from the classifications reflects the complexity of the model. The number of Hill-slope classes can be computed from the maps</p>
+<pre><code>#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">classification</th>
+<th align="right">Number_HRU</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">atb_band_cut</td>
+<td align="right">3512</td>
+</tr>
+<tr class="even">
+<td align="left">atb_subcatch_band_cut</td>
+<td align="right">13909</td>
+</tr>
+<tr class="odd">
+<td align="left">atb_band_cut_neg_urban_burn</td>
+<td align="right">3539</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="generating-a-dynamic-topmodel" class="section level2">
+<h2>Generating a dynamic TOPMODEL</h2>
+<p>A Dynamic TOPMODEL suitable for use with the dynatop package can be generated using the create_model method. This uses an existing classification to generate the model.</p>
+<p>Since dynatop simulations make use of ordered HRUs to work down-slope, a classification which used a distance layer (see earlier section) which represents the ordered down-slope sequencing of the pixels is recommended.</p>
+<blockquote>
+<p><em>It is strongly recommended that the ‘band’ distance metric is used directly as shown below</em>.</p>
+</blockquote>
+<p>Even if a distance layer is not used in the classification one must be given to the create_model method, so the resulting HRUs can be ordered.</p>
+<p>For example, in the case of the division of by topographic index into 21 classes and the bands directly the resulting model can be generated by</p>
+<pre class="r"><code>ctch$create_model(&quot;atb_band_model&quot;, # name of new model
+                  &quot;atb_band_cut&quot;, # classification to base model on
+                  &quot;band&quot;, # distance to use for determining flow routing
+                  transmissivity = &quot;bounded_exponential&quot;, #transmissivity profile to use
+                  rain_layer = &quot;precip_id&quot;, # layer of input precipitation series ID
+                  rain_label = &quot;precip_&quot; # characters added to values in rain_layer to get series name
+                  )
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+#&gt; Warning in OGRSpatialRef(dsn, layer, morphFromESRI = morphFromESRI, dumpSRS =
+#&gt; dumpSRS, : Discarded datum OSGB_1936 in Proj4 definition: +proj=tmerc +lat_0=49
+#&gt; +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+#&gt; The following Channel HSUs are outflows: 1, 2, 3, 4, 5
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition</code></pre>
+<p>Looking at the files within the folder containing the dynatopGIS project</p>
+<pre class="r"><code>list.files(file.path(&quot;.&quot;,&quot;dynaGIS&quot;),pattern=&quot;atb_band_model*&quot;)
+#&gt; [1] &quot;atb_band_model.rds&quot; &quot;atb_band_model.tif&quot;</code></pre>
+<p>shows that an additional raster map of the HRUs has been created in <code>atb_band_model.tif</code> along with a file <code>atb_band_model.rds</code> containing a model suitable for <code>dynatop</code></p>
+<p>The map of HRUs can be plotted as with any layer</p>
+<pre class="r"><code>ctch$plot_layer(&quot;atb_band_model&quot;)
+#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
+#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+#&gt; Warning in OGRSpatialRef(dsn, layer, morphFromESRI = morphFromESRI, dumpSRS =
+#&gt; dumpSRS, : Discarded datum OSGB_1936 in Proj4 definition: +proj=tmerc +lat_0=49
+#&gt; +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs</code></pre>
+<p><img src="13_model_building_files/figure-html/plot_model-1.png" width="672" /></p>
+<p>The values on the map correspond to the ìd column of the hill-slope table in the <code>dynatop</code> model.</p>
+</div>
+<div id="model-structure" class="section level2">
+<h2>Model Structure</h2>
+<p>The model for use in dynatop consists of multiple data.frames. A complete definition is given in a <a href="https://waternumbers.github.io/dynatop/articles/The_Model_Object.html">dynatop vignette</a></p>
+<p>The model output by dynatopGIS may not exactly match the representation of the catchment require. One issue with the model just generated is that the PET input is not correctly specified:</p>
+<pre class="r"><code>## load the model
+mdl &lt;- readRDS(file.path(&quot;.&quot;,&quot;dynaGIS&quot;,&quot;atb_band_model.rds&quot;)) ## read the model in
+head(mdl$pet_input) ## shows that name of the PET input series is unknown
+#&gt;      name   id frc
+#&gt; 1 unknown 1577   1
+#&gt; 2 unknown 1560   1
+#&gt; 3 unknown 1526   1
+#&gt; 4 unknown 1593   1
+#&gt; 5 unknown 1527   1
+#&gt; 6 unknown 1578   1
+mdl$pet_input$name &lt;- &quot;PET&quot; ## when actually it was called PET in the input data</code></pre>
+<p>A further improvement is to add the gauges to the correct locations</p>
+<pre class="r"><code>## By default gauge table contains the list of the channel HRUs that have no downstream connect
+mdl$gauge 
+#&gt;        name id
+#&gt; 1 channel_1  1
+#&gt; 2 channel_2  2
+#&gt; 3 channel_3  3
+#&gt; 4 channel_4  4
+#&gt; 5 channel_5  5
+## To replace this read in the gauge locations generated mealier
+gauges &lt;- shapefile(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;gauges&quot;))
+#&gt; Warning in OGRSpatialRef(dsn, layer, morphFromESRI = morphFromESRI, dumpSRS =
+#&gt; dumpSRS, : Discarded datum OSGB_1936 in Proj4 definition: +proj=tmerc +lat_0=49
+#&gt; +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs
+## create a new table to replace the one in the model
+new_gauge &lt;- data.frame(name = gauges@data$Site_Nm,
+                        chn_dnt = gauges@data$chn_dnt)
+new_gauge$id &lt;- as.integer( sapply(new_gauge$chn_dnt,
+                                   function(x){mdl$channel$id[mdl$channel$identifier==x]}))
+new_gauge$chn_dnt &lt;- NULL ## removes the column
+## add the new table to the model
+mdl$gauge &lt;- new_gauge
+## then save for later use
+saveRDS(mdl,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;atb_band_model.rds&quot;))</code></pre>
+</div>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
