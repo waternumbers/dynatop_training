@@ -321,12 +321,13 @@ $(document).ready(function () {
 </div>
 <div id="a-simulation" class="section level2">
 <h2>A Simulation</h2>
-<p>The minimum data need to perform a simulation with dynatop is a model, such as that output by dynatopGIS in the <a href="./13_model_build.html">previous section</a> and observed data in the format introduced <a href="./11_observed_series.html">earlier</a>.</p>
+<p>The minimum data need to perform a simulation with dynatop is a model, such as that output by dynatopGIS in the <a href="./13_model_building.html">previous section</a> and observed data in the format introduced <a href="./11_observed_series.html">earlier</a>.</p>
 <p>Load the previously created data</p>
 <pre class="r"><code>mdl &lt;- readRDS(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;atb_band_model.rds&quot;))
 obs &lt;- readRDS(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;obs.rds&quot;))</code></pre>
 <p>Attach the dynatop package so it is available in the R session then initialise a dynatop object by loading the model</p>
 <pre class="r"><code>library(dynatop)
+library(xts)
 ctch_mdl &lt;- dynatop$new(mdl)</code></pre>
 <p>This step performs some basis checks on the model for consistency. The data can then be added; again simple checks are performed.</p>
 <pre class="r"><code>ctch_mdl$add_data(obs)</code></pre>

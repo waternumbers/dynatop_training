@@ -319,12 +319,15 @@ $(document).ready(function () {
 <h2>Installing required R packages</h2>
 <p>This exercise builds upon the early <a href="./10_initial_gis.html">initial GIS processing</a>, using the outputs generated during that exercise. As well as the packages already used you will require the dynatopGIS package. This can be installed with</p>
 <pre class="r"><code>install.packages(&quot;dynatopGIS&quot;, repos = c(&quot;https://waternumbers.github.io/drat&quot;, &quot;http://cran.rstudio.com&quot;))</code></pre>
+<p>The jsonlite package is also required and can be installed with</p>
+<pre class="r"><code>install.packages(&quot;jsonlite&quot;)</code></pre>
 </div>
 <div id="getting-started" class="section level2">
 <h2>Getting started</h2>
 <p>The dynatopGIS packages works through a number of steps to generate a dynamic TOPMODEL object suitable for use in with the dynatop package. Each step generates one or more layers which are saved as raster or shape files into the projects working directory (which is not necessarily the R working directory). A record of these layers is kept in the json format meta data file.</p>
 <p>To start first load the library</p>
-<pre class="r"><code>library(&quot;dynatopGIS&quot;)</code></pre>
+<pre class="r"><code>library(&quot;dynatopGIS&quot;)
+library(&quot;raster&quot;)</code></pre>
 <p>Initialise the analysis by creating a new dynatopGIS object specifying the location of the meta data file, which will be created if it doesn’t exist.</p>
 <pre class="r"><code>ctch &lt;- dynatopGIS$new(file.path(&quot;.&quot;,&quot;dynaGIS&quot;,&quot;meta.json&quot;))
 #&gt; Warning in initialize(...): Creating meta file at./dynaGIS/meta.json
@@ -339,7 +342,7 @@ $(document).ready(function () {
 <pre class="r"><code>ctch$add_dem(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;dem.tif&quot;))
 #&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
 #&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
-#&gt; Loading required namespace: igraph
+
 #&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
 #&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition</code></pre>
 <p>As part of loading the DEM any blocks of <code>NA</code> values within the DEM are filled to appear as sinks. This can be turned off which may significantly speed up the loading of large DEM’s.</p>

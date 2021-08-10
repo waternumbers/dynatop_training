@@ -53,7 +53,7 @@ packages depends upon the platform:
 
 ## Data
 
-[Download](eden_example.zip) the data for the examples as a zip
+[Download](eden_data.zip) the data for the examples as a zip
 file. Extracting this should give a directory "eden_data" with four
 subdirectories. In the code provided is is presumed that the working directory
 of the R session is "eden_data".

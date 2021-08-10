@@ -331,7 +331,7 @@ $(document).ready(function () {
 </div>
 <div id="a-pattern-for-replacing-the-parameters" class="section level2">
 <h2>A Pattern for replacing the parameters</h2>
-<p>As shown <a href="./model_simulation.html">earlier</a> determining which HRU’s parameters to change can be time consuming. Rather then do this for each simulation let us specify a structure which determines which values are replace.</p>
+<p>As shown <a href="14_model_simulation.html">earlier</a> determining which HRU’s parameters to change can be time consuming. Rather then do this for each simulation let us specify a structure which determines which values are replace.</p>
 <pre class="r"><code>## start by loading the model for reference
 mdl &lt;- readRDS(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;atb_band_model.rds&quot;))
 ## Our pattern will be the a named list.
@@ -430,7 +430,8 @@ fMC &lt;- function(i,mdl){
 }
 
 ## save the function
-writeLines(deparse(fMC),file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;fMC.R&quot;))</code></pre>
+tmp &lt;- deparse(fMC); tmp[1] &lt;- paste(&quot;fMX &lt;-&quot;,tmp[1])
+writeLines(tmp[1],file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;fMC.R&quot;))</code></pre>
 </div>
 <div id="execution" class="section level2">
 <h2>Execution</h2>
@@ -442,9 +443,9 @@ mdl &lt;- readRDS(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;atb_band_m
 ## load obs
 obs &lt;- readRDS(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;obs.rds&quot;))
 ## load pattern
-pattern &lt;- file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;pattern.rds&quot;)
+pattern &lt;- readRDS(file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;pattern.rds&quot;))
 ## load sample
-sample &lt;- file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;sample.rds&quot;)
+sample &lt;- readRDS(file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;sample.rds&quot;))
 
 q0 &lt;- obs$Sheepmount_obs[1] / sum(mdl$hillslope$area)
 
@@ -485,9 +486,9 @@ mdl &lt;- readRDS(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;atb_band_m
 ## load obs
 obs &lt;- readRDS(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;obs.rds&quot;))
 ## load pattern
-pattern &lt;- file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;pattern.rds&quot;)
+pattern &lt;- readRDS(file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;pattern.rds&quot;))
 ## load sample
-sample &lt;- file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;sample.rds&quot;)
+sample &lt;- readRDS(file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;sample.rds&quot;))
 
 q0 &lt;- obs$Sheepmount_obs[1] / sum(mdl$hillslope$area)
 

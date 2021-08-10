@@ -24,7 +24,7 @@ processing](./10_initial_gis.html) and [observed](./11_observed_series.html) dat
 
 The minimum data need to perform a simulation with dynatop is a model, such
 as that output by dynatopGIS in the [previous
-section](./13_model_build.html) and observed data in the format introduced
+section](./13_model_building.html) and observed data in the format introduced
 [earlier](./11_observed_series.html).
 
 Load the previously created data

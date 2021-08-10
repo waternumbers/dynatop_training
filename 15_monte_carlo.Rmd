@@ -36,7 +36,7 @@ replaced by which values in the random sample
 
 ## A Pattern for replacing the parameters
 
-As shown [earlier](./model_simulation.html) determining which HRU's parameters
+As shown [earlier](14_model_simulation.html) determining which HRU's parameters
 to change can be time consuming. Rather then do this for each simulation let
 us specify a structure which determines which values are replace.
 
