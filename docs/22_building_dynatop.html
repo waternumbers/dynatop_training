@@ -276,7 +276,6 @@ $(document).ready(function () {
     <li>
       <a href="13_model_building.html">Model Generation</a>
     </li>
-    <li class="dropdown-header">Running a model</li>
     <li>
       <a href="14_model_simulation.html">Setting up a Simulation</a>
     </li>
@@ -285,10 +284,10 @@ $(document).ready(function () {
     </li>
     <li class="dropdown-header">Part2: Developing dynatop</li>
     <li>
-      <a href="20_using_github.html">Using github</a>
+      <a href="20_using_github.html">Using Github</a>
     </li>
     <li>
-      <a href="21_package_structure.html">Package Structure</a>
+      <a href="21_package_structure.html">R Packages</a>
     </li>
     <li>
       <a href="22_building_dynatop.html">Building dynatop</a>
@@ -312,10 +311,22 @@ $(document).ready(function () {
 </div>
 
 
-<ul>
-<li>show build_script.R explain different lines</li>
-<li>Get users to build package</li>
-</ul>
+<div id="aim" class="section level2">
+<h2>Aim</h2>
+<p>To build the dynatop package source code into a complete package</p>
+</div>
+<div id="build-process" class="section level2">
+<h2>Build Process</h2>
+<p>Due to the level of automation building the dynatop package consists of 5 lines of R code, which are generally best run in a new R session.</p>
+<pre class="r"><code>pacPath &lt;- file.path(&quot;.&quot;,&quot;dynatop&quot;) ## path of the folder containing the package DESCRIPTION file
+## the &lt;package&gt;::&lt;function&gt; format used below calls installed R packages without fully attaching then to the workspace
+Rcpp::compileAttributes(pacPath) ## compile the attributes of the C++/R linkage
+devtools::document(pacPath) ## compile the function documentation and NAMESPACE
+devtools::check(pacPath) ## check the package by building it and running tests
+## The check function produces significant amounts of output. Significant notes, warning and errors are repeated at the end
+devtools::build(pacPath) ## If there are no warnings or errors in the check then call this to build the package</code></pre>
+<p>The make_dynatop.R script in the build_scripts directory contains these lines along with other testing the build of the website using the pkgdown library and building on other architectures using the r-hub services.</p>
+</div>
 
 
 

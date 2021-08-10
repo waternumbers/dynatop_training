@@ -1,6 +1,5 @@
 ---
 title: "River Eden Example"
-bibliography: bibliography.bib
 ---
 
 The first half of the training course is working through an example

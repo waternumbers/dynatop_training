@@ -25,15 +25,14 @@ navbar:
           href: 11_observed_series.html
         - text: "Model Generation"
           href: 13_model_building.html
-        - text: "Running a model"
         - text: "Setting up a Simulation"
           href: 14_model_simulation.html
         - text: "Monte-Carlo Runs"
           href: 15_monte_carlo.html
         - text: "Part2: Developing dynatop"
-        - text: "Using github"
+        - text: "Using Github"
           href: 20_using_github.html
-        - text: "Package Structure"
+        - text: "R Packages"
           href: 21_package_structure.html
         - text: "Building dynatop"
           href: 22_building_dynatop.html

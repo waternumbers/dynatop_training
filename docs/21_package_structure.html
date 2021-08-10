@@ -11,7 +11,7 @@
 
 
 
-<title>R package structure</title>
+<title>R Packages</title>
 
 <script src="site_libs/header-attrs-2.9/header-attrs.js"></script>
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
@@ -276,7 +276,6 @@ $(document).ready(function () {
     <li>
       <a href="13_model_building.html">Model Generation</a>
     </li>
-    <li class="dropdown-header">Running a model</li>
     <li>
       <a href="14_model_simulation.html">Setting up a Simulation</a>
     </li>
@@ -285,10 +284,10 @@ $(document).ready(function () {
     </li>
     <li class="dropdown-header">Part2: Developing dynatop</li>
     <li>
-      <a href="20_using_github.html">Using github</a>
+      <a href="20_using_github.html">Using Github</a>
     </li>
     <li>
-      <a href="21_package_structure.html">Package Structure</a>
+      <a href="21_package_structure.html">R Packages</a>
     </li>
     <li>
       <a href="22_building_dynatop.html">Building dynatop</a>
@@ -307,21 +306,54 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">R package structure</h1>
+<h1 class="title toc-ignore">R Packages</h1>
 
 </div>
 
 
+<p>An package is the fundamental unit of shareable code R. Packages bundle together code, data, documentation, and tests in a redefined template. When build a package is easy to share with others.</p>
+<p><a href="https://cran.r-project.org/doc/manuals/R-exts.html">Writing R extensions</a> is the official manual and reference for package development, but can be a challenging read. A more accessible description is given in <a href="https://r-pkgs.org/index.html">R Packages book</a>. The dynatop development broadly follows the philosophy of expressed in the book that <em>“anything that can be automated, should be automated”</em> though not always using the tools used in the book (particularly RStudio projects).</p>
+<p>A high degree of automation in the package building is achieved though the use of further R packages, particularly devtools which can be install with</p>
+<pre class="r"><code>install.packages(c(&quot;devtools&quot;, &quot;roxygen2&quot;, &quot;testthat&quot;, &quot;knitr&quot;))</code></pre>
+<div id="package-contents" class="section level2">
+<h2>Package Contents</h2>
+<p>The following screen shot shows the contents of the cloned dynatop directory</p>
+<div class="figure" style="text-align: center">
+<img src="images/ls_package.png" alt="Contents of the dynatop directory" width="75%" />
+<p class="caption">
+Contents of the dynatop directory
+</p>
+</div>
+<p>Briefly the directories contain:</p>
 <ul>
-<li>key files DESCRIPTION, NAMESPACE</li>
-<li>key folders R, src, inst, data</li>
-<li>idea of self documenting
-<ul>
-<li>show roxygen</li>
-<li>idea of vignette</li>
-<li>show website</li>
-</ul></li>
+<li>R - the R source code</li>
+<li>src - C++ source code</li>
+<li>test - scripts for automatic tests used during the package build</li>
+<li>man - manual pages, these are automatically generated during the package build</li>
+<li>vignettes - contains script executed during the build to create longer form examples and the web page</li>
+<li>build_script - contains scripts and tools for use in building the package. This does not form part of the build package</li>
 </ul>
+<p>Key files within the folder include:</p>
+<ul>
+<li>DESCRIPTION - a description of the package</li>
+<li>NAMESPACE - this controls the the attachment of the package to an R workspace. Automatically generated as part of the build process so DO NOT edit by hand</li>
+<li>README.md - A general introduction as seen on the project Github site</li>
+<li>NEWS.md - A change-log of the differences between versions</li>
+<li>.Rbuildignore - controls what files in the dynatop folder are not included in the build package</li>
+</ul>
+</div>
+<div id="automatic-documentation" class="section level2">
+<h2>Automatic documentation</h2>
+<p>Open up the xts_utilities.R file in the R folder. The contents will looks similar to</p>
+<div class="figure" style="text-align: center">
+<img src="images/head_of_resample.png" alt="Partial contents of xts_utilities.R" width="75%" />
+<p class="caption">
+Partial contents of xts_utilities.R
+</p>
+</div>
+<p>The initial lines beginning <code>#'</code> contains material processed by the <a href="https://cran.r-project.org/web/packages/roxygen2/vignettes/roxygen2.html">roxygen2 package</a> to produce the function documentation.</p>
+<p>The files in the vignettes folder are written in <a href="https://rmarkdown.rstudio.com/">Rmarkdown</a> which can be build in different ways to produce responsive documents or websites such as the <a href="https://waternumbers.github.io/dynatop/">dynatop website</a> - or this training course.</p>
+</div>
 
 
 

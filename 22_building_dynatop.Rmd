@@ -1,6 +1,33 @@
 ---
 title: "Building dynatop"
 ---
- 
-- show build_script.R explain different lines
-- Get users to build package
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+                    collapse = TRUE,
+                    comment = "#>"
+                  )
+knitr::opts_knit$set(root.dir = "./eden_data")
+```
+## Aim
+
+To build the dynatop package source code into a complete package
+
+## Build Process
+
+Due to the level of automation building the dynatop package consists of 5
+lines of R code, which are generally best run in a new R session.
+
+```{r build, eval=FALSE}
+pacPath <- file.path(".","dynatop") ## path of the folder containing the package DESCRIPTION file
+## the <package>::<function> format used below calls installed R packages without fully attaching then to the workspace
+Rcpp::compileAttributes(pacPath) ## compile the attributes of the C++/R linkage
+devtools::document(pacPath) ## compile the function documentation and NAMESPACE
+devtools::check(pacPath) ## check the package by building it and running tests
+## The check function produces significant amounts of output. Significant notes, warning and errors are repeated at the end
+devtools::build(pacPath) ## If there are no warnings or errors in the check then call this to build the package
+```
+
+The make_dynatop.R script in the build_scripts directory contains these lines
+along with other testing the build of the website using the pkgdown library and
+building on other architectures using the r-hub services.
