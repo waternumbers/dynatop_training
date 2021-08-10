@@ -26,6 +26,12 @@ package. This can be installed with
 install.packages("dynatopGIS", repos = c("https://waternumbers.github.io/drat", "http://cran.rstudio.com"))
 ```
 
+The jsonlite package is also required and can be installed with
+
+```{r jsonlite_install, eval=FALSE}
+install.packages("jsonlite")
+```
+
 
 ## Getting started
 
@@ -39,6 +45,7 @@ To start first load the library
 
 ```{r load_library}
 library("dynatopGIS")
+library("raster")
 ```
 
 Initialise the analysis by creating a new dynatopGIS object specifying the location

@@ -18,7 +18,7 @@ A high degree of automation in the package building is achieved though the use
 of further R packages, particularly devtools which can be install with
 
 ```{r install_dev, eval=FALSE}
-install.packages(c("devtools", "roxygen2", "testthat", "knitr"))
+install.packages(c("devtools", "roxygen2", "testthat", "knitr", "rmarkdown", "bookdown"))
 ```
 
 ## Package Contents

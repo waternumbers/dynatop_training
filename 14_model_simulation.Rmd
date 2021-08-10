@@ -39,6 +39,7 @@ initialise a dynatop object by loading the model
 
 ```{r load_model}
 library(dynatop)
+library(xts)
 ctch_mdl <- dynatop$new(mdl)
 ```
 This step performs some basis checks on the model for consistency.

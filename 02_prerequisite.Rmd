@@ -57,3 +57,7 @@ packages depends upon the platform:
 file. Extracting this should give a directory "eden_data" with four
 subdirectories. In the code provided is is presumed that the working directory
 of the R session is "eden_data".
+
+To save copying and pasting from the web pages the R code used in the
+training course is [available](dynatop_training_rcode.zip). These scripts
+should be used alongside the course material.

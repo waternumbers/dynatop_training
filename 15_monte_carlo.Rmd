@@ -148,7 +148,8 @@ fMC <- function(i,mdl){
 }
 
 ## save the function
-writeLines(deparse(fMC),file.path(".","dyna","fMC.R"))
+tmp <- deparse(fMC); tmp[1] <- paste("fMX <-",tmp[1])
+writeLines(tmp[1],file.path(".","dyna","fMC.R"))
 ```
 
 ## Execution
@@ -163,9 +164,9 @@ mdl <- readRDS(file.path(".","processed","atb_band_model.rds"))
 ## load obs
 obs <- readRDS(file.path(".","processed","obs.rds"))
 ## load pattern
-pattern <- file.path(".","dyna","pattern.rds")
+pattern <- readRDS(file.path(".","dyna","pattern.rds"))
 ## load sample
-sample <- file.path(".","dyna","sample.rds")
+sample <- readRDS(file.path(".","dyna","sample.rds"))
 
 q0 <- obs$Sheepmount_obs[1] / sum(mdl$hillslope$area)
 
@@ -217,9 +218,9 @@ mdl <- readRDS(file.path(".","processed","atb_band_model.rds"))
 ## load obs
 obs <- readRDS(file.path(".","processed","obs.rds"))
 ## load pattern
-pattern <- file.path(".","dyna","pattern.rds")
+pattern <- readRDS(file.path(".","dyna","pattern.rds"))
 ## load sample
-sample <- file.path(".","dyna","sample.rds")
+sample <- readRDS(file.path(".","dyna","sample.rds"))
 
 q0 <- obs$Sheepmount_obs[1] / sum(mdl$hillslope$area)
 
