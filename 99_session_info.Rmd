@@ -1,0 +1,9 @@
+---
+title: "Session Information"
+---
+
+The R session used for building this version of the course is
+
+```{r sessionInfo,purl=FALSE}
+print(sessionInfo(),locale = FALSE)
+```

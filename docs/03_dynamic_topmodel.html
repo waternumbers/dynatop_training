@@ -366,11 +366,16 @@ Map of the band classification
 </p>
 </div>
 <p>Combing this into the classification gives</p>
-<p><code>{r, echo=FALSE, out.width="75%", fig.align="center", fig.cap="Map of the combined classification"} knitr::include_graphics("./images/combined_class_with_band.png")</code></p>
+<div class="figure" style="text-align: center">
+<img src="images/combined_class_with_band.png" alt="Map of the combined classification" width="75%" />
+<p class="caption">
+Map of the combined classification
+</p>
+</div>
 <p>which further separates out the 5a class to the areas close to and further from the river. This gives a further level of spatial refinement to the classification while allowing a for simplification in the catchment representation.</p>
 <p>Introducing the band into the classification has a further advantage. Solving the HRUs starting with those in the highest band ensures that inflows at the current time step are available for use in the numeric solution. This allow the use of computation techniques that are more robust to the choice of solution time step.</p>
 <blockquote>
-<p>The numeric scheme implemented in the <code>dynatop</code> package makes use of an ordering so that the HRU inflows for the current time step are available. Although other options could be used it is <strong>strongly</strong> recommended that the band is included in all classifications.</p>
+<p>The numeric scheme implemented in the <code>dynatop</code> package makes use of an ordering so that the HRU inflows for the current time step are available. Although other options could be used it is <strong>strongly</strong> recommended that the band is included in all classifications and as teh distance metric when generating models.</p>
 </blockquote>
 </div>
 </div>
@@ -393,7 +398,12 @@ Map of the band classification
 <li>A <em>Saturated Zone</em> representing the saturated subsurface</li>
 </ul>
 <p>The following schematic shows the four zones and the fluxes between them</p>
-<p><code>{r, echo=FALSE, out.width="75%", fig.align="center", fig.cap="Schematic of the Hill slope HRU"} knitr::include_graphics("./images/Hillslope_HRU.png")</code></p>
+<div class="figure" style="text-align: center">
+<img src="images/Hillslope_HRU.png" alt="Schematic of the Hill slope HRU" width="75%" />
+<p class="caption">
+Schematic of the Hill slope HRU
+</p>
+</div>
 <p>As shown in the schematic fluxes are passed between the HRUs at two levels, the surface and the saturated zones. Details if the governing equation and numerical solution are given <a href="https://waternumbers.github.io/dynatop/articles/Hillslope_HRU.html">elsewhere</a>. A few key points are:</p>
 <ul>
 <li>The lateral flow from the Surface Zone is proportional to the Surface Zone storage</li>

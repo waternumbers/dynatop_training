@@ -170,7 +170,7 @@ The changes can be algorithm are summarised in following the screenshot of a dif
 between dt_bexp.cpp and dt_bexp_pet.cpp. Line numbers are shown in blue, red
 and green represent the lines removed and added.
 
-```{r, echo=FALSE, out.width="100%", fig.align="center", fig.cap="Github repository of waternumbers"}
+```{r, echo=FALSE, purl=FALSE, out.width="100%", fig.align="center", fig.cap="Github repository of waternumbers"}
 knitr::include_graphics("./images/changed_cpp.png")
 ```
 

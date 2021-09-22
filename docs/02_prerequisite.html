@@ -315,25 +315,26 @@ $(document).ready(function () {
 <p>Useful primers for R can be found on multiple websites such as that of <a href="https://adv-r.hadley.nz/">Hadley Wickham</a> or on <a href="https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf">CRAN</a> but complete knowledge of their contents is not expected.</p>
 <div id="software" class="section level2">
 <h2>Software</h2>
-<p>To make use of the examples on which the course is based requires</p>
+<p>To make use of the examples on which Part 1 of the course is based requires</p>
 <ul>
 <li>An installation of R 4.1.0 or above</li>
 <li>A suitable text editor for altering the R scripts.</li>
 </ul>
-<p>Installation instructions for R are available from <a href="https://cran.r-project.org/">CRAN</a> for Linux, Windows and Mac.</p>
-<p>While it is possible to complete the course using the built in R GUI’s for Windows and Mac it is recommended to install editor with syntax highlighting. Popular choices include the <a href="https://www.rstudio.com/products/rstudio/download/#download">Rstudio IDE</a>, VSCode (Instructions <a href="https://www.r-bloggers.com/2021/01/setup-visual-studio-code-to-run-r-on-vscode-2021/">here</a>) or Emacs with <a href="https://ess.r-project.org/index.php?Section=home">ESS</a> all of which provide an integrated development environment.</p>
-<p>For completing the final part of the course which focuses on developing dynatop further software is required.</p>
+<p>Installation instructions for R are available from <a href="https://cran.r-project.org/">CRAN</a> for Linux, Windows and Mac. Full details of the R version and packages used in building this version of the training material can be found <a href="./99_session_info.html">here</a>.</p>
+<p>While it is possible to complete the course using the built in R GUI’s for Windows and Mac it is recommended to install an editor with syntax highlighting. Popular choices include the <a href="https://www.rstudio.com/products/rstudio/download/#download">Rstudio IDE</a>, VSCode (Instructions <a href="https://www.r-bloggers.com/2021/01/setup-visual-studio-code-to-run-r-on-vscode-2021/">here</a>) or Emacs with <a href="https://ess.r-project.org/index.php?Section=home">ESS</a> all of which provide an integrated development environment.</p>
+<p>For completing Part 2 of the course which focuses on developing dynatop further software is required.</p>
 <ul>
 <li>An installation of the git version control system</li>
+<li>An installation of the pandoc universal document converter</li>
 <li>Tools for building R packages which include source code</li>
 <li>An account on <a href="https://github.com/">github</a></li>
 </ul>
-<p>Details on installing git can be found on the software’s <a href="https://git-scm.com/downloads">webpage</a> .</p>
+<p>Details on installing git can be found on the software’s <a href="https://git-scm.com/downloads">webpage</a>. Pandoc provides <a href="https://pandoc.org/installing.html">installation instructions</a>. In both cases it is presumed that the installed packages are available from the command line.</p>
 <p>The most efficient method of installing the tools required for building R packages depends upon the platform:</p>
 <ul>
 <li>Windows: a single tool chain <a href="https://cran.r-project.org/bin/windows/Rtools/">Rtools</a> is available.</li>
 <li>Mac: requires Apple Xcode and GNU Fortran compiler. Details of the GNU Fortran compiler version and other libraries that may be required are provided on <a href="https://mac.r-project.org/tools/">CRAN</a></li>
-<li>Linux: ensure that gcc and gcc-c++ compilers are installed along with the boost libraries and development headers</li>
+<li>Linux: ensure that gcc and gcc-c++ compilers are installed along with the boost libraries and their development headers</li>
 </ul>
 </div>
 <div id="data" class="section level2">

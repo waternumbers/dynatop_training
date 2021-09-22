@@ -3,7 +3,7 @@ title: "Initial GIS processing"
 ---
  
 
-```{r, include = FALSE}
+```{r, include = FALSE, purl=FALSE}
 knitr::opts_chunk$set(
                     collapse = TRUE,
                     comment = "#>"

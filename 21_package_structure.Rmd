@@ -17,7 +17,7 @@ should be automated"* though not always using the tools used in the book
 A high degree of automation in the package building is achieved though the use
 of further R packages, particularly devtools which can be install with
 
-```{r install_dev, eval=FALSE}
+```{r install_dev, eval=FALSE, purl=FALSE}
 install.packages(c("devtools", "roxygen2", "testthat", "knitr", "rmarkdown", "bookdown"))
 ```
 
@@ -25,7 +25,7 @@ install.packages(c("devtools", "roxygen2", "testthat", "knitr", "rmarkdown", "bo
 
 The following screen shot shows the contents of the cloned dynatop directory
 
-```{r, echo=FALSE, out.width="75%", fig.align="center", fig.cap="Contents of the dynatop directory"}
+```{r, echo=FALSE, purl=FALSE, out.width="75%", fig.align="center", fig.cap="Contents of the dynatop directory"}
 knitr::include_graphics("./images/ls_package.png")
 ```
 
@@ -57,7 +57,7 @@ by hand
 Open up the xts_utilities.R file in the R folder. The contents will looks
 similar to
 
-```{r, echo=FALSE, out.width="75%", fig.align="center", fig.cap="Partial contents of xts_utilities.R"}
+```{r, echo=FALSE, purl=FALSE, out.width="75%", fig.align="center", fig.cap="Partial contents of xts_utilities.R"}
 knitr::include_graphics("./images/head_of_resample.png")
 ```
 

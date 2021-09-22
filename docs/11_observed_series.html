@@ -324,6 +324,12 @@ $(document).ready(function () {
 <p>Once installed the required packages are attached to the R environment so that there functions are available.</p>
 <pre class="r"><code>library(raster)
 library(xts)
+#&gt; Loading required package: zoo
+#&gt; 
+#&gt; Attaching package: &#39;zoo&#39;
+#&gt; The following objects are masked from &#39;package:base&#39;:
+#&gt; 
+#&gt;     as.Date, as.Date.numeric
 library(dynatop)</code></pre>
 </div>
 <div id="expected-data" class="section level2">
@@ -361,6 +367,7 @@ head(flow)
 <p>To explore the rainfall data open the file using the raster package</p>
 <pre class="r"><code>## read in as a multilayered object
 precip_brk &lt;- brick(file.path(&quot;.&quot;,&quot;unprocessed&quot;,&quot;Eden_Precip.nc&quot;))
+#&gt; Loading required namespace: ncdf4
 ## show summary
 precip_brk
 #&gt; class      : RasterBrick 

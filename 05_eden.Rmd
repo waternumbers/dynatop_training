@@ -22,7 +22,7 @@ event survey of 263 water or wrack marks, has resulted in multiple inundation mo
 studies (Neal et al. 2009; Horritt et al. 2011; Fewtrell et al. 2011) and
 modelling (Leedan et al. 2013, Smith et al. 2013).
 
-```{r, echo=FALSE, out.width="75%", fig.align="center", fig.cap="Map of the River Eden Catchment"}
+```{r, echo=FALSE, purl=FALSE, out.width="75%", fig.align="center", fig.cap="Map of the River Eden Catchment"}
 knitr::include_graphics("./images/EdenMap.png")
 ```
 

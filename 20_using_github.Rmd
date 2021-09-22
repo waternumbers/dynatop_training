@@ -30,7 +30,7 @@ record kept by Git of changes to the project. Since a repository on a service
 such as github is not on your local machine (and may be shared between multiple users) is sometimes referred to as the **remote**
 repository.
 
-   ```{r, echo=FALSE, out.width="75%", fig.align="center", fig.cap="Github repository of waternumbers"}
+   ```{r, echo=FALSE, purl=FALSE, out.width="75%", fig.align="center", fig.cap="Github repository of waternumbers"}
    knitr::include_graphics("./images/fork.png")
    ```
 
@@ -46,7 +46,7 @@ own copy of the dynatop remote repository.
    machine and navigate to the eden_data folder. Enter `git clone <URL>`. The output should look like
    the following
    
-   ```{r, echo=FALSE, out.width="75%", fig.align="center", fig.cap="Example of the output of a git clone command"}
+   ```{r, echo=FALSE, purl=FALSE, out.width="75%", fig.align="center", fig.cap="Example of the output of a git clone command"}
    knitr::include_graphics("./images/clone_dynatop_cmd.png")
    ```
 
@@ -54,14 +54,14 @@ own copy of the dynatop remote repository.
    currently working code alone. To do this create
    **branch** which can be used as outlined in the figure below.
    
-   ```{r, echo=FALSE, out.width="75%", fig.align="center", fig.cap="Splitting and merging a branch as part of a workflow"}
+   ```{r, echo=FALSE, purl=FALSE, out.width="75%", fig.align="center", fig.cap="Splitting and merging a branch as part of a workflow"}
    knitr::include_graphics("./images/github_flow.png")
    ```
    
    A new branch is most easily created on the project web page. Create a training
    branch as shown in the image
    
-   ```{r, echo=FALSE, out.width="75%", fig.align="center", fig.cap="Adding a new branch"}
+   ```{r, echo=FALSE, purl=FALSE, out.width="75%", fig.align="center", fig.cap="Adding a new branch"}
    knitr::include_graphics("./images/creating_branch.png")
    ```
 
@@ -72,7 +72,7 @@ own copy of the dynatop remote repository.
    directory and open the DESCRIPTION file. Edit the version number adding
    numeric character as shown below and save it
    
-   ```{r, echo=FALSE, out.width="75%", fig.align="center", fig.cap="Edited DESCRIPTION file. Highlighted area shows the changes"}
+   ```{r, echo=FALSE, purl=FALSE, out.width="75%", fig.align="center", fig.cap="Edited DESCRIPTION file. Highlighted area shows the changes"}
    knitr::include_graphics("./images/Screenshot_version.png")
    ```
    
@@ -92,7 +92,7 @@ own copy of the dynatop remote repository.
    pull request. This is most easily done via the project web page as in the
    following figure
    
-   ```{r, echo=FALSE, out.width="75%", fig.align="center", fig.cap="Opening a pull request"}
+   ```{r, echo=FALSE, purl=FALSE, out.width="75%", fig.align="center", fig.cap="Opening a pull request"}
    knitr::include_graphics("./images/git_pull.png")
    ```
    There is little point in accepting the pull request as so little has

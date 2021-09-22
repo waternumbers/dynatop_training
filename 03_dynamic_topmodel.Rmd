@@ -39,7 +39,7 @@ up-slope area gives some spatial ordering to the classes, but (as we will see
 with the Eden data) it is not complete. Consider a
 small catchment represented by a raster of spatial cells with the following topographic index classes
 
-```{r, echo=FALSE, out.width="75%", fig.align="center", fig.cap="Map of topographic index classes"}
+```{r, echo=FALSE, purl=FALSE, out.width="75%", fig.align="center", fig.cap="Map of topographic index classes"}
 knitr::include_graphics("./images/topo_class.png")
 ```
 
@@ -47,7 +47,7 @@ Since land use could influence the evapotranspiration and infiltration
 properties a second classification might be desirable. For the
 small catchment the land use classes are shown below
 
-```{r, echo=FALSE, out.width="75%", fig.align="center", fig.cap="Map of land use classes"}
+```{r, echo=FALSE, purl=FALSE, out.width="75%", fig.align="center", fig.cap="Map of land use classes"}
 knitr::include_graphics("./images/landuse_class.png")
 ```
 
@@ -63,7 +63,7 @@ connectivity between the spatial cells. If a river intercepts a cell it is
 assumed at it receives all the outward flow. The following figure shows the
 connectivity for the small catchment.
 
-```{r, echo=FALSE, out.width="75%", fig.align="center", fig.cap="Map of combined topographic and land use classes along with connectivity"}
+```{r, echo=FALSE, purl=FALSE, out.width="75%", fig.align="center", fig.cap="Map of combined topographic and land use classes along with connectivity"}
 knitr::include_graphics("./images/combined_class.png")
 ```
 
@@ -78,14 +78,13 @@ The cells in the catchment can be banded using the connectivity - all cells
 in a given band receive flows only from those in a higher band. For the small
 catchment this looks like the following
 
-```{r, echo=FALSE, out.width="75%", fig.align="center", fig.cap="Map of the band classification"}
+```{r, echo=FALSE, purl=FALSE, out.width="75%", fig.align="center", fig.cap="Map of the band classification"}
 knitr::include_graphics("./images/band_class.png")
 ```
 
 Combing this into the classification gives
 
-```{r, echo=FALSE, out.width="75%", fig.align="center", fig.cap="Map of the
-combined classification"}
+```{r, echo=FALSE, purl=FALSE, out.width="75%", fig.align="center", fig.cap="Map of the combined classification"}
 knitr::include_graphics("./images/combined_class_with_band.png")
 ```
 
@@ -101,7 +100,7 @@ computation techniques that are more robust to the choice of solution time step.
 > The numeric scheme implemented in the `dynatop` package makes use of an
 > ordering so that the HRU inflows for the current time step are available. Although
 > other options could be used it is **strongly** recommended that the band is
-> included in all classifications.
+> included in all classifications and as teh distance metric when generating models.
 
 ## Hydrological Response Units
 
@@ -137,8 +136,7 @@ the saturated subsurface
 
 The following schematic shows the four zones and the fluxes between them
 
-```{r, echo=FALSE, out.width="75%", fig.align="center", fig.cap="Schematic of
-the Hill slope HRU"}
+```{r, echo=FALSE, purl=FALSE, out.width="75%", fig.align="center", fig.cap="Schematic of the Hill slope HRU"}
 knitr::include_graphics("./images/Hillslope_HRU.png")
 ```
 

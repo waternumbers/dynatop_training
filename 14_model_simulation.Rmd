@@ -2,7 +2,7 @@
 title: "Running a Simulation"
 ---
   
-```{r, include = FALSE}
+```{r, include = FALSE, purl=FALSE}
 knitr::opts_chunk$set(
                     collapse = TRUE,
                     comment = "#>"
@@ -80,14 +80,14 @@ the outlet of the catchment for the first time step by the hill-slope surface ar
 the first time step has no rainfall and is close to base-flow.
 
 ```{r q0}
-## determining the initial recharge rate
-q0 <- obs$Sheepmount_obs[1] / sum(mdl$hillslope$area)
+## determining the initial recharge rate ad setting it in the model
+mdl$hillslope$r_uz_sz0 <- as.numeric(obs$Sheepmount_obs[1]) / sum(mdl$hillslope$area)
 ```
 
 In the following we initialise the states and then perform the simulation, using the chaining of commands.
 
 ```{r initial_sim}
-ctch_mdl$initialise(q0)$sim() #plot_state("s_sz") -->
+ctch_mdl$initialise()$sim()
 ```
 
 ### Mass balance
@@ -99,8 +99,7 @@ other fluxes as volumes. This can easily be used to plot the errors as shown bel
 
 ```{r mass_check}
 mb <- ctch_mdl$get_mass_errors()
-head(mb) ## note the negative signs existing or outward flow to allow mass balance to be computed by summation
-mb$err <- rowSums(mb) ## the total error in m^3
+head(mb)
 plot( mb$err , main="Mass balance error",ylab="m^3")
 ```
 
@@ -176,10 +175,10 @@ ctch_mdl$plot_state("s_sz")
 
 ## Changing Parameters
 
-The parameters are stored in the model as which is made up of standard R
+The parameters are stored in the model which is made up of standard R
 data.frame's. 
-Using the properties within the data frame simple parameter changes are
-straightforward
+Using the properties within the data frame, particularly the values stored in
+the class columns makes changing parameter straightforward
 
 ```{r simple_parameter_change}
 ## Some simple manipulations of the Hill-slope HRU parameters
@@ -188,28 +187,9 @@ straightforward
 mdl$hillslope$m <- 0.03
 
 ## set all Hill-slope HRU maximum depth parameters (D) to 10m
-## where the average topographic index (atb_bar) is > 20
-mdl$hillslope$D[ mdl$hillslope$atb_bar > 20 ] <- 10
-```
-
-To change a parameter for all the HRUs with a specific value of one of the
-classification variables requires more work
-
-```{r complex_parameter_change}
-## A more complex change - set the surface velocity (c_sf) for all HRUs in band 1 to 1 m/s
-
-## First read in the band and HRU id maps
-band <- raster(file.path(".","dynaGIS","band.tif"))
-hru_id<- raster(file.path(".","dynaGIS","atb_band_model.tif"))
-## find the unique HRU id values which have a band value of 1
-u_hru_id <- unique(hru_id[band==1]) ## find unique hru id value
-## in case we want to use the information again lets add an extra column to the model hillslope table
-mdl$hillslope$in_band_1 <- FALSE ## be careful with the name in case it classes with an existing property, parameter or state
-mdl$hillslope$in_band_1[mdl$hillslope$id %in% u_hru_id] <- TRUE
-## Now change the parameter
-mdl$hillslope$c_sf[mdl$hillslope$in_band_1] <- 1
-## to see the changes
-head(mdl$hillslope,20)
+## where the topographic index is in the highest band
+## Note that cls_* are the values taken by the * class in the model generation
+mdl$hillslope$D[ mdl$hillslope$cls_atb_20==20 ] <- 10
 ```
 
 ## Extracting Intermediate States
@@ -222,7 +202,7 @@ must be passed in the call to the sim or sim_hillslope method
 ## Let us repeat the same simulation
 ## keeping the states for every other time step
 keep_times <- index(obs)[seq(2,nrow(obs),by=2)] ## an vector of time steps
-ctch_mdl$initialise(q0)$sim(keep_states=keep_times) ## passing the vector of time steps to the call
+ctch_mdl$initialise()$sim(keep_states=keep_times) ## passing the vector of time steps to the call
 ```
 
 The record of the states can know be extracted. While there is an entry for
@@ -257,6 +237,7 @@ or as a map
 ## Create a map of the root zone storage at 2020-02-03 02:00:00
 s_rz_val <- state_rec[["2020-02-03 02:00:00"]][,c("id","s_rz")] ## extract the id and rz storage
 ## create a map of values by substituting s_rz for the id in the hru_id map
+hru_id <- raster(ctch_mdl$get_model()$map$hillslope) ## open map from from file names stored in the model
 s_rz_map<- raster::subs(hru_id, s_rz_val) ## substitute values into the map of HRU id numbers
 ## and plot
 plot(s_rz_map,main="Root zone storage at 2020-02-03 02:00:00")
@@ -270,7 +251,7 @@ dynatop object before the next call to sim
 
 ```{r sim2}
 ## initialise and simulate the model
-ctch_mdl$initialise(q0)$sim()
+ctch_mdl$initialise()$sim()
 head(ctch_mdl$get_states()) ## state values after the initial run
 ## run again without initialising
 ## This will use the final states of the last simulation as the starting states

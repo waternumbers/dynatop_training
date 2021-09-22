@@ -2,7 +2,7 @@
 title: "Processing Observed data"
 ---
 
-```{r, include = FALSE}
+```{r, include = FALSE, purl=FALSE}
 knitr::opts_chunk$set(
                     collapse = TRUE,
                     comment = "#>"

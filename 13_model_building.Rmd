@@ -2,7 +2,7 @@
 title: "Model Building"
 ---
 
-```{r, include = FALSE}
+```{r, include = FALSE, purl=FALSE}
 knitr::opts_chunk$set(
                     collapse = TRUE,
                     comment = "#>"
@@ -159,7 +159,8 @@ ctch$get_layer()
 The complete meta data which includes the paths to the files for each layer can be retrieved with
 
 ```{r, get_meta}
-head(ctch$get_meta())
+tmp <- ctch$get_meta() ## get all meta data as a list object
+tmp[[1]] ## first element of the list
 ```
 
 Individual layers can be plotted (with or without the channel), for example
@@ -311,40 +312,64 @@ The classifications generated in this process are
 By definition each channel length is treated as a single class with its own
 Channel HRU. Two ways are
 provided for dividing the hill-slope up into classes.
-The first way is *cutting* where one or more landscape properties are
-divided up into classes and HRUs defined by each unique combination of
-classes.
-The second *burning* enforces classes onto distinct areas.
-
-The classify method of a dynatopGIS allows the use of both methods, first
-*cutting* then *burning* to create hill-slope HRUs.
+The first way is *cutting* where a landscape property is
+divided up into classes. 
+The second is *combining* where unique existing class layers are combined by
+either by pairing (where unique combinations of classes for a new class) or
+burning (which enforces classes onto distinct areas).
 
 ### Cutting
 
 To split a catchment into HRUs using cuts the breaks between the classes need to be
-specified. This is done by forming a named list of cuts. The names
-correspond to layers of GIS data within the dynatopGIS object. The values of
-the variables should be numeric and are used as follows:
+specified. The breaks can be specified as either:
 
-- `NA`: use the layer 'as is'; i.e. presume it is already classified
-- Single value: defines the number of splits which are automatically selected
-- Vector of values: treated as the breaks between classes
+- A single value: defines the number of splits which are automatically selected
+- A vector of values: treated as the breaks between classes
 
-To demonstrate the use of cuts alone consider a model where the HRUs are
-defined by the topographic index value divided into 21 classes and the band (see distance
-ordering) providing a spatial ordering.
+To demonstrate the use of cuts alone dividing the topographic index into 20
+classes. Specifying a single value gives class breaks that are equally spaced
+across the range of the variable.
 
-```{r, atb_band_cut}
-ctch$classify("atb_band_cut",cuts=list(atb=20,band=NA))
+```{r, atb_band_cut_simple}
+## simple equally spaced cuts
+ctch$classify("atb_20","atb",20)
 ```
 
-The sub-catchments could be added alongside this as a further cut
-```{r, atb_subcatch_band_cut}
-ctch$classify("atb_subcatch_band_cut",cuts=list(atb=20,subcatch=NA,band=NA))
+It is perhaps better to consider 20 classes with approximatly equal land
+area. it this case the breaks can be computed using the quantiles of the variable
+
+```{r, atb_20_cut}
+## use the quantile function of the raster package to compute breaks
+## note we need to include the min and max
+brk <- quantile(ctch$get_layer("atb"),probs=seq(0,1,length=21))
+ctch$classify("atb_20_equal","atb",brk)
 ```
 
-### Burning
+In the meta data the cuts and burns used to generate the layer are recorded. 
+These can be retrieved with
 
+```{r see_class}
+head(ctch$get_class_method("atb_20"))
+## returns the list of break points for the classes
+```
+
+### Combining
+
+In combing classes to produce HRU areas it is benificial to include a distance
+class, ideally the band.
+To combine the topographic index class with this is straight forward
+
+```{r, atb_20_band}
+ctch$combine_classes("atb_20_band",c("atb_20","band"))
+```
+
+The sub-catchments could be added alongside this as a further combination
+
+```{r, atb_20_band_sub}
+ctch$combine_classes("atb_20_band_subcatch",c("atb_20","band","subcatch"))
+```
+
+A more complex combination would also include the urban area
 Layers burnt into the classification are added after the cuts are applied and
 treated as directly defined HRUs. In the example it may be desirable to burn
 in the Urban areas since these will have a different hydrological behaviour.
@@ -359,15 +384,19 @@ tmp <- -ctch$get_layer("urban")
 writeRaster(tmp,file.path(".","processed","neg_extended_eden.tif")) ## write out
 ctch$add_layer("neg_urban",file.path(".","processed","neg_extended_eden.tif"))
 ```
+
+then burn this into the existing classification based on the topographic index
+and band
+
 ```{r, atb_band_cut_urban_burn}
-ctch$classify("atb_band_cut_neg_urban_burn",cuts=list(atb=20,band=NA),burns="neg_urban")
+ctch$combine_classes("atb_20_band_cut_neg_urban_burn","atb_20_band",burns="neg_urban")
 ```
 
-In the meta data the cuts and burns used to generate the layer are recorded. 
+In the meta data the classes of the original class values in the combination are stored
 These can be retrieved with
 
-```{r see_class}
-ctch$get_class_method("atb_band_cut_neg_urban_burn")
+```{r see_class_comb}
+ctch$get_class_method("atb_20_band")
 ## returns the list of break points for the cuts and layers burnt in
 ```
 
@@ -378,7 +407,7 @@ complexity of the model. The number of Hill-slope classes can be computed from t
 maps
 
 ```{r num_hru, echo=FALSE, results='asis'}
-tmp <- data.frame(classification = c("atb_band_cut","atb_subcatch_band_cut","atb_band_cut_neg_urban_burn"),
+tmp <- data.frame(classification = c("atb_20_band","atb_20_band_subcatch","atb_20_band_cut_neg_urban_burn"),
                   Number_HRU = rep(NA,3))
 for(ii in 1:3){
   tmp$Number_HRU[ii] <- length(unique(ctch$get_layer(tmp$classification[ii])))
@@ -408,9 +437,9 @@ For example, in the case of the division of by topographic index into
 
 ```{r, model_atb_split}
 ctch$create_model("atb_band_model", # name of new model
-                  "atb_band_cut", # classification to base model on
+                  "atb_20_band", # classification to base model on
                   "band", # distance to use for determining flow routing
-                  transmissivity = "bounded_exponential", #transmissivity profile to use
+                  transmissivity = "bexp", #transmissivity profile to use in this case bounded exponential
                   rain_layer = "precip_id", # layer of input precipitation series ID
                   rain_label = "precip_" # characters added to values in rain_layer to get series name
                   )
