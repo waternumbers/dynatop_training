@@ -14,46 +14,45 @@ knitr::opts_knit$set(root.dir = "./eden_data")
 
 To explore and pre-process the observed data for the Eden catchment.
 
-## Installing required R packages
+## Required R Packages
 
-Alongside the packages used in the [initial GIS
+Alongside the `terra` package used in the [initial GIS
 processing](./10_initial_gis.html), two further packages are required. The first,
-xts, allows for an efficent representation of time series data and can be
-installed with
-```{r xts_install, eval=FALSE}
-install.packages("xts")
-```
+`xts`, allows for an efficent representation of time series data.
+The second extra package required is `dynatop`. 
 
-The second extra package required is dynatop. This can be installed with
-
-```{r dynatop_install, eval=FALSE}
-install.packages("dynatop", repos = c("https://waternumbers.github.io/drat", "http://cran.rstudio.com"))
-```
-
-Once installed the required packages are attached to the R environment so that there
+These are attached to the R environment so that there
 functions are available.
+
 ```{r attach_obs}
-library(raster)
+library(terra)
 library(xts)
 library(dynatop)
 ```
+
+and remember to move to the eden_data directory e.g.
+
+```{r, eval=FALSE}
+setwd("../eden_data")
+```
+
 ## Expected Data
 
-The data used in dynatop when simulating the model is expected
+The data passed to `dynatop` when simulating the model is expected
 to be a xts object (a special kind numeric matrix whose row names give the
 time) with a constant time step $\Delta t$. Each column of data should have a
-unique name which is used to specify the time series when building the model.
+unique name which is used to specify the time series when building the
+model. 
 
-Three variables are used as inputs, precipitation, potential evapotranspiration and discharge.
+Two variables are used as inputs, precipitation and potential evapotranspiration (PET).
 It is expected that the precipitation and potential evapotranspiration inputs series are
 given in $m$ accrued over the proceeding time step. So the data value given
 at time $t+\Delta t$ is the total accrued in the interval between time $t$
 and time $t+\Delta t$.
 
-The data series of discharge are used for the diffuse and point inputs which
-can be added to the channel network. These series should be in $m^3/s$. In the channel HRU solution the value given at time
-$t+\Delta t$ is presumed to be constant over the interval $t$ to $t+\Delta t$
-so ideally the the input series should represent the average flow for this period.
+Since columns in the xts object passed to `dynatop` which are not used in the model are ignored, so
+there is no danger is combining observed discharge records in the same object
+as the input data.
  
 ## Data Files
 
@@ -69,7 +68,7 @@ Looking at the start of Eden_Flow.csv
 cat(readLines(file.path(".","unprocessed","Eden_Flow.csv"),5),sep="\n")
 ```
 
-we see that the Index column gives the time in an unabiguous format recognised by xts. The
+we see that the Index column gives the time in an unabiguous format recognised by `xts`. The
 second column the observed discharges at the Sheepmount gauge as numeric values. We read this
 in using function avaialbe through the xts package
 
@@ -80,15 +79,15 @@ head(flow)
 
 ## Rainfall Data
 
-To explore the rainfall data open the file using the raster package
+To explore the rainfall data open the file using the `terra` package
 
 ```{r open_precip}
 ## read in as a multilayered object
-precip_brk <- brick(file.path(".","unprocessed","Eden_Precip.nc"))
+precip_brk <- rast(file.path(".","unprocessed","Eden_Precip.nc"))
 ## show summary
 precip_brk
 ## show start of the z values which are the time stamps as character strings
-head(getZ(precip_brk))
+head(time(precip_brk))
 ```
 
 From the properties of precip_brk we see that:
@@ -100,10 +99,10 @@ From the properties of precip_brk we see that:
 To address the projection and resolution differences two approaches could be
 taken
 
-- reproject the rainfall data to match the DEM, so giving each DEM
-cell its own rainfall time series
+- reproject the rainfall data to match the DEM then extract a time series for
+each cell, so giving each DEM cell its own rainfall time series
 - assign each cell in the DEM to one of the rainfall data raster cells and
-reformat the exisiting rainfall data to the give time series.
+extract the exisiting rainfall data to the give time series.
 
 Since the DEM has a higher spatial resolution then the rainfall the
 second approach is more computationally efficent and is recommended.
@@ -112,7 +111,7 @@ To impliment the approach start by creating a raster layer of the same
 projection and extent as the rainfall feilds but with unique values
 
 ```{r rainfall_id}
-rid <- raster(precip_brk[[1]])
+rid <- rast(precip_brk[[1]])
 rid <- setValues(rid,1:ncell(rid))
 rid
 ```
@@ -121,16 +120,18 @@ Then extract the precipitation values to give an xts object where each column is
 series for one value in rid.
 
 ```{r rainfall_out}
-precip <- getValues(precip_brk) # matrix where each row is one cell
+precip <- values(precip_brk) # matrix where each row is one cell
 ## add row names based on unique values in rid to give time series names
-rownames(precip) <-  paste0("precip_",getValues(rid))
+rownames(precip) <-  paste0("precip_",values(rid))
 ## get times as characters and convert to R internal time representation (POSIXct)
-precip_datetime <- as.POSIXct(getZ(precip_brk),tz="GMT")
+precip_datetime <- time(precip_brk)
 ## create the xts object
 precip <- xts(t(precip),order.by=precip_datetime)
 ```
 
-To fix the difference in time step compared with the flow data we resample the precipitation data. The resample_xts function of dynatop provides
+
+To fix the difference in time step compared with the flow data we resample the
+precipitation data to a 15 minute timestep. The resample_xts function of dynatop provides
 a simple method for doing this
 
 ```{r resample_time}
@@ -138,7 +139,7 @@ a simple method for doing this
 resampled_precip <- resample_xts(precip,900)
 ## look at what it does (assigned rainfall equally between new steps in same time period)
 head(precip[,"precip_48"]) # original data
-head(resampled_precip) # resampled data - see how they sum to the original values
+head(resampled_precip[,"precip_48"]) # resampled data - see how they sum to the original values
 ```
 
 To assign the DEM cells to rainfall series reproject the raster layer of unique
@@ -147,21 +148,19 @@ using nearest neighbours, then save this for later use.
 
 ```{r resample_space}
 ## load the dem
-dem <- raster(file.path(".","processed","dem.tif"))
+eden <- rast(file.path(".","processed","eden.tif"))
 ## call the resample_precip function
-reproj_rid <- projectRaster(rid,dem,method="ngb")
-## mask so only values for finite DEM cells
-reproj_rid <- mask(reproj_rid,dem)
+reproj_rid <- project(rid,eden,method="near")
 ## A plot for visualisation
 plot(reproj_rid)
 ## save
-writeRaster(reproj_rid,file.path(".","processed","precip_id.tif"))
+writeRaster(reproj_rid,file.path(".","processed","precip_id.tif"),overwrite=TRUE)
 ```
 
 ## Potential Evapotranspriation
 
 If available spatial Potential Evapotranspiration time series can be handled
-in exactly teh same way as the rainfall. However if there is only a single series generatation of the map of
+in exactly the same way as the rainfall. However if there is only a single series generatation of the map of
 id values can be avoided. A simple sinusoidal PET series can be generated
 using the evap_est function in dynatop
 ```{r pet}
