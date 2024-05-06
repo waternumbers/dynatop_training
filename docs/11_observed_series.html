@@ -322,15 +322,6 @@ $(document).ready(function () {
 <p>These are attached to the R environment so that there functions are available.</p>
 <pre class="r"><code>library(terra)
 library(xts)
-#&gt; Loading required package: zoo
-#&gt; 
-#&gt; Attaching package: &#39;zoo&#39;
-#&gt; The following object is masked from &#39;package:terra&#39;:
-#&gt; 
-#&gt;     time&lt;-
-#&gt; The following objects are masked from &#39;package:base&#39;:
-#&gt; 
-#&gt;     as.Date, as.Date.numeric
 library(dynatop)</code></pre>
 <p>and remember to move to the eden_data directory e.g.</p>
 <pre class="r"><code>setwd(&quot;../eden_data&quot;)</code></pre>
@@ -428,8 +419,6 @@ resampled_precip &lt;- resample_xts(precip,900)
 ## look at what it does (assigned rainfall equally between new steps in same time period)
 head(precip[,&quot;precip_48&quot;]) # original data
 #&gt; Warning: object timezone (&#39;UTC&#39;) is different from system timezone (&#39;&#39;)
-#&gt;   NOTE: set &#39;options(xts_check_TZ = FALSE)&#39; to disable this warning
-#&gt;     This note is displayed once per session
 #&gt;                        precip_48
 #&gt; 2020-02-01 00:30:00 0.0000000000
 #&gt; 2020-02-01 01:00:00 0.0001677525
