@@ -166,7 +166,7 @@ using the evap_est function in dynatop
 ```{r pet}
 ## use a maximum of 3 mm/day - output in meters
 pet <- evap_est(index(flow), eMin = 0, eMax = 0.003)
-names(pet) <- "PET" # ensure series has a name
+names(pet) <- "pet" # ensure series has a name
 ```
 
 ## Combining Series

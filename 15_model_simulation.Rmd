@@ -12,13 +12,20 @@ knitr::opts_knit$set(root.dir = "./eden_data")
 
 ## Aim
 
-To simulate a Dynamic TOPMODEL of the Eden catchment, visualise the output and
+To simulate a Dynamic TOPMODEL of the Eden catchment, visualise the output showing how the 
 show how the parameters may be altered.
 
-## Installing required R packages
+## Required R packages
 
-No further packages are required beyond those used in processing the [GIS
-processing](./10_initial_gis.html) and [observed](./11_observed_series.html) data.
+his exercise builds upon the early [model creation](./13_model_building.html), using the outputs generated during that
+exercise.
+
+The packages used can be attached with
+
+```{r attach_packages}
+library("dynatop")
+library("terra")
+```
 
 ## A Simulation
 
@@ -30,7 +37,8 @@ section](./13_model_building.html) and observed data in the format introduced
 Load the previously created data
 
 ```{r load_data}
-mdl <- readRDS(file.path(".","processed","atb_band_model.rds"))
+mdl <- readRDS(file.path(".","dyna","atb_20_model.rds"))
+output_defn <- readRDS(file.path(".","dyna","gauge_output_defn.rds"))
 obs <- readRDS(file.path(".","processed","obs.rds"))
 ```
 
@@ -40,7 +48,8 @@ initialise a dynatop object by loading the model
 ```{r load_model}
 library(dynatop)
 library(xts)
-ctch_mdl <- dynatop$new(mdl)
+hru <- mdl$hru
+ctch_mdl <- dynatop$new(hru)
 ```
 This step performs some basis checks on the model for consistency.
 The data can then be added; again simple checks are performed.
@@ -49,18 +58,13 @@ The data can then be added; again simple checks are performed.
 ctch_mdl$add_data(obs)
 ```
 
-There are two types of HRU; hill-slope and
-channel. These can be run individually with the sim_hillslope and
-sim_channel methods or sequentially with the sim method. The individual
-methods check that suitable input data is available, but not how it was generated.
-
 The initial states of the simulations can be specified in the model
 object. If, as in the case of this example, the states are not specified then
 any attempt to perform a simulation will fail.
 
 ```{r sim_fail, error=TRUE, purl=FALSE}
 ## expect a failure
-ctch_mdl$sim()
+ctch_mdl$sim(output_defn)
 ```
 
 The states need to be initialised using the initialise method. This
@@ -74,7 +78,16 @@ presumes:
 - the unsaturated zone storage ensures that the recharge rate from the
 unsaturated zone to the saturated zone is as close to the maximum as possible
 
-The uniform maximum recharge rate is input to the method call. A simple way
+The maximum recharge rate and fraction of root zone storage full for each HRU forms part of its definition.
+
+```{r init_defn}
+hru[[1000]]$initialisation
+## s_rz_0 - fraction of root zone full
+## r_us_sz_0 - recharge unsaturated to saturated zone in m/s and
+
+```
+
+is input to the method call. A simple way
 of getting an initial estimate of this is to divide the observed discharge at
 the outlet of the catchment for the first time step by the hill-slope surface area. This works best if
 the first time step has no rainfall and is close to base-flow.
@@ -118,11 +131,11 @@ in the following
 ### Gauge flows
 ```{r gauge_flow}
 ## For simulated flows at the gauge sites
-sim_gauge <- ctch_mdl$get_gauge_flow() ## extract the flow as an xts object
+sim_gauge <- ctch_mdl$get_output() ## extract the flow as an xts object
 head(sim_gauge)
 
 ## Plot the simulated flows at the gauges
-ctch_mdl$plot_gauge_flow()
+ctch_mdl$plot_output()
 ```
 
 The observed gauge data is readily added and plotted
@@ -130,6 +143,7 @@ The observed gauge data is readily added and plotted
 plot( merge(obs$Sheepmount_obs,sim_gauge),main="Simulated and observed flows",
      legend.loc='topright')
 ```
+
 ### Channel Inflow
 
 ```{r channel_flow}
