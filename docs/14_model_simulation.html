@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Running a Simulation</title>
+
+<script src="site_libs/header-attrs-2.26/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">dynatop Training</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Programme
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li class="dropdown-header">Getting Started</li>
+    <li>
+      <a href="02_prerequisite.html">Prerequisites</a>
+    </li>
+    <li class="dropdown-header">Part 1: Using dynatop &amp; dynatopGIS</li>
+    <li>
+      <a href="03_dynamic_topmodel.html">Dynamic TOPMODEL</a>
+    </li>
+    <li>
+      <a href="04_dynatopGIS_dynatop.html">dynatopGIS &amp; dynatop</a>
+    </li>
+    <li>
+      <a href="05_eden.html">Training Example</a>
+    </li>
+    <li>
+      <a href="10_initial_gis.html">Initial GIS Processing</a>
+    </li>
+    <li>
+      <a href="11_observed_series.html">Processing Observed Data</a>
+    </li>
+    <li>
+      <a href="13_model_building.html">Model Generation</a>
+    </li>
+    <li>
+      <a href="14_model_simulation.html">Setting up a Simulation</a>
+    </li>
+    <li>
+      <a href="15_monte_carlo.html">Monte-Carlo Runs</a>
+    </li>
+    <li class="dropdown-header">Part2: Developing dynatop</li>
+    <li>
+      <a href="20_using_github.html">Using Github</a>
+    </li>
+    <li>
+      <a href="21_package_structure.html">R Packages</a>
+    </li>
+    <li>
+      <a href="22_building_dynatop.html">Building dynatop</a>
+    </li>
+    <li>
+      <a href="23_altering_dynatop.html">Altering dynatop</a>
+    </li>
+  </ul>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Running a Simulation</h1>
+
+</div>
+
+
+<div id="aim" class="section level2">
+<h2>Aim</h2>
+<p>To simulate a Dynamic TOPMODEL of the Eden catchment, visualise the output showing how the show how the parameters may be altered.</p>
+</div>
+<div id="required-r-packages" class="section level2">
+<h2>Required R packages</h2>
+<p>his exercise builds upon the early <a href="./13_model_building.html">model creation</a>, using the outputs generated during that exercise.</p>
+<p>The packages used can be attached with</p>
+<pre class="r"><code>library(&quot;dynatop&quot;)
+library(&quot;terra&quot;)
+library(&quot;xts&quot;)</code></pre>
+</div>
+<div id="a-simulation" class="section level2">
+<h2>A Simulation</h2>
+<p>The minimum data need to perform a simulation with dynatop is a model, such as that output by dynatopGIS in the <a href="./13_model_building.html">previous section</a> and observed data in the format introduced <a href="./11_observed_series.html">earlier</a>.</p>
+<p>Load the previously created data</p>
+<pre class="r"><code>mdl &lt;- readRDS(file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;atb_20_model.rds&quot;))
+output_defn &lt;- readRDS(file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;gauge_output_defn.rds&quot;))
+obs &lt;- readRDS(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;obs.rds&quot;))</code></pre>
+<p>Attach the dynatop package so it is available in the R session then initialise a dynatop object by loading the model</p>
+<pre class="r"><code>hru &lt;- mdl$hru
+ctch_mdl &lt;- dynatop$new(hru)</code></pre>
+<p>This step performs some basis checks on the model for consistency. The data can then be added; again simple checks are performed.</p>
+<pre class="r"><code>ctch_mdl$add_data(obs)</code></pre>
+<p>The initial states of the simulations can be specified in the model object. If, as in the case of this example, the states are not specified then any attempt to perform a simulation will fail.</p>
+<pre class="r"><code>## expect a failure
+ctch_mdl$sim(output_defn)
+#&gt; Error in ctch_mdl$sim(output_defn): Model states have non-finite values</code></pre>
+<p>The states need to be initialised using the initialise method. This presumes:</p>
+<ul>
+<li>The surface is dry</li>
+<li>The root zone is partially full (the s_rz0 parameter)</li>
+<li>There is a specified (see below) uniform maximum recharge rate representing the flow from the unsaturated to saturated zone</li>
+<li>the saturated zone is at a steady state</li>
+<li>the unsaturated zone storage ensures that the recharge rate from the unsaturated zone to the saturated zone is as close to the maximum as possible</li>
+</ul>
+<p>The maximum recharge rate and fraction of root zone storage full for each HRU forms part of its definition.</p>
+<pre class="r"><code>hru[[1000]]$initialisation
+#&gt;    s_rz_0 r_uz_sz_0 
+#&gt;   7.5e-01   1.0e-07
+## s_rz_0 - fraction of root zone full
+## r_us_sz_0 - recharge unsaturated to saturated zone in m/s and</code></pre>
+<p>is input to the method call. A simple way of getting an initial estimate of this is to divide the observed discharge at the outlet of the catchment for the first time step by the hill-slope surface area. This works best if the first time step has no rainfall and is close to base-flow.</p>
+<pre class="r"><code>## determining the initial recharge rate ad setting it in the model
+r0 &lt;- as.numeric(obs$Sheepmount_obs[1]) / sum( sapply( hru, function(x){x$properties[&quot;area&quot;]} ) )
+hru &lt;- lapply(hru,function(h){h$initialisation[&quot;r_uz_sz_0&quot;] &lt;- r0;h})</code></pre>
+<p>In the following we initialise the states and then perform the simulation, using the chaining of commands.</p>
+<pre class="r"><code>## the map input is only needed for visualisation
+ctch_mdl &lt;- dynatop$new(hru,map=mdl$map)$add_data(obs)$initialise()$sim(output_defn)</code></pre>
+<div id="mass-balance" class="section level3">
+<h3>Mass balance</h3>
+<p>It is possible to output the mass balance for each time step of the simulation using the <code>get_mass_errors</code> method. The returns an xts object giving the volumes in the hill-slope states at the start and end of the time step along with the other fluxes as volumes. This can easily be used to plot the errors as shown below.</p>
+<pre class="r"><code>mb &lt;- ctch_mdl$get_mass_errors()
+head(mb)
+#&gt;                     initial_state         p e_t  outflow final_state
+#&gt; 2020-02-01 00:15:00    -199341246  636.1126   0 170462.4  -199511073
+#&gt; 2020-02-01 00:30:00    -199511073  636.1126   0 170453.1  -199680890
+#&gt; 2020-02-01 00:45:00    -199680890 6385.7957   0 170444.4  -199844948
+#&gt; 2020-02-01 01:00:00    -199844948 6385.7957   0 170436.5  -200008999
+#&gt; 2020-02-01 01:15:00    -200008999 2140.9939   0 170429.5  -200177288
+#&gt; 2020-02-01 01:30:00    -200177288 2140.9939   0 170422.2  -200345569
+#&gt;                             error
+#&gt; 2020-02-01 00:15:00 -4.768372e-07
+#&gt; 2020-02-01 00:30:00  3.874302e-07
+#&gt; 2020-02-01 00:45:00  8.940697e-08
+#&gt; 2020-02-01 01:00:00 -6.258488e-07
+#&gt; 2020-02-01 01:15:00  1.400709e-06
+#&gt; 2020-02-01 01:30:00 -1.251698e-06
+plot( mb$err , main=&quot;Mass balance error&quot;,ylab=&quot;m^3&quot;)</code></pre>
+<p><img src="14_model_simulation_files/figure-html/mass_check-1.png" width="672" /></p>
+</div>
+</div>
+<div id="visualisations" class="section level2">
+<h2>Visualisations</h2>
+<p>After a simulation it is possible to get or plot output. Three types of output are available:</p>
+<ul>
+<li>the flow at the gauges after simulating the channel HRUs</li>
+<li>the inflows to the channel HRUs after simulating the Hill-slope HRUs</li>
+<li>the current states of the system after simulating the Hill-slope Grus</li>
+</ul>
+<p>All have methods for plotting the data or returning in as a variable as shown in the following</p>
+<div id="gauge-flows" class="section level3">
+<h3>Gauge flows</h3>
+<pre class="r"><code>## For simulated flows at the gauge sites
+sim_gauge &lt;- ctch_mdl$get_output() ## extract the flow as an xts object
+head(sim_gauge)
+#&gt;                     Bampton Grange Burnbanks Coal Burn Cummersdale Dacre Bridge
+#&gt; 2020-02-01 00:15:00       4.840327  2.390397 0.1184192    22.48723     2.774306
+#&gt; 2020-02-01 00:30:00       4.838862  2.391185 0.1154399    22.48396     2.774309
+#&gt; 2020-02-01 00:45:00       4.837507  2.389411 0.1130461    22.48242     2.772193
+#&gt; 2020-02-01 01:00:00       4.835342  2.385965 0.1113741    22.48201     2.768236
+#&gt; 2020-02-01 01:15:00       4.832383  2.381615 0.1102765    22.48166     2.763239
+#&gt; 2020-02-01 01:30:00       4.829074  2.376727 0.1095653    22.48050     2.758187
+#&gt;                     Eamont Bridge Great Corby Greenholme Harraby Green
+#&gt; 2020-02-01 00:15:00      12.33882    107.2570   27.53799      15.33799
+#&gt; 2020-02-01 00:30:00      12.33496    107.2559   27.53502      15.33483
+#&gt; 2020-02-01 00:45:00      12.33104    107.2545   27.53104      15.33116
+#&gt; 2020-02-01 01:00:00      12.32748    107.2518   27.52615      15.32747
+#&gt; 2020-02-01 01:15:00      12.32438    107.2484   27.52056      15.32571
+#&gt; 2020-02-01 01:30:00      12.32172    107.2445   27.51447      15.32608
+#&gt;                     Hynam Bridge Kirkby Stephen Newbiggin Bridge
+#&gt; 2020-02-01 00:15:00     3.602846       5.104887         14.49339
+#&gt; 2020-02-01 00:30:00     3.602379       5.102327         14.49576
+#&gt; 2020-02-01 00:45:00     3.600333       5.098734         14.49784
+#&gt; 2020-02-01 01:00:00     3.596655       5.094588         14.49948
+#&gt; 2020-02-01 01:15:00     3.591665       5.090146         14.49855
+#&gt; 2020-02-01 01:30:00     3.585904       5.085225         14.49442
+#&gt;                     Pooley Bridge Upstream Sheepmount Stockdalewath
+#&gt; 2020-02-01 00:15:00               11.44115   188.7254      5.821262
+#&gt; 2020-02-01 00:30:00               11.43949   188.7263      5.819397
+#&gt; 2020-02-01 00:45:00               11.43846   188.7258      5.815329
+#&gt; 2020-02-01 01:00:00               11.43712   188.7243      5.810751
+#&gt; 2020-02-01 01:15:00               11.43424   188.7223      5.806514
+#&gt; 2020-02-01 01:30:00               11.42934   188.7190      5.802345
+#&gt;                     Temple Sowerby   Udford
+#&gt; 2020-02-01 00:15:00       45.95893 31.30370
+#&gt; 2020-02-01 00:30:00       45.95708 31.29964
+#&gt; 2020-02-01 00:45:00       45.95670 31.29688
+#&gt; 2020-02-01 01:00:00       45.95655 31.29493
+#&gt; 2020-02-01 01:15:00       45.95564 31.29329
+#&gt; 2020-02-01 01:30:00       45.95353 31.29135
+
+## Plot the simulated flows at the gauges
+ctch_mdl$plot_output()</code></pre>
+<p><img src="14_model_simulation_files/figure-html/gauge_flow-1.png" width="672" /></p>
+<p>The observed gauge data is readily added and plotted</p>
+<pre class="r"><code>plot( merge(obs$Sheepmount_obs,sim_gauge),main=&quot;Simulated and observed flows&quot;,
+     legend.loc=&#39;topright&#39;)</code></pre>
+<p><img src="14_model_simulation_files/figure-html/gauge_flow_merge-1.png" width="672" /></p>
+</div>
+<div id="current-states" class="section level3">
+<h3>Current States</h3>
+<p>The current states of the model can be extracted and plotted.</p>
+<pre class="r"><code>## extract the current states as a data.frame
+current_state &lt;- ctch_mdl$get_states()
+## columns correspond to the Hill-slope HRU ID, and the storage&#39;s in each of the four zones
+head(current_state)
+#&gt;   id         s_sf s_rz s_uz s_sz
+#&gt; 1  0 0.0002068378  0.1    0    0
+#&gt; 2  1 9.9318812084  0.1    0    0
+#&gt; 3  2 0.0006378627  0.1    0    0
+#&gt; 4  3 0.0037595521  0.1    0    0
+#&gt; 5  4 0.0035531672  0.1    0    0
+#&gt; 6  5 0.5786725948  0.1    0    0
+
+## a single state can be plotted at one time
+ctch_mdl$plot_state(&quot;s_sz&quot;) ## TOD add map ealier</code></pre>
+<p><img src="14_model_simulation_files/figure-html/current_states-1.png" width="672" /></p>
+</div>
+</div>
+<div id="changing-parameters" class="section level2">
+<h2>Changing Parameters</h2>
+<p>The parameters are stored within the HRU descriptions; particuarly the <code>sf</code>, <code>rz</code>, <code>uz</code> and <code>sz</code> elements. Each of these contains a <code>type</code> variable and corresponding names vector of parameters. The various types and parameters for each zone are described in the (<code>dynatop</code> vignettes)[<a href="https://waternumbers.github.io/dynatop/articles/HRU.html#surface-zone-representations" class="uri">https://waternumbers.github.io/dynatop/articles/HRU.html#surface-zone-representations</a>].</p>
+<p>The most straight forward way for altering the parameters is two write a function that acts on each HRU, altering the parameters with reference to the properties of the HRU. In the follwoing presents a simple function of setting a faster surface velocity and kinematic solution for the river channels.</p>
+<pre class="r"><code>fpar &lt;- function(h){ ## h is the hru
+    ## test if a channel
+    if( !is.na(h$class$startNode) ){
+        ## change type
+        h$sf$type &lt;- &quot;kin&quot;
+        h$sf$param[&quot;c_sf&quot;] &lt;- 1
+    }
+    h
+}</code></pre>
+</div>
+<div id="channel-inflow" class="section level2">
+<h2>Channel Inflow</h2>
+<p>To use <code>dyantop</code> to drive a hydraulic model the inflow from the subsurface and hillslope HRUs to the surface zone of each channel HRU may need to be computed. The first term is (directly available )[<a href="https://waternumbers.github.io/dynatop/articles/The_Model_Object.html#output_flux" class="uri">https://waternumbers.github.io/dynatop/articles/The_Model_Object.html#output_flux</a>], though will the wrong sign and as a volume. Start by working out the id of each channel HRU</p>
+<pre class="r"><code>chn_id &lt;- do.call(c, lapply( hru, function(h){ if(!is.na(h$class$startNode)){ h$id } }))</code></pre>
+<p>Next start creating an output definition for the flux from root zone</p>
+<pre class="r"><code>out_hyd &lt;-  data.frame( name = paste0(&quot;hyd_&quot;,chn_id),
+                       id = chn_id,
+                       flux = &quot;v_sf_rz&quot;, scale =-1/900) # scale is negative since flux usually downwards, 1/900 is 1/timestep</code></pre>
+<p>Next we will construct the inflow from HRUs representing hillslopes and add these to the data frame above.</p>
+<pre class="r"><code>## function to compute the relevent part so the output definition for each potential source HRU
+fout &lt;- function(h){
+    ## test if it is a channel HRU - in which case return NULL
+    if( !is.na(h$class$startNode) ){ return(NULL) }
+        
+    ## index of flow directiuons going to other channels
+    idx &lt;- h$sf_flow_direction$id %in% chn_id
+    if(!any(idx)){ return(NULL) } ## quit if no links!
+    ## create partial output defn
+    data.frame(
+        name = paste0(&quot;hyd_&quot;,h$sf_flow_direction$id[idx]), ## which inflow does it alter
+        id = h$id, ## flux comes from this HRU
+        flux = &quot;q_sf&quot;, # surface flux out of this HRU is input to the next
+        scale = h$sf_flow_direction$fraction[idx] # scale is fraction of flow (since taking it away)
+    )
+}
+## row bind to give a data.frame
+tmp &lt;- do.call( rbind, lapply( hru, fout) )
+
+## row bind onto the intial data frame
+out_hyd &lt;- rbind( out_hyd, tmp )
+
+## sort this, not needed but easier to look at
+out_hyd &lt;- out_hyd[ order(out_hyd$name), ]</code></pre>
+<p>In the resulting output definition multiple fluxes contribute to the same output series, combined by a summation weighted by the scale value. Simulation and visualisation work as before.</p>
+<pre class="r"><code>ctch_mdl &lt;- dynatop$new(hru)$add_data(obs)$initialise()$sim(out_hyd)
+plot( ctch_mdl$get_output()[,1:10])</code></pre>
+<p><img src="14_model_simulation_files/figure-html/inflow_sim-1.png" width="672" /></p>
+</div>
+<div id="extracting-intermediate-states" class="section level2">
+<h2>Extracting Intermediate States</h2>
+<p>Unless requested dynatop keeps only the current state during a simulation. To request that states are other time steps are kept a vector of times must be passed in the call to the sim or sim_hillslope method</p>
+<pre class="r"><code>## Let us repeat the same simulation
+## keeping the states for every other time step
+keep_times &lt;- index(obs)[seq(2,nrow(obs),by=96)] ## an vector of time steps
+ctch_mdl$initialise()$sim(output_defn,keep_states=keep_times) ## passing the vector of time steps to the call</code></pre>
+<p>The record of the states can know be extracted. While there is an entry for every time step only those request will be populated</p>
+<pre class="r"><code>## extract the record of the states at each time step
+state_rec &lt;- ctch_mdl$get_states(record=TRUE) ## returns the whole record of states
+head(names(state_rec)) ## the elements in state_rec are named after the time
+#&gt; [1] &quot;2020-02-01 00:15:00&quot; &quot;2020-02-01 00:30:00&quot; &quot;2020-02-01 00:45:00&quot;
+#&gt; [4] &quot;2020-02-01 01:00:00&quot; &quot;2020-02-01 01:15:00&quot; &quot;2020-02-01 01:30:00&quot;
+head(sapply(state_rec,length)) ## those in keep_times are populated the remainder are empty
+#&gt; 2020-02-01 00:15:00 2020-02-01 00:30:00 2020-02-01 00:45:00 2020-02-01 01:00:00 
+#&gt;                   0                5322                   0                   0 
+#&gt; 2020-02-01 01:15:00 2020-02-01 01:30:00 
+#&gt;                   0                   0</code></pre>
+<p>The visualisation of the state record is possible either as a time series</p>
+<pre class="r"><code>## Create a time series plot of the saturated zone deficit
+s_sz_rec &lt;- state_rec[ sapply(state_rec,length)&gt;0 ]
+s_sz_rec &lt;- lapply(s_sz_rec, function(x){ setNames( sapply(x,function(z){z$states[&quot;s_sz&quot;]}), sapply(x,function(z){z$id}) )} )
+s_sz_rec &lt;- do.call(rbind,s_sz_rec) ## bind to make matrix
+s_sz_rec &lt;- as.xts(s_sz_rec) ## convert to and xts object using the rownames as times
+## for a the Hill-slope HRUs with IDs 2487, 3598 and 5201 the start of the time series are
+head(s_sz_rec[,c(&quot;2487&quot;,&quot;3598&quot;,&quot;5201&quot;)])
+#&gt;                     2487      3598      5201
+#&gt; 2020-02-01 00:30:00    0 0.1340464 0.2609351
+#&gt; 2020-02-02 00:30:00    0 0.1406502 0.2670000
+#&gt; 2020-02-03 00:30:00    0 0.1432964 0.2692502
+#&gt; 2020-02-04 00:30:00    0 0.1481211 0.2743908
+#&gt; 2020-02-05 00:30:00    0 0.1523176 0.2786539
+#&gt; 2020-02-06 00:30:00    0 0.1566853 0.2830206
+## and a plot can be generated
+plot(s_sz_rec[,c(&quot;2487&quot;,&quot;3598&quot;,&quot;5201&quot;)],main=&quot;Saturated zone deficit for select HRU&quot;,legend.loc=&quot;topright&quot;)</code></pre>
+<p><img src="14_model_simulation_files/figure-html/time_series_states-1.png" width="672" /> or as a map</p>
+<pre class="r"><code>## Create a map of the root zone storage at 2020-02-03 02:00:00
+s_rz_val &lt;- do.call(rbind, lapply( state_rec[[&quot;2020-02-03 00:30:00&quot;]], function(x){ data.frame(id=x$id,s_rz = x$states[&quot;s_rz&quot;]) }) )
+## create a map of values by substituting s_rz for the id in the hru_id map
+hru_id &lt;- rast( file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;atb_20_model.tif&quot;) ) ## open map from from file names stored in the model
+s_rz_map&lt;- subst(hru_id, from=s_rz_val$id, to = s_rz_val$s_rz) ## substitute values into the map of HRU id numbers
+## and plot
+plot(s_rz_map,main=&quot;Root zone storage at 2020-02-03 00:30:00&quot;)</code></pre>
+<p><img src="14_model_simulation_files/figure-html/time_series_states_map-1.png" width="672" /></p>
+</div>
+<div id="hot-starting-and-saving" class="section level2">
+<h2>Hot Starting and Saving</h2>
+<p>Hot starting; that is starting a simulation with the final states of a previous simulation can be achieved by simply not re-initialising the dynatop object before the next call to sim</p>
+<pre class="r"><code>## initialise and simulate the model
+ctch_mdl$initialise()$sim(output_defn)
+r1 &lt;- ctch_mdl$get_output() ## get the output from the first run
+## run again without initialising
+## This will use the final states of the last simulation as the starting states
+ctch_mdl$sim(output_defn)
+r2 &lt;- ctch_mdl$get_output() ## get the output from the second
+plot(r1$Sheepmount)</code></pre>
+<p><img src="14_model_simulation_files/figure-html/sim2-1.png" width="672" /></p>
+<pre class="r"><code>lines(r2$Sheepmount,col=&quot;red&quot;)## different state values after the second run</code></pre>
+<p><img src="14_model_simulation_files/figure-html/sim2-2.png" width="672" /></p>
+<p>If you want to save the model and current states at the end of a simulation do not save the dynatop object. Instead extract and save he model including the current states and save that.</p>
+<pre class="r"><code>new_mdl &lt;- ctch_mdl$get_model() ## get the model structure from the dynatop object
+new_mdl[[1]] ## as the original model but will final states included
+#&gt; $id
+#&gt; [1] 0
+#&gt; 
+#&gt; $states
+#&gt;         s_sf         s_rz         s_uz         s_sz 
+#&gt; 0.0002068228 0.1000000000 0.0000000000 0.0000000000 
+#&gt; 
+#&gt; $properties
+#&gt;     area    width       Dx gradient 
+#&gt;  1.1e+05  2.0e+00  8.4e+02  1.0e-03 
+#&gt; 
+#&gt; $sf
+#&gt; $sf$type
+#&gt; cnst 
+#&gt;    1 
+#&gt; 
+#&gt; $sf$parameters
+#&gt;  c_sf  d_sf s_raf t_raf 
+#&gt;   0.3   0.0   0.0 999.9 
+#&gt; 
+#&gt; 
+#&gt; $rz
+#&gt; $rz$type
+#&gt; orig 
+#&gt;    1 
+#&gt; 
+#&gt; $rz$parameters
+#&gt; s_rzmax 
+#&gt;     0.1 
+#&gt; 
+#&gt; 
+#&gt; $uz
+#&gt; $uz$type
+#&gt; orig 
+#&gt;    1 
+#&gt; 
+#&gt; $uz$parameters
+#&gt;   t_d 
+#&gt; 28800 
+#&gt; 
+#&gt; 
+#&gt; $sz
+#&gt; $sz$type
+#&gt; exp 
+#&gt;   1 
+#&gt; 
+#&gt; $sz$parameters
+#&gt;   t_0     m 
+#&gt; 0.135 0.040 
+#&gt; 
+#&gt; 
+#&gt; $sf_flow_direction
+#&gt; $sf_flow_direction$id
+#&gt; integer(0)
+#&gt; 
+#&gt; $sf_flow_direction$fraction
+#&gt; numeric(0)
+#&gt; 
+#&gt; 
+#&gt; $sz_flow_direction
+#&gt; $sz_flow_direction$id
+#&gt; integer(0)
+#&gt; 
+#&gt; $sz_flow_direction$fraction
+#&gt; numeric(0)
+#&gt; 
+#&gt; 
+#&gt; $initialisation
+#&gt;       s_rz_0    r_uz_sz_0 
+#&gt; 7.500000e-01 8.322539e-08 
+#&gt; 
+#&gt; $precip
+#&gt; $precip$name
+#&gt; [1] &quot;precip_75&quot; &quot;precip_76&quot;
+#&gt; 
+#&gt; $precip$fraction
+#&gt; [1] 0.09090909 0.90909091
+#&gt; 
+#&gt; $precip$idx
+#&gt; precip_75 precip_76 
+#&gt;        75        76 
+#&gt; 
+#&gt; 
+#&gt; $pet
+#&gt; $pet$name
+#&gt; [1] &quot;pet&quot;
+#&gt; 
+#&gt; $pet$fraction
+#&gt; [1] 1
+#&gt; 
+#&gt; $pet$idx
+#&gt; pet 
+#&gt; 100 
+#&gt; 
+#&gt; 
+#&gt; $class
+#&gt; $class$min_dst
+#&gt; [1] 1
+#&gt; 
+#&gt; $class$atb_20_band
+#&gt; [1] NA
+#&gt; 
+#&gt; $class$atb_20
+#&gt; [1] NA
+#&gt; 
+#&gt; $class$band
+#&gt; [1] NA
+#&gt; 
+#&gt; $class$burns
+#&gt; [1] NA
+#&gt; 
+#&gt; $class$name1
+#&gt; [1] &quot;Boundary Sike&quot;
+#&gt; 
+#&gt; $class$name
+#&gt; [1] &quot;429B7DBF-B913-4B3B-8001-4A697CFBA416&quot;
+#&gt; 
+#&gt; $class$startNode
+#&gt; [1] &quot;4FA23A32-772E-4B51-873C-0C033989B20A&quot;
+#&gt; 
+#&gt; $class$endNode
+#&gt; [1] &quot;02E2B2F3-5087-48DD-A7E9-41F9B5C7969A&quot;
+#&gt; 
+#&gt; $class$form
+#&gt; [1] &quot;inlandRiver&quot;
+#&gt; 
+#&gt; $class$flow
+#&gt; [1] &quot;in direction&quot;
+#&gt; 
+#&gt; $class$fictitious
+#&gt; [1] &quot;false&quot;
+#&gt; 
+#&gt; $class$length
+#&gt; [1] 840
+#&gt; 
+#&gt; $class$name2
+#&gt; [1] NA
+#&gt; 
+#&gt; $class$width
+#&gt; [1] 2
+#&gt; 
+#&gt; $class$area
+#&gt; [1] 1684.048
+#&gt; 
+#&gt; $class$slope
+#&gt; [1] 0.001
+#&gt; 
+#&gt; $class$up_area
+#&gt; [1] 392924.2
+#&gt; 
+#&gt; $class$ct_area
+#&gt; [1] 392924.2</code></pre>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

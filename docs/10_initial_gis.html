@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Initial GIS processing</title>
+
+<script src="site_libs/header-attrs-2.26/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">dynatop Training</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Programme
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li class="dropdown-header">Getting Started</li>
+    <li>
+      <a href="02_prerequisite.html">Prerequisites</a>
+    </li>
+    <li class="dropdown-header">Part 1: Using dynatop &amp; dynatopGIS</li>
+    <li>
+      <a href="03_dynamic_topmodel.html">Dynamic TOPMODEL</a>
+    </li>
+    <li>
+      <a href="04_dynatopGIS_dynatop.html">dynatopGIS &amp; dynatop</a>
+    </li>
+    <li>
+      <a href="05_eden.html">Training Example</a>
+    </li>
+    <li>
+      <a href="10_initial_gis.html">Initial GIS Processing</a>
+    </li>
+    <li>
+      <a href="11_observed_series.html">Processing Observed Data</a>
+    </li>
+    <li>
+      <a href="13_model_building.html">Model Generation</a>
+    </li>
+    <li>
+      <a href="14_model_simulation.html">Setting up a Simulation</a>
+    </li>
+    <li>
+      <a href="15_monte_carlo.html">Monte-Carlo Runs</a>
+    </li>
+    <li class="dropdown-header">Part2: Developing dynatop</li>
+    <li>
+      <a href="20_using_github.html">Using Github</a>
+    </li>
+    <li>
+      <a href="21_package_structure.html">R Packages</a>
+    </li>
+    <li>
+      <a href="22_building_dynatop.html">Building dynatop</a>
+    </li>
+    <li>
+      <a href="23_altering_dynatop.html">Altering dynatop</a>
+    </li>
+  </ul>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Initial GIS processing</h1>
+
+</div>
+
+
+<div id="aim" class="section level2">
+<h2>Aim</h2>
+<p>To explore and pre-process the GIS data for the Eden catchment.</p>
+</div>
+<div id="required-r-packages" class="section level2">
+<h2>Required R Packages</h2>
+<p>R has multiple packages for the processing and analysis spatial data. A good overview is given in the <a href="https://cran.r-project.org/web/views/Spatial.html">Spatial Task View on CRAN</a>. For this part of the training course we use a set of mature package <code>terra</code> which is a dependancy of <code>dynatopGIS</code>. Similar results could be genratered with other packages.</p>
+<p>Attached the <code>terra</code> package to the R environment so that its functions are available.</p>
+<pre class="r"><code>library(terra)
+#&gt; terra 1.7.71
+library(dynatopGIS)</code></pre>
+<p>and remember to move to the eden_data directory e.g.</p>
+<pre class="r"><code>setwd(&quot;../eden_data&quot;)</code></pre>
+</div>
+<div id="data-required-by-dynatopgis" class="section level2">
+<h2>Data Required by <code>dynatopGIS</code></h2>
+<p>To build a Dynamic TOPMODEL the <code>dynatopGIS</code> package requires the following</p>
+<ul>
+<li>A raster map of the catchment, possiblly deliniating subcatchments</li>
+<li>A raster DEM covering the catchment</li>
+<li>A vector representation of the river network</li>
+</ul>
+<p>Optionally the user can also provide</p>
+<ul>
+<li>A raster map deliniating spatial rainfall patterns</li>
+<li>A raster map deliniating spatial PET patterns</li>
+<li>Raster maps containing further data to help classify the HRUs</li>
+</ul>
+<p>All raster data must in the same resolution and projection as the catchment map. The vector river data must have the same projection.</p>
+<blockquote>
+<p><strong>WARNING</strong>: <code>dynatopGIS</code> only works with projected raster data with square cells!</p>
+</blockquote>
+<blockquote>
+<p><strong>WARNING</strong>: <code>dyntopGIS</code> presumes all raster values are numeric!</p>
+</blockquote>
+<blockquote>
+<p><strong>Note</strong> The raster map of the catchment should have only <code>NA</code> values in the edge row and columns.</p>
+</blockquote>
+</div>
+<div id="loading-data" class="section level2">
+<h2>Loading Data</h2>
+<p>There are four types of spatial data in the example; raster, polygons, lines and points; in three different formats; Geotiff, shapefile and csv.</p>
+<p>To start use functions in the raster package to load both the raster data and that contained in the shapefiles:</p>
+<pre class="r"><code>dem &lt;- rast(file.path(&quot;.&quot;,&quot;unprocessed&quot;,&quot;Eden_DEM.tif&quot;)) # load the dem as a raster layer
+eden &lt;- vect(file.path(&quot;.&quot;,&quot;unprocessed&quot;,&quot;Eden_Catchment.shp&quot;)) # load the outline of the sub-catchments from the shapefile
+channel &lt;- vect(file.path(&quot;.&quot;,&quot;unprocessed&quot;,&quot;Eden_River_Network.shp&quot;)) # load the river network from the shapefile
+urban &lt;- vect(file.path(&quot;.&quot;,&quot;unprocessed&quot;,&quot;Eden_Urban.shp&quot;)) # load the urban area map from the shapefile</code></pre>
+<p>Typing the variable name at the R prompt will display a summary of the data loaded, for example</p>
+<pre class="r"><code>dem
+#&gt; class       : SpatRaster 
+#&gt; dimensions  : 863, 629, 1  (nrow, ncol, nlyr)
+#&gt; resolution  : 100, 100  (x, y)
+#&gt; extent      : 326000, 388900, 495450, 581750  (xmin, xmax, ymin, ymax)
+#&gt; coord. ref. : OSGB36 / British National Grid (EPSG:27700) 
+#&gt; source      : Eden_DEM.tif 
+#&gt; name        : Eden_DEM 
+#&gt; min value   :   -2.700 
+#&gt; max value   :  923.425</code></pre>
+<p>Compare the <code>dem</code>, <code>eden</code>, <code>channel</code> and <code>urban</code> variable to check that:</p>
+<ul>
+<li>there is a common projection</li>
+<li>the cells of DEM are square</li>
+</ul>
+<p>Reading the gauge locations from the csv file is a two stage process</p>
+<pre class="r"><code> # read in the csv file to a date.frame
+csvGauges &lt;- read.csv(file.path(&quot;.&quot;,&quot;unprocessed&quot;,&quot;Eden_Gauge_Sites.csv&quot;))
+# convert the data frame to a SpatVect object - take projection from the DEM
+gauges &lt;- vect(csvGauges,geom=c(&quot;x&quot;,&quot;y&quot;),crs=crs(dem))</code></pre>
+<p>Next plot the data using the default methods in the raster package</p>
+<pre class="r"><code>plot(dem) # underlying coloured image with scale
+plot(urban,add=TRUE,col=&quot;grey&quot;) # grey polygons
+plot(channel,add=TRUE,col=&quot;blue&quot;) # channels as blue lines
+plot(eden,add=TRUE) # outlines of sub-catchments in black
+plot(gauges,add=TRUE,col=&quot;red&quot;) # gauges as red +</code></pre>
+<p><img src="10_initial_gis_files/figure-html/data_plot-1.png" width="672" /></p>
+</div>
+<div id="rasterising-layers" class="section level2">
+<h2>Rasterising Layers</h2>
+<p>The basis of the landscape discretisation is the raster catchment map. In this example, as in many situation the catchment outlines are vectors shapes. These are rasterised using the grid provided by the raster DEM. In the catment map each subcatchment requires a unique numeric value which is provided by the <code>id</code> feild.</p>
+<pre class="r"><code>## show data frame with id values
+head(eden)
+#&gt;      id                     label
+#&gt; 1 76007        Eden at Sheepmount
+#&gt; 2 76003          Eamont at Udford
+#&gt; 3 76005    Eden at Temple Sowerby
+#&gt; 4 76017       Eden at Great Corby
+#&gt; 5 76008     Irthing at Greenholme
+#&gt; 6 76010 Petteril at Harraby Green
+## rasterise
+eden_raster &lt;- rasterize(eden, dem, field=&quot;id&quot;)
+## plot the resulting raster
+plot(eden_raster)</code></pre>
+<p><img src="10_initial_gis_files/figure-html/rasterise_subcatch-1.png" width="672" /></p>
+<p>To ensure the edges are <code>NA</code> values the raster is extended, along with that of the DEM</p>
+<pre class="r"><code>eden_raster &lt;- extend(eden_raster,1)
+dem &lt;- extend(dem,1)</code></pre>
+<p>Since the urban areas may be used in the classification they are also rasterised. Suitable numeric values are taken from the unique identifiers in the data.</p>
+<p>In the case of the urban data there are two possible identifiers objectid and bua_id:</p>
+<pre class="r"><code>## show data frame with id values
+head(urban)
+#&gt;   objectid   bua11cd            bua11nm bua_id has_sd sd_count urban_bua
+#&gt; 1       39 E34000039        Penrith BUA    747      N        0       Yes
+#&gt; 2       47 E34000047  Brough (Eden) BUA   1465      N        0        No
+#&gt; 3      297 E34000297       Gilsland BUA   4584      N        0        No
+#&gt; 4      869 E34000869        Lazonby BUA   1016      N        0        No
+#&gt; 5      899 E34000899 Kirkby Stephen BUA   1359      N        0        No
+#&gt; 6      986 E34000986        Dalston BUA    919      N        0        No
+#&gt;   st_areasha st_lengths
+#&gt; 1  4647359.1  19399.690
+#&gt; 2   324993.0   5799.919
+#&gt; 3   214996.1   3499.903
+#&gt; 4   412499.4   5600.042
+#&gt; 5   692492.4   9500.029
+#&gt; 6   582500.1   7699.932
+## rasterise using objectid as the raster value
+urban_raster &lt;- rasterize(urban, eden_raster, field=&quot;objectid&quot;)
+## plot the resulting raster
+plot(urban_raster)</code></pre>
+<p><img src="10_initial_gis_files/figure-html/raterise_urban-1.png" width="672" /></p>
+<p>The raster fields created (<code>eden_raster</code>, <code>urban_raster</code> and extended <code>dem</code>) exist only in memory (or temporary files). Since they will be needed later we will save them:</p>
+<pre class="r"><code>writeRaster(eden_raster,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;eden.tif&quot;),overwrite=TRUE)
+writeRaster(urban_raster,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;urban.tif&quot;),overwrite=TRUE)
+writeRaster(dem,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;dem.tif&quot;),overwrite=TRUE)</code></pre>
+</div>
+<div id="channel-network" class="section level2">
+<h2>Channel Network</h2>
+<p>The representation of the channel network in dynatop is as a series of connected reach lengths. In the processing done by dynatopGIS Each reach is represented by a single spatial polygon. The data for each reach must include the following feilds:</p>
+<ul>
+<li>name - The unique identifier/name of the reach</li>
+<li>length - Length of the reach [m]</li>
+<li>startNode - An identifier for the head of the reach</li>
+<li>endNode - An identifier for the foot of the reach</li>
+<li>width - Channel width [m]</li>
+<li>slope - Channel slope [m/m]</li>
+</ul>
+<p>The startNode and endNode values are used to define the channel connectivity, while the physical properties are used in the <code>dynatop</code> numerical solutions.</p>
+<p>Looking at the channel data</p>
+<pre class="r"><code>channel
+#&gt;  class       : SpatVector 
+#&gt;  geometry    : lines 
+#&gt;  dimensions  : 1697, 9  (geometries, attributes)
+#&gt;  extent      : 327613.4, 388606.5, 496531.8, 581285.4  (xmin, xmax, ymin, ymax)
+#&gt;  source      : Eden_River_Network.shp
+#&gt;  coord. ref. : OSGB36 / British National Grid (EPSG:27700) 
+#&gt;  names       :          name1      identifier       startNode         endNode
+#&gt;  type        :          &lt;chr&gt;           &lt;chr&gt;           &lt;chr&gt;           &lt;chr&gt;
+#&gt;  values      :             NA 71496043-333C-~ 785AA707-7ACC-~ FD4A9B62-950E-~
+#&gt;                Rowantree Gill C1E710A3-ED27-~ FD4A9B62-950E-~ 323B8FBC-8D31-~
+#&gt;                     Lady Sike 0B92A0E8-4B7B-~ 76150301-B4E4-~ 41DAD94A-AF47-~
+#&gt;         form         flow fictitious length name2
+#&gt;        &lt;chr&gt;        &lt;chr&gt;      &lt;chr&gt;  &lt;int&gt; &lt;chr&gt;
+#&gt;  inlandRiver in direction      false     31    NA
+#&gt;  inlandRiver in direction      false    986    NA
+#&gt;  inlandRiver in direction      false    321    NA</code></pre>
+<p>we see that it already contains</p>
+<ul>
+<li>an identifier for the foot of the reach called endNode</li>
+<li>an identifier for the head of the reach called startNode</li>
+<li>the reach length</li>
+<li>a unique identifier called identifier</li>
+</ul>
+<p>but is composed to spatial lines rather then polygons.</p>
+<p>The <code>dynatopGIS</code> package provides a function for convienitently converting line obejcts to the correct format.</p>
+<pre class="r"><code>conv_channel &lt;- convert_channel(
+    channel,
+    property_names = c(name = &quot;identifier&quot;, length = &quot;length&quot;, startNode = &quot;startNode&quot;,
+                       endNode= &quot;endNode&quot;),
+    default_width = 2,
+    default_slope = 0.001
+)
+#&gt; Warning in convert_channel(channel, property_names = c(name = &quot;identifier&quot;, :
+#&gt; Modifying to spatial polygons using default width
+#&gt; Warning in convert_channel(channel, property_names = c(name = &quot;identifier&quot;, :
+#&gt; Adding default slope</code></pre>
+<p>Thw two warning messages reveal that, since they are not specified, default width and slope values are added. The width propoerty is used to buffer the channel resulting in spatial poygons.</p>
+<pre class="r"><code>conv_channel
+#&gt;  class       : SpatVector 
+#&gt;  geometry    : polygons 
+#&gt;  dimensions  : 1697, 12  (geometries, attributes)
+#&gt;  extent      : 327612.4, 388607.5, 496530.8, 581286.4  (xmin, xmax, ymin, ymax)
+#&gt;  coord. ref. : OSGB36 / British National Grid (EPSG:27700) 
+#&gt;  names       :          name1            name       startNode         endNode
+#&gt;  type        :          &lt;chr&gt;           &lt;chr&gt;           &lt;chr&gt;           &lt;chr&gt;
+#&gt;  values      :             NA 71496043-333C-~ 785AA707-7ACC-~ FD4A9B62-950E-~
+#&gt;                Rowantree Gill C1E710A3-ED27-~ FD4A9B62-950E-~ 323B8FBC-8D31-~
+#&gt;                     Lady Sike 0B92A0E8-4B7B-~ 76150301-B4E4-~ 41DAD94A-AF47-~
+#&gt;         form         flow fictitious length name2 width  area slope
+#&gt;        &lt;chr&gt;        &lt;chr&gt;      &lt;chr&gt;  &lt;num&gt; &lt;chr&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt;
+#&gt;  inlandRiver in direction      false     31    NA     2 64.69 0.001
+#&gt;  inlandRiver in direction      false    986    NA     2  1975 0.001
+#&gt;  inlandRiver in direction      false    321    NA     2 645.2 0.001</code></pre>
+<p>The converted channel data is saved for later use</p>
+<pre class="r"><code>writeVector(conv_channel,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;channel.shp&quot;),overwrite=TRUE)</code></pre>
+</div>
+<div id="locating-gauges-on-the-channel-network" class="section level2">
+<h2>Locating Gauges on the Channel Network</h2>
+<p>Before locating the gauges on the network note that in the map of the loaded data there is a single gauge outside to the catchment area. As simple example of manipulating spatial data in R is to remove this by cropping the gauges to the catchment area. This is done by</p>
+<pre class="r"><code>gauges &lt;- crop(gauges,eden)</code></pre>
+<p>To determine the location of the gauges on the river network we identify for each gauge the closest reach. The identifier of this reach, along with the distance to the gauge data is then added to the gauge data.</p>
+<pre class="r"><code>dst &lt;- distance(gauges,conv_channel) ## distance between gauges(row) and channels(column)
+idx &lt;- apply(dst,1,which.min) ## index of closest channel for each gauge
+
+gauges$chn_identifier &lt;- conv_channel$name[ apply(dst,1,which.min) ]
+gauges$chn_distance &lt;- apply(dst,1,min) ## distance to the channel
+ </code></pre>
+<p>To check the results by plotting:</p>
+<pre class="r"><code>selected &lt;- conv_channel[conv_channel$name %in% gauges$chn_identifier,]
+plot(eden) # outlines of subcatchments in black
+plot(conv_channel,add=TRUE,col=&quot;blue&quot;,border=&quot;blue&quot;) # channel network in blue
+plot(selected,add=TRUE,col=&quot;orange&quot;,border=&quot;orange&quot;) # selected reachs in orange
+plot(gauges,add=TRUE,col=&quot;red&quot;,pch=21) # gauges as red filled circles</code></pre>
+<p><img src="10_initial_gis_files/figure-html/crop_gauges_plot-1.png" width="672" /></p>
+<p>The cropped list of gauges with channel identifier can be saved to a shapefile:</p>
+<pre class="r"><code>writeVector(gauges,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;gauges.shp&quot;),overwrite=TRUE)</code></pre>
+<blockquote>
+<p>The quality of results of any method used for any automatic method of locating the gauges depends upon the accuracy of the GIS data.</p>
+</blockquote>
+<blockquote>
+<p>In the numeric solution used in dyantop it is assumed that a gauge is at the foot of a reach. This should be allowed from when conceptualising the channel reaches.</p>
+</blockquote>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Model Building</title>
+
+<script src="site_libs/header-attrs-2.26/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">dynatop Training</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Programme
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li class="dropdown-header">Getting Started</li>
+    <li>
+      <a href="02_prerequisite.html">Prerequisites</a>
+    </li>
+    <li class="dropdown-header">Part 1: Using dynatop &amp; dynatopGIS</li>
+    <li>
+      <a href="03_dynamic_topmodel.html">Dynamic TOPMODEL</a>
+    </li>
+    <li>
+      <a href="04_dynatopGIS_dynatop.html">dynatopGIS &amp; dynatop</a>
+    </li>
+    <li>
+      <a href="05_eden.html">Training Example</a>
+    </li>
+    <li>
+      <a href="10_initial_gis.html">Initial GIS Processing</a>
+    </li>
+    <li>
+      <a href="11_observed_series.html">Processing Observed Data</a>
+    </li>
+    <li>
+      <a href="13_model_building.html">Model Generation</a>
+    </li>
+    <li>
+      <a href="14_model_simulation.html">Setting up a Simulation</a>
+    </li>
+    <li>
+      <a href="15_monte_carlo.html">Monte-Carlo Runs</a>
+    </li>
+    <li class="dropdown-header">Part2: Developing dynatop</li>
+    <li>
+      <a href="20_using_github.html">Using Github</a>
+    </li>
+    <li>
+      <a href="21_package_structure.html">R Packages</a>
+    </li>
+    <li>
+      <a href="22_building_dynatop.html">Building dynatop</a>
+    </li>
+    <li>
+      <a href="23_altering_dynatop.html">Altering dynatop</a>
+    </li>
+  </ul>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Model Building</h1>
+
+</div>
+
+
+<div id="aim" class="section level2">
+<h2>Aim</h2>
+<p>To process the GIS data into a Dynamic TOPMODEL structure of the Eden catchment.</p>
+</div>
+<div id="required-r-packages" class="section level2">
+<h2>Required R packages</h2>
+<p>This exercise builds upon the early <a href="./10_initial_gis.html">initial GIS processing</a>, using the outputs generated during that exercise.</p>
+<p>The packages used can be attached with</p>
+<pre class="r"><code>library(&quot;dynatopGIS&quot;)
+library(&quot;terra&quot;)</code></pre>
+<p>and remember to move to the eden_data directory e.g.</p>
+<pre class="r"><code>setwd(&quot;../eden_data&quot;)</code></pre>
+</div>
+<div id="getting-started" class="section level2">
+<h2>Getting started</h2>
+<p>The dynatopGIS packages works through a number of steps to generate a dynamic TOPMODEL object suitable for use in with the dynatop package. Each step generates one or more layers which are saved as raster or shape files into the projects directory (which is not necessarily the R working directory).</p>
+<p>Initialise the analysis by creating a new dynatopGIS object specifying the location of the project directory, which will be created if it doesn’t exist.</p>
+<pre class="r"><code>ctch &lt;- dynatopGIS$new(file.path(&quot;.&quot;,&quot;dynaGIS&quot;))
+#&gt; Starting new project at ./dynaGIS</code></pre>
+<p>If existing files are present in the directory this step will try to reload them as a dynatopGIS project.</p>
+</div>
+<div id="adding-catchment-data" class="section level2">
+<h2>Adding catchment data</h2>
+<p>The basis of the analysis is a raster catchment map. Onto this a Digital Elevation Model (DEM) of the catchment and a vector representation of the river network with attributes will be added. Currently these can be in any format supported by the <code>terra</code>package.</p>
+<p>However, within the calculations used for sink filling, flow routing and topographic index calculations the DEM is presumed to be projected so that is has square cells such that the difference between the cell centres (in meters) does not alter.</p>
+<p>The catchment map need to be loaded first</p>
+<pre class="r"><code>ctch$add_catchment( file.path(&quot;.&quot;,&quot;processed&quot;,&quot;eden.tif&quot;) )</code></pre>
+<p>Either the DEM or channel files can be added to the project next. In this case add the DEM processed during the initial GIS analysis:</p>
+<pre class="r"><code>ctch$add_dem(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;dem.tif&quot;))</code></pre>
+<p>As part of loading the DEM any blocks of <code>NA</code> values within the DEM that fall within the catchment are filled to appear as sinks. These will be filled in a later step.</p>
+<p>Adding the channel data is acheived with</p>
+<pre class="r"><code>ctch$add_channel(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;channel.shp&quot;))</code></pre>
+</div>
+<div id="getting-and-plotting-catchment-information" class="section level2">
+<h2>Getting and plotting catchment information</h2>
+<p>The dynatopGIS class has methods for returning and plotting the GIS data in the project. The names and file locations of all the different GIS layers stored by dynatopGIS is returned by</p>
+<pre class="r"><code>ctch$get_layer()
+#&gt;          layer
+#&gt; 1    catchment
+#&gt; 2          dem
+#&gt; 3      channel
+#&gt; 4 channel_vect
+#&gt;                                                                               source
+#&gt; 1 /home/smithpj1/Documents/Software/dynatop_training/eden_data/dynaGIS/catchment.tif
+#&gt; 2       /home/smithpj1/Documents/Software/dynatop_training/eden_data/dynaGIS/dem.tif
+#&gt; 3   /home/smithpj1/Documents/Software/dynatop_training/eden_data/dynaGIS/channel.tif
+#&gt; 4   /home/smithpj1/Documents/Software/dynatop_training/eden_data/dynaGIS/channel.shp</code></pre>
+<p>Note that channel_vect layer is the vector representation of teh channel, while channel layer is a rasterised version.</p>
+<p>Individual layers can be plotted (with or without the channel), for example</p>
+<pre class="r"><code>ctch$plot_layer(&quot;dem&quot;, add_channel=TRUE)</code></pre>
+<p><img src="13_model_building_files/figure-html/plot-1.png" width="672" /></p>
+<p>or returned to the R workspace, for example</p>
+<pre class="r"><code>ctch$get_layer(&quot;dem&quot;)
+#&gt; class       : SpatRaster 
+#&gt; dimensions  : 865, 631, 1  (nrow, ncol, nlyr)
+#&gt; resolution  : 100, 100  (x, y)
+#&gt; extent      : 325900, 389000, 495350, 581850  (xmin, xmax, ymin, ymax)
+#&gt; coord. ref. : OSGB36 / British National Grid (EPSG:27700) 
+#&gt; source      : dem.tif 
+#&gt; name        :     dem 
+#&gt; min value   :   9.475 
+#&gt; max value   : 923.425</code></pre>
+</div>
+<div id="filling-sinks" class="section level2">
+<h2>Filling sinks</h2>
+<p>For the hill slope to be connected to the river network all DEM cells must drain to those that intersect with the river network. The algorithm implemented in the <code>sink_fill</code> method ensures this is the case. In calling the <code>sink_fill</code> method a flow direction algorithm is specified and the resulting flow paths recorded. If subcatchments are present in the catchment map then only flow paths within the subcatchment are considered.</p>
+<p>Since the algorithm used by the <code>sink_fill</code> method is iterative and the execution time of the function is limited by capping the maximum number of iterations. If this limit is reached without completion the method can call again with the “hot start” option to continue from where it finished.</p>
+<p>For the Eden the DEM is already well conditions and the algorithm only alters a small areas of the catchment.</p>
+<pre class="r"><code>ctch$sink_fill()
+
+terra::plot( ctch$get_layer(&#39;filled_dem&#39;) - ctch$get_layer(&#39;dem&#39;),
+             main=&quot;Changes to height&quot;)</code></pre>
+<p><img src="13_model_building_files/figure-html/sink_fill-1.png" width="672" /></p>
+</div>
+<div id="determining-ordering" class="section level2">
+<h2>Determining Ordering</h2>
+<p>The computational scheme in the <code>dynatop</code> package works with an ordered sequence of HRUs constructed such that the sequence moves downslope to catchment outlet. This is acheived by banding the channel reaches and hillslope cells such that the catchment outlet(s) are in band 1, those cells or reaches draining only into band 1 are in band 2 and so forth. Banding is acheived by the following call</p>
+<pre class="r"><code>ctch$compute_band()
+ctch$plot_layer(&quot;band&quot;)</code></pre>
+<p><img src="13_model_building_files/figure-html/band-1.png" width="672" /></p>
+</div>
+<div id="computing-properties" class="section level2">
+<h2>Computing Properties</h2>
+<p>Two sets of properties are required for Dynamic TOPMODEL. The first set is those required within the evaluation of the Hill slope HRU; gradient and contour length. The second set are those used for dividing the catchment up into different response classes. Traditionally the summary used for the separation of the classes is the topographic index, which is the natural logarithm of the up slope area divided by gradient.</p>
+<p>These properties are computed using the formulae in <a href="https://doi.org/10.1002/hyp.3360050106">Quinn et al. 1991</a>.</p>
+<p>The upstream area is computed by routing down slope with the fraction of the area being routed to the next downstream pixel being proportional to the gradient times the contour length.</p>
+<p>The local value of the gradient is computed using the average of a subset of between pixel gradients. For a normal ‘hill slope’ cell these are the gradients to down-slope pixels weighted by contour length.</p>
+<p>These properties are computed in an algorithm that passes over the data once in descending height. It is called as follows</p>
+<pre class="r"><code>ctch$compute_properties()</code></pre>
+<p>The plot of the topographic index shows a pattern of increasing values closer to the river channels</p>
+<pre class="r"><code>##plot of topographic index (log(a/tan b))
+ctch$plot_layer(&#39;atb&#39;)</code></pre>
+<p><img src="13_model_building_files/figure-html/plot_atb-1.png" width="672" /></p>
+<p>Although not used in ordering the HRUs <code>dynatopGIS</code> also provides the abiliity to compute flow distances for the hill slope cells. The calculation of three istances is supported</p>
+<ul>
+<li><em>shortest flow length</em> - the shortest length based on the pixel flow paths to a channel</li>
+<li><em>Dominant flow length</em> - the distance to a channel moving in the dominant (largest fraction) flow direction from any grid cell</li>
+<li><em>Expected flow length</em> - the distance to the channel based on a weighted average of the down-slope flow lengths. Weights are given by the fraction of flow in each direction.</li>
+</ul>
+<p>The computation, in this example for the shortest flow length, is initiated with</p>
+<pre class="r"><code>ctch$compute_flow_lengths(flow_routing=&quot;shortest&quot;)</code></pre>
+<p>The additional layers can be examined as expected</p>
+<pre class="r"><code>ctch$get_layer()
+#&gt;                   layer
+#&gt; 1             catchment
+#&gt; 2                   dem
+#&gt; 3               channel
+#&gt; 4            filled_dem
+#&gt; 5                  band
+#&gt; 6              gradient
+#&gt; 7          upslope_area
+#&gt; 8                   atb
+#&gt; 9  shortest_flow_length
+#&gt; 10         channel_vect
+#&gt;                                                                                           source
+#&gt; 1             /home/smithpj1/Documents/Software/dynatop_training/eden_data/dynaGIS/catchment.tif
+#&gt; 2                   /home/smithpj1/Documents/Software/dynatop_training/eden_data/dynaGIS/dem.tif
+#&gt; 3               /home/smithpj1/Documents/Software/dynatop_training/eden_data/dynaGIS/channel.tif
+#&gt; 4            /home/smithpj1/Documents/Software/dynatop_training/eden_data/dynaGIS/filled_dem.tif
+#&gt; 5                  /home/smithpj1/Documents/Software/dynatop_training/eden_data/dynaGIS/band.tif
+#&gt; 6              /home/smithpj1/Documents/Software/dynatop_training/eden_data/dynaGIS/gradient.tif
+#&gt; 7          /home/smithpj1/Documents/Software/dynatop_training/eden_data/dynaGIS/upslope_area.tif
+#&gt; 8                   /home/smithpj1/Documents/Software/dynatop_training/eden_data/dynaGIS/atb.tif
+#&gt; 9  /home/smithpj1/Documents/Software/dynatop_training/eden_data/dynaGIS/shortest_flow_length.tif
+#&gt; 10              /home/smithpj1/Documents/Software/dynatop_training/eden_data/dynaGIS/channel.shp
+ctch$plot_layer(&quot;shortest_flow_length&quot;)</code></pre>
+<p><img src="13_model_building_files/figure-html/flow_length_plot-1.png" width="672" /></p>
+</div>
+<div id="adding-additional-layers" class="section level2">
+<h2>Adding additional Layers</h2>
+<p>Properties for use in the classification of HRUs or for determining input series may be added as additional raster GIS layers.</p>
+<p>In the initial GIS analysis a layer for urban area was developed, which processing teh input data produced a map relating to rainfall input. These can now be added to the dynatopGIS project by specifying the file location and name to call the layer.</p>
+<pre class="r"><code>ctch$add_layer(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;urban.tif&quot;),&quot;urban&quot;)
+ctch$add_layer(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;precip_id.tif&quot;),&quot;precip_id&quot;)</code></pre>
+<p>Calling the get_layer method shows these are added to the project</p>
+<pre class="r"><code>ctch$get_layer()
+#&gt;                   layer
+#&gt; 1             catchment
+#&gt; 2                   dem
+#&gt; 3               channel
+#&gt; 4            filled_dem
+#&gt; 5                  band
+#&gt; 6              gradient
+#&gt; 7          upslope_area
+#&gt; 8                   atb
+#&gt; 9  shortest_flow_length
+#&gt; 10                urban
+#&gt; 11            precip_id
+#&gt; 12         channel_vect
+#&gt;                                                                                           source
+#&gt; 1             /home/smithpj1/Documents/Software/dynatop_training/eden_data/dynaGIS/catchment.tif
+#&gt; 2                   /home/smithpj1/Documents/Software/dynatop_training/eden_data/dynaGIS/dem.tif
+#&gt; 3               /home/smithpj1/Documents/Software/dynatop_training/eden_data/dynaGIS/channel.tif
+#&gt; 4            /home/smithpj1/Documents/Software/dynatop_training/eden_data/dynaGIS/filled_dem.tif
+#&gt; 5                  /home/smithpj1/Documents/Software/dynatop_training/eden_data/dynaGIS/band.tif
+#&gt; 6              /home/smithpj1/Documents/Software/dynatop_training/eden_data/dynaGIS/gradient.tif
+#&gt; 7          /home/smithpj1/Documents/Software/dynatop_training/eden_data/dynaGIS/upslope_area.tif
+#&gt; 8                   /home/smithpj1/Documents/Software/dynatop_training/eden_data/dynaGIS/atb.tif
+#&gt; 9  /home/smithpj1/Documents/Software/dynatop_training/eden_data/dynaGIS/shortest_flow_length.tif
+#&gt; 10                /home/smithpj1/Documents/Software/dynatop_training/eden_data/dynaGIS/urban.tif
+#&gt; 11            /home/smithpj1/Documents/Software/dynatop_training/eden_data/dynaGIS/precip_id.tif
+#&gt; 12              /home/smithpj1/Documents/Software/dynatop_training/eden_data/dynaGIS/channel.shp</code></pre>
+</div>
+<div id="classifying-into-hydrological-response-units" class="section level2">
+<h2>Classifying into Hydrological Response Units</h2>
+<p>Methods are provided for the classification of the catchment. The classifications generated in this process must include the “band” layer is the clasification is to be used when generating a dynatop model (see following section).</p>
+<p>By definition each channel length is treated as a single class with its own Channel HRU. Two ways are provided for dividing the hill-slope up into classes. The first way is <em>cutting</em> where a landscape property is divided up into classes. The second is <em>combining</em> where unique existing class layers are combined by either by pairing (where unique combinations of classes for a new class) or burning (which enforces classes onto distinct areas).</p>
+<div id="cutting" class="section level3">
+<h3>Cutting</h3>
+<p>To split a catchment into HRUs using cuts the breaks between the classes need to be specified. The breaks can be specified as either:</p>
+<ul>
+<li>A single value: defines the number of splits which are automatically selected</li>
+<li>A vector of values: treated as the breaks between classes</li>
+</ul>
+<p>To demonstrate the use of cuts alone dividing the topographic index into 20 classes. Specifying a single value gives class breaks that are equally spaced across the range of the variable.</p>
+<pre class="r"><code>## simple equally spaced cuts
+ctch$classify(&quot;atb_20&quot;,&quot;atb&quot;,20)</code></pre>
+<p>It is perhaps better to consider 20 classes with approximatly equal land area. it this case the breaks can be computed using the quantiles of the variable</p>
+<pre class="r"><code>## use the quantile function of the raster package to compute breaks
+## note we need to include the min and max
+brk &lt;- global(ctch$get_layer(&quot;atb&quot;), fun=quantile,probs = seq(0, 1, length = 21),na.rm=T)
+ctch$classify(&quot;atb_20_equal&quot;,&quot;atb&quot;,brk)</code></pre>
+<p>In the meta data the cuts and burns used to generate the layer are recorded. These can be retrieved with</p>
+<pre class="r"><code>head(ctch$get_method(&quot;atb_20&quot;))
+#&gt; $type
+#&gt; [1] &quot;classification&quot;
+#&gt; 
+#&gt; $layer
+#&gt; [1] &quot;atb&quot;
+#&gt; 
+#&gt; $cuts
+#&gt;  [1]  9.5986 10.3730 11.1474 11.9218 12.6962 13.4706 14.2450 15.0194 15.7938
+#&gt; [10] 16.5682 17.3426 18.1170 18.8914 19.6658 20.4402 21.2146 21.9890 22.7634
+#&gt; [19] 23.5378 24.3122 25.0866
+## returns the list of break points for the classes</code></pre>
+</div>
+<div id="combining" class="section level3">
+<h3>Combining</h3>
+<p>The sub-catchments could be added alongside the banding to add a further spatial seperation.</p>
+<pre class="r"><code>ctch$combine_classes(&quot;atb_20_subcatch&quot;,c(&quot;atb_20&quot;,&quot;catchment&quot;))</code></pre>
+<p>If this is to be used to generate a model the <code>band</code> layer would have to be included.</p>
+<pre class="r"><code>ctch$combine_classes(&quot;atb_20_subcatch_band&quot;,c(&quot;atb_20_subcatch&quot;,&quot;band&quot;))</code></pre>
+<p>A more complex combination would also include the urban area. Layers burnt into the classification are added after the cuts are applied and treated as directly defined HRUs. In the example it may be desirable to burn in the Urban areas since these will have a different hydrological behaviour.</p>
+<p>Since the layer burnt in are applied with no alteration to their values the values specified may clash with those already defined by the cuts. One method that <em>nearly</em> always avoid this is to burn in classes with negative values. Let us then adapt the urban layer to have negative values.</p>
+<pre class="r"><code>tmp &lt;- -ctch$get_layer(&quot;urban&quot;)
+writeRaster(tmp,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;neg_extended_eden.tif&quot;),overwrite=TRUE) ## write out
+ctch$add_layer(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;neg_extended_eden.tif&quot;),&quot;neg_urban&quot;)</code></pre>
+<p>then burn this into the existing classification based on the topographic index and subcatchment</p>
+<pre class="r"><code>ctch$combine_classes(&quot;atb_20_subcatch_band_burn_neg_urban&quot;,&quot;atb_20_subcatch_band&quot;,burns=&quot;neg_urban&quot;)</code></pre>
+<p>In the meta data the classes of the original class values in the combination are stored These can be retrieved with</p>
+<pre class="r"><code>tmp &lt;- ctch$get_method(&quot;atb_20_subcatch&quot;)
+tmp$type
+#&gt; [1] &quot;combination&quot;
+head(tmp$groups)
+#&gt;   atb_20_subcatch atb_20 catchment burns
+#&gt; 1               1      1     76003 FALSE
+#&gt; 2               2      2     76003 FALSE
+#&gt; 3               3      3     76003 FALSE
+#&gt; 4               4      1     76005 FALSE
+#&gt; 5               5      4     76003 FALSE
+#&gt; 6               6      2     76005 FALSE
+## returns the list of break points for the cuts and layers burnt in</code></pre>
+</div>
+<div id="complexity" class="section level3">
+<h3>Complexity</h3>
+<p>The number of Hill-slope classes resulting from the classifications reflects the complexity of the model. The number of Hill-slope classes can be computed from the maps and is shown in the following table. Since these classes may occur in any of the bands the total number of HRUs the upper limit on the number of hill-slope HRUS can be approximated by multiplying the number of classes by the number of bands.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">classification</th>
+<th align="right">Classes</th>
+<th align="right">HRU</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">atb_20</td>
+<td align="right">20</td>
+<td align="right">3744</td>
+</tr>
+<tr class="even">
+<td align="left">atb_20_subcatch</td>
+<td align="right">136</td>
+<td align="right">13878</td>
+</tr>
+<tr class="odd">
+<td align="left">atb_20_subcatch_band_burn_neg_urban</td>
+<td align="right">166</td>
+<td align="right">13826</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="generating-a-dynamic-topmodel" class="section level2">
+<h2>Generating a dynamic TOPMODEL</h2>
+<p>A Dynamic TOPMODEL suitable for use with the <code>dynatop</code> package can be generated using the create_model method. This uses an existing classification to generate the model.</p>
+<p>For example, in the case of the division of by topographic index into 21 classes and the bands directly the resulting model can be generated by</p>
+<pre class="r"><code>ctch$create_model(file.path(&quot;./dyna&quot;,&quot;atb_20_model&quot;), # name of new model
+                  &quot;atb_20_band&quot;, # classification to base model on
+                  sf_opt=&quot;cnst&quot;,
+                  sz_opt=&quot;exp&quot;,
+                  rain_layer = &quot;precip_id&quot;, # layer of input precipitation series ID
+                  rain_label = &quot;precip_&quot; # characters added to values in rain_layer to get series name
+                  )</code></pre>
+<p>Looking at the files within the folder containing the dynatopGIS project</p>
+<pre class="r"><code>list.files(file.path(&quot;./dyna&quot;),pattern=&quot;atb_20_model&quot;)
+#&gt; [1] &quot;atb_20_model.rds&quot; &quot;atb_20_model.tif&quot;</code></pre>
+<p>shows that an additional raster map of the HRUs has been created in <code>atb_20_model.tif</code> along with a file <code>atb_20_model.rds</code> containing a model suitable for <code>dynatop</code></p>
+</div>
+<div id="looking-at-the-dynatopgis-model-output" class="section level2">
+<h2>Looking at the <code>dynatopGIS</code> model output</h2>
+<p>The model output by <code>dynatopGIS</code> should be adequate for <code>dyantop</code> to run, but may not exactly match the representation of the catchment required. Looking at the output in more detail shows <code>atb_20_model.rds</code> contains three variables.</p>
+<pre class="r"><code>## load the model
+mdl &lt;- readRDS( file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;atb_20_model.rds&quot;)) ## read the model in
+names(mdl)
+#&gt; [1] &quot;hru&quot;         &quot;output_flux&quot; &quot;map&quot;</code></pre>
+<p>The <code>map</code> variable contains the path of the HRU map.</p>
+<pre class="r"><code>mdl$map
+#&gt; [1] &quot;./dyna/atb_20_model.tif&quot;</code></pre>
+<p>The <code>hru</code> variable contains a description of the HRUs. This is given as an list, with each list element representing the properties of one HRU.</p>
+<pre class="r"><code>names(mdl$hru[[8]])
+#&gt;  [1] &quot;id&quot;                &quot;states&quot;            &quot;properties&quot;       
+#&gt;  [4] &quot;sf&quot;                &quot;rz&quot;                &quot;uz&quot;               
+#&gt;  [7] &quot;sz&quot;                &quot;sf_flow_direction&quot; &quot;sz_flow_direction&quot;
+#&gt; [10] &quot;initialisation&quot;    &quot;precip&quot;            &quot;pet&quot;              
+#&gt; [13] &quot;class&quot;</code></pre>
+<p>A summmary of properties is given below, detailed desriptions are found in the <a href="https://waternumbers.github.io/dynatop/articles/The_Model_Object.html"><code>dynatop</code> vignettes</a></p>
+<table>
+<colgroup>
+<col width="22%" />
+<col width="10%" />
+<col width="67%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Class</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>id</td>
+<td>integer</td>
+<td>The unique ID of the HRU</td>
+</tr>
+<tr class="even">
+<td>states</td>
+<td>numeric</td>
+<td>Named numeric vector of states</td>
+</tr>
+<tr class="odd">
+<td>properties</td>
+<td>numeric</td>
+<td>Named numeric vector of properties</td>
+</tr>
+<tr class="even">
+<td>sf</td>
+<td>list</td>
+<td>Description of the surface zone solution</td>
+</tr>
+<tr class="odd">
+<td>rz</td>
+<td>list</td>
+<td>Description of the surface zone solution</td>
+</tr>
+<tr class="even">
+<td>uz</td>
+<td>list</td>
+<td>Description of the unsaturated zone solution</td>
+</tr>
+<tr class="odd">
+<td>sz</td>
+<td>list</td>
+<td>Description of the saturated solution</td>
+</tr>
+<tr class="even">
+<td>sf_flow_direction</td>
+<td>list</td>
+<td>Description of the surface zone outflows to other HRUs</td>
+</tr>
+<tr class="odd">
+<td>sz_flow_direction</td>
+<td>list</td>
+<td>Description of the saturated zone outflows to other HRUs</td>
+</tr>
+<tr class="even">
+<td>initialisation</td>
+<td>numeric</td>
+<td>Named numeric vector of initialisation parameters</td>
+</tr>
+<tr class="odd">
+<td>precip</td>
+<td>list</td>
+<td>Description of the precipitation input to the HRU</td>
+</tr>
+<tr class="even">
+<td>pet</td>
+<td>list</td>
+<td>Description of the PET input to the HRU</td>
+</tr>
+<tr class="odd">
+<td>class</td>
+<td>list</td>
+<td>Classification information from dynatopGIS</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>output_flux</code> variable contains a table in the format used in a call to a <code>dynatop</code> simulation to set the time series output.to set the</p>
+<pre class="r"><code>mdl$output_flux
+#&gt;     name id flux
+#&gt; 1 q_sf_0  0 q_sf
+#&gt; 2 q_sf_1  1 q_sf
+#&gt; 3 q_sf_2  2 q_sf
+#&gt; 4 q_sf_3  3 q_sf
+#&gt; 5 q_sf_4  4 q_sf</code></pre>
+<p>By default <code>dynatopGIS</code> populates this to return the lateral outflows of the surface zones (flux column set to <code>q_sf</code>) of the catchment outlets (HRU number in the <code>id</code> column) giving then representative names.</p>
+<p>This can be replaced by the locations of the river gauges found in the inital GIS processing.</p>
+<pre class="r"><code>## To replace this read in the gauge locations generated mealier
+gauges &lt;- vect(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;gauges.shp&quot;))
+## create a vector of the uid&#39;s of the HRUs
+hid &lt;- sapply(mdl$hru,function(h){h$id})
+## create a vector of the channel names with as storaged in the class variabel
+cname &lt;- sapply(mdl$hru,function(h){h$class$name})
+idx &lt;- match(gauges$chn_identi,cname) ## index of HRU&#39;s corresponding to gauges
+## create as a data.frame
+gauge_output &lt;- data.frame(name = gauges$Site.Name,
+                           id = as.integer(hid[idx]),
+                           flux = &quot;q_sf&quot;,
+                           scale = 1)
+saveRDS(gauge_output,file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;gauge_output_defn.rds&quot;)) ## save the output for later use
+gauge_output
+#&gt;                      name   id flux scale
+#&gt; 1          Bampton Grange 1632 q_sf     1
+#&gt; 2               Burnbanks 1787 q_sf     1
+#&gt; 3               Coal Burn 1382 q_sf     1
+#&gt; 4             Cummersdale   53 q_sf     1
+#&gt; 5            Dacre Bridge 1241 q_sf     1
+#&gt; 6           Eamont Bridge 1167 q_sf     1
+#&gt; 7             Great Corby  246 q_sf     1
+#&gt; 8              Greenholme  274 q_sf     1
+#&gt; 9           Harraby Green   14 q_sf     1
+#&gt; 10           Hynam Bridge  565 q_sf     1
+#&gt; 11         Kirkby Stephen 2157 q_sf     1
+#&gt; 12       Newbiggin Bridge   35 q_sf     1
+#&gt; 13 Pooley Bridge Upstream 1341 q_sf     1
+#&gt; 14             Sheepmount    1 q_sf     1
+#&gt; 15          Stockdalewath  282 q_sf     1
+#&gt; 16         Temple Sowerby 1064 q_sf     1
+#&gt; 17                 Udford  985 q_sf     1</code></pre>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

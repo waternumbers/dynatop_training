@@ -17,7 +17,7 @@ Outline how to parallelise multiple simulations effectively on one or more machi
 ## Target Problem
 
 The aim of this section is to address how to efficiently perform multiple
-independent runs of dynatop. In the code below we outline how to set up 10000
+independent runs of `dynatop`. In the code below we outline how to set up 10000
 simulations with the same observed data but different parameters. Since the
 simulations do not interact the memory used (at least for storing the dynatop
 object) must be separate for each parallel simulation. This means the problem
@@ -28,46 +28,43 @@ memory to speed up a single simulation.
 
 A simple but effective workflow is
 
-- Generate and save a pattern for determining which parameter values in the model are
-replaced by which values in the random sample
-- Generate and save a random sample of parameter values
+- Generate and save a function for applying changes in the model.
+- Generate and save a random sample of new parameter values
 - Construct a function for evaluating the performance and saving output
 - Write a script using the above to perform the simulation
 
 ## A Pattern for replacing the parameters
 
-As shown [earlier](14_model_simulation.html) determining which HRU's parameters
-to change can be time consuming. Rather then do this for each simulation let
-us specify a structure which determines which values are replace.
+As shown [earlier](14_model_simulation.html) apply parameters to a HRU is effectively done with 
+	a function that apply the changes to a single HRU. In this case the function requires both a HRU description and vector or new parameters.
 
 ```{r pattern}
-## start by loading the model for reference
-mdl <- readRDS(file.path(".","processed","atb_band_model.rds"))
-## Our pattern will be the a named list.
-## The names will be the names of the values in the random sample
-## Each list element will contain the name of the data.frame in the model, the HRU id's to apply the value to and the column in the data.frame in which the value is to be placed
-pattern <- list(
-  m1 = list(hru="hillslope", # which data.frame in in the model
-            id = mdl$hillslope$id[mdl$hillslope$atb_bar<20], ## id's of HRU to have values replaced
-            column = "m"), # column to put the number in
-  m2 = list(hru="hillslope",
-            id = mdl$hillslope$id[mdl$hillslope$atb_bar>=20],
-            column = "m"),
-  Dpth = list(hru="hillslope",
-              id = mdl$hillslope$id,
-              column = "D"),
-  Td = list(hru="hillslope",
-            id = mdl$hillslope$id,
-            column = "t_d"),
-  csf = list(hru="hillslope",
-             id = mdl$hillslope$id,
-             column = "c_sf"),
-  vch = list(hru="channel",
-             id = mdl$channel$id,
-             column = "v_ch")
-)
-## save the pattern
-saveRDS(pattern,file.path(".","dyna","pattern.rds"))
+## h is the hru, p is a named vector of parameter values
+fparChange <- function(h,p){
+    ## change "m" transmissivty decay parameter depending upon atb class
+    if( !is.na(h$class$atb_20) ){
+        if( h$class$atb_20 < 20 ){
+            h$sz$parameters["m"] <- p["m1"]
+        }else{
+            h$sz$parameters["m"] <- p["m2"]
+        }
+    }
+    ## change unsaturated zone time constant regarless of type
+    h$uz$parameters["t_d"] <- p["Td"]
+    ## change surface velocity depending upon if it is a channel
+    if( is.na(h$class$startNode) ){
+        ## hillslope
+        h$sf$parameters["c_sf"] <- p["csf"]
+    }else{
+        ## channel
+        h$sf$parameters["c_sf"] <- p["vch"]
+    }
+    return(h)
+}
+
+## save the function
+tmp <- deparse(fparChange); tmp[1] <- paste("fparChange <-",tmp[1])
+writeLines(tmp,file.path(".","dyna","fparChange.R"))
 ```
 
 ## Random Sample
@@ -85,7 +82,6 @@ sample <- cbind(
   Td = runif(nsim,0.1,120),
   m1 = runif(nsim,0.005,0.06),
   m2 = runif(nsim,0.005,0.06),
-  Dpth = runif(nsim,2,10),
   csf = runif(nsim,0.05,0.5),
   vch = runif(nsim,0.2,1.4))
 ## save the random sample
@@ -108,48 +104,42 @@ Below is an example of such a function
 ## inputs are i the index of a row of sample and the model - which is altered by the function
 ## It expects the sample, pattern, obs and q0 to be present in the workspace fMC is called from
 ## it does not need its own copy of these since they are not changed
-fMC <- function(i,mdl){
+fMC <- function(i,sample,mdl,obs,q0){
   x <- sample[i,] # the values to substitute in
   ## put sample values into model
-  for(ii in names(pattern)){## ii is the name of the value in x
-    p <- pattern[[ii]] ## take this part of the pattern
-    mdl[[p$hru]] [ mdl[[p$hru]]$id %in% p$id, p$column ] <- x[ii] ## put the value to the model
-  }
-
-  ## simulate the model
-  dt <- dynatop$new(mdl)$add_data(obs)$initialise(q0)$sim()
-
+  hru <- lapply( mdl$hru, fparChange,p=x) 
+  ## put intial conditions into the model
+  hru <- lapply(hru,function(h,q0){h$initialisation["r_uz_sz_0"] <- q0; h},q0=q0)
+    ## simulate the model
+  dt <- dynatop::dynatop$new(hru)$add_data(obs)$initialise()$sim(mdl$output_flux)
+  ## get mass balance
   mb <- dt$get_mass_errors()
-  mb$err <- rowSums(mb)
-  if( any(abs(mb$err)>1) ){ ## this is an error of greater then 1m^3
+    if( any(abs(mb$err)>1e-3) ){ ## this is an error of greater then 1m^3
     stop("Mass Balance error in sid ",x["sid"])
   }
-    
   ##ch_in <- dt$get_channel_inflow()
-  gf <- dt$get_gauge_flow()
+  gf <- dt$get_output()
   if(any(is.na(gf))){
     stop("non-finite flow returned")
   }
   ## ns = nash-sutcliffe
   ns <- 1 - sum((obs$Sheepmount_obs-gf$Sheepmount)^2,na.rm=TRUE) /
-    sum((obs$Sheepmount_obs -mean(obs$Sheepmount_obs,na.rm=TRUE))^2,na.rm=TRUE)
-    
-  if(ns>0.5){ ## if good performance save some outputs to use
+    sum((obs$Sheepmount_obs - mean(obs$Sheepmount_obs,na.rm=TRUE))^2,na.rm=TRUE)
+  ## if good performance save some outputs to use
+  if(ns>0.5){ 
     saveRDS(
       list(sid = x["sid"],
            gauge_flow=gf,
-           mass_balance = mb,
-           channel_inflow = dt$get_channel_inflow()),
+           mass_balance = mb),
       file.path(".","dyna",paste0("Simulation_",x["sid"],".rds"))
     )
   }
-  
   return(ns)
 }
 
 ## save the function
 tmp <- deparse(fMC); tmp[1] <- paste("fMX <-",tmp[1])
-writeLines(tmp[1],file.path(".","dyna","fMC.R"))
+writeLines(tmp,file.path(".","dyna","fMC.R"))
 ```
 
 ## Execution
@@ -157,32 +147,33 @@ writeLines(tmp[1],file.path(".","dyna","fMC.R"))
 To run the simulations on a single R process an example script would be
 
 ```{r basic_eval, eval=FALSE}
-library(dynatop)
+## source function for running
 source( file.path(".","dyna","fMC.R") ) ## source the function so it is available
 ## load model
-mdl <- readRDS(file.path(".","processed","atb_band_model.rds"))
+mdl <- readRDS(file.path(".","dyna","atb_20_model.rds"))
 ## load obs
 obs <- readRDS(file.path(".","processed","obs.rds"))
-## load pattern
-pattern <- readRDS(file.path(".","dyna","pattern.rds"))
+## load the parameter function
+source( file.path(".","dyna","fparChange.R"))
 ## load sample
 sample <- readRDS(file.path(".","dyna","sample.rds"))
 
-q0 <- obs$Sheepmount_obs[1] / sum(mdl$hillslope$area)
+q0 <- obs$Sheepmount_obs[1] / sum( sapply(mdl$hru,function(h){h$properties["area"]}) )
 
 ## this wraps the fMC function to catch any errors and stop then killing the simulation 
-fout <- function(i){
-  tryCatch({fMC(i,mdl)},
+fout <- function(i,sample,mdl,obs,q0){
+  tryCatch({fMC(i,sample,mdl,obs,q0)},
            error=function(e){e$message}) ## if an error return the message
 }
 
 ## use lapply to iterate over the parameter sets - this will run on a single R process
-out <- lapply(seq_len(nrow(sample)), fout)
+#out <- lapply(seq_len(nrow(sample)), fout)
 
 ## on linux/mac use mclapply to run across multiple cores on the same machine
 ## alter mc.cores to match the machine being used
-## out <- mclapply(L,fMC,mdl=mdl,obs=obs,mc.cores=6,mc.preschedule = FALSE)
+out <- mclapply(1:6,fMC,mdl=mdl,obs=obs,q0=q0,mc.cores=6,mc.preschedule = FALSE)
 ## on windows/linux/mac you could use parLapply but the set up is more complex
+## The `future` package offer an alternative.
 
 
 ## save out after naming with the simulation number
@@ -217,16 +208,16 @@ source( file.path(".","dyna","fMC.R") ) ## source the function so it is availabl
 mdl <- readRDS(file.path(".","processed","atb_band_model.rds"))
 ## load obs
 obs <- readRDS(file.path(".","processed","obs.rds"))
-## load pattern
-pattern <- readRDS(file.path(".","dyna","pattern.rds"))
+## source parameter change function
+pattern <- readRDS(file.path(".","dyna","fparChange.R"))
 ## load sample
 sample <- readRDS(file.path(".","dyna","sample.rds"))
 
-q0 <- obs$Sheepmount_obs[1] / sum(mdl$hillslope$area)
+q0 <- as.numeric(obs$Sheepmount_obs[1]) / sum( sapply(mdl$hru,function(h){h$properties["area"]}) )
 
 ## this wraps the fMC function to catch any errors and stop then killing the simulation 
 fout <- function(i){
-  tryCatch({fMC(i,mdl)},
+  tryCatch({fMC(i,mdl,q0)},
            error=function(e){e$message}) ## if an error return the message
 }
 
