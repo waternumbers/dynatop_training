@@ -32,7 +32,7 @@ implementation of Dynamic TOPMODEL in the `dynatop` and `dynatopGIS` packages.
 ### Classification (Part 1)
 
 The location of areas with a hydrological similar response is only every
-going to be partially captures by spatial data. Past TOPMODEL and Dynamic
+going to be partially captured by spatial data. Past TOPMODEL and Dynamic
 TOPMODEL applications have used classifications based on a topographic index
 given by the logarithm of up-slope area divided by the local gradient. Using the
 up-slope area gives some spatial ordering to the classes, but (as we will see
@@ -60,8 +60,9 @@ In keeping with earlier spatial analysis TOPMODEL and Dynamic TOPMODEL applicati
 connectivity (flow directions) is assumed to be determined by the surface
 gradient with any down-slope region receiving flow. This gives a high degree of
 connectivity between the spatial cells. If a river intercepts a cell it is
-assumed at it receives all the outward flow. The following figure shows the
-connectivity for the small catchment.
+assumed that both the surface and subsurface flow direction change to follow
+the river course.The following figure shows the
+connectivity for the small catchment, with the river cells highlighted in blue.
 
 ```{r, echo=FALSE, purl=FALSE, out.width="75%", fig.align="center", fig.cap="Map of combined topographic and land use classes along with connectivity"}
 knitr::include_graphics("./images/combined_class.png")
@@ -69,12 +70,12 @@ knitr::include_graphics("./images/combined_class.png")
 
 ### Classification (Part 2)
 
-Each class is represented by a single HRU, in inflows to which are
+Each class is represented by a single HRU, the inflows to which are
 averaged from the inflows to all the spatial cells of that class. 
 Does this make sense for class 5a, which is both in the upper reaches
 of the catchment but also adjacent to the river?
 
-The cells in the catchment can be banded using the connectivity - all cells
+The `dynatop` author would argue not. To represent the spatial positioning the catchment can be banded using the connectivity - all cells
 in a given band receive flows only from those in a higher band. For the small
 catchment this looks like the following
 
@@ -89,7 +90,7 @@ knitr::include_graphics("./images/combined_class_with_band.png")
 ```
 
 which further separates out the 5a class to the areas close to and further
-from the river. This gives a further level of spatial refinement to the
+from the river. This demonstrates the banding gives a further level of spatial refinement to the
 classification while allowing a for simplification in the catchment representation.
 
 Introducing the band into the classification has a further advantage. Solving
@@ -99,33 +100,14 @@ computation techniques that are more robust to the choice of solution time step.
 
 > The numeric scheme implemented in the `dynatop` package makes use of an
 > ordering so that the HRU inflows for the current time step are available. Although
-> other options could be used it is **strongly** recommended that the band is
-> included in all classifications and as teh distance metric when generating models.
+> other options could be used it is **strongly** recommended that the default
+> banding scheme is used.
 
 ## Hydrological Response Units
 
-Each type of Hydrological Response Unit HRU represents a parameterised version
-of a different component of the hydrological system. Two types of HRU are
-available in `dynatop`, which represent river channel lengths and hill slopes.
-
-### Channel HRU
-
-The Channel HRU is designed to represent a length of river channel. It
-implements a time delay histogram routing of the inflow to the river reach to
-a specified point on the river channel network (e.g. a gauge site) using a time
-delay histogram, based on constant channel velocity. 
-
-Details of the channel HRU are given in a `dynatop`
-[vignette](https://waternumbers.github.io/dynatop/articles/Channel_HRU.html).
-part of the catchment
-
-### Hill Slope HRU
-
-The Hill slope HRU computes the outflow for a representative hill slope whose
-shape is determined by the total surface area and width across which the
-outflow occurs. 
-
-The hill slope consists of four zones:
+Each Hydrological Response Unit HRU represents a parameterised version
+of a different part of the hydrological system. The representation of each HRU
+is made up of the four zones:
 
 - A *Surface Zone* representing the movement of water on the surface
 - A *Root Zone* which controls evapotranspiration, handles the precipitation
@@ -141,12 +123,15 @@ knitr::include_graphics("./images/Hillslope_HRU.png")
 ```
 
 As shown in the schematic fluxes are passed between the HRUs at two levels,
-the surface and the saturated zones. Details if the governing equation and
-numerical solution are given [elsewhere
-](https://waternumbers.github.io/dynatop/articles/Hillslope_HRU.html). A few
+the surface and the saturated zones. 
+
+To allow for some flexibility in the dynamics of the HRU different
+representations can be used for each zone. The governing equation and
+numerical solution of these are given in a [vignette of `dynatop`](https://waternumbers.github.io/dynatop/articles/HRU.html). A few
 key points are:
 
-- The lateral flow from the Surface Zone is proportional to the Surface Zone storage
+- The lateral flow from the Surface and Saturated Zones is computed using
+  Muskingham approximations.
 - Evapotranspiration is proportional to the percentage saturation of the Root
   Zone
 - Flow from the root zone to the Unsaturated Zone can occur only when the Root
@@ -154,7 +139,5 @@ key points are:
 - The Unsaturated Zone is represented by a tank whose time constant depends
   upon the deficit of the Saturated Zone
 - The lateral flow from the Saturated Zone is controlled by the saturated
-storage deficit through a transmissivity profile which gives the lateral flow per
-unit outflow width.
+storage deficit through a transmissivity profile.
 
-The second part of the training introduces more details of the numeric solution.

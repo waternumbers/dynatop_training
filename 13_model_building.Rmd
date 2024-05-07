@@ -16,9 +16,9 @@ To process the GIS data into a Dynamic TOPMODEL structure of the Eden catchment.
 
 ## Required R packages
 
-This exercise builds upon the early [initial GIS
-processing](./10_initial_gis.html), using the outputs generated during that
-exercise. 
+This exercise builds upon the early [initial GIS](./10_initial_gis.html) and
+[input](./11_observed_series.html) processing, using the outputs generated during those
+exercises. 
 
 The packages used can be attached with
 
@@ -35,12 +35,12 @@ setwd("../eden_data")
 
 ## Getting started
 
-The dynatopGIS packages works through a number of steps to generate a dynamic
-TOPMODEL object suitable for use in with the dynatop package. Each step
+The `dynatopGIS` packages works through a number of steps to generate a dynamic
+TOPMODEL object suitable for use in with the `dynatop` package. Each step
 generates one or more layers which are saved as raster or shape files into the projects
 directory (which is not necessarily the R working directory).
 
-Initialise the analysis by creating a new dynatopGIS object specifying the location
+Initialise the analysis by creating a new `dynatopGIS` object specifying the location
 of the project directory, which will be created if it doesn't exist.
 
 ```{r, initialisation}
@@ -61,7 +61,7 @@ flow routing and topographic index calculations the DEM is presumed
 to be projected so that is has square cells such that
 the difference between the cell centres (in meters) does not alter.
 
-The catchment map need to be loaded first
+The catchment map needs to be loaded first
 
 ```{r add_catchment}
 ctch$add_catchment( file.path(".","processed","eden.tif") )
@@ -78,21 +78,21 @@ As part of loading the DEM any blocks of `NA` values within the DEM that fall
 within the catchment are filled to appear as sinks. These will be filled in a
 later step.
 
-Adding the channel data is acheived with
+Adding the channel data is achieved with
 ```{r channel_data}
 ctch$add_channel(file.path(".","processed","channel.shp"))
 ```
 
 ## Getting and plotting catchment information
 
-The dynatopGIS class has methods for returning and plotting the GIS data in
+The `dynatopGIS` class has methods for returning and plotting the GIS data in
 the project. The names and file locations of all the different GIS layers stored by dynatopGIS is returned by
 
 ```{r, list_layers}
 ctch$get_layer()
 ```
 
-Note that channel_vect layer is the vector representation of teh channel,
+Note that channel_vect layer is the vector representation of the channel,
 while channel layer is a rasterised version.
 
 Individual layers can be plotted (with or without the channel), for example
@@ -113,8 +113,8 @@ For the hill slope to be connected to the river network all DEM cells must
 drain to those that intersect with the river network. The algorithm
 implemented in the `sink_fill` method ensures this is the case. 
 In calling the `sink_fill` method a flow direction algorithm
-is specified and the resulting flow paths recorded. If subcatchments are
-present in the catchment map then only flow paths within the subcatchment are
+is specified and the resulting flow paths recorded. If sub-catchments are
+present in the catchment map then only flow paths within the sub-catchment are
 considered.
 
 Since the algorithm used by the `sink_fill` method is iterative and the execution time of the
@@ -136,10 +136,10 @@ terra::plot( ctch$get_layer('filled_dem') - ctch$get_layer('dem'),
 
 The computational scheme in the `dynatop` package works with an ordered
 sequence of HRUs constructed such that the sequence moves downslope to
-catchment outlet. This is acheived by banding the channel reaches and
+catchment outlet. This is achieved by banding the channel reaches and
 hillslope cells such that the catchment outlet(s) are in band 1, those cells
 or reaches draining only into band 1 are in band 2 and so forth. Banding is
-acheived by the following call
+achieved by the following call
 
 ```{r, band}
 ctch$compute_band()
@@ -180,10 +180,10 @@ to the river channels
 ctch$plot_layer('atb')
 ```
 
-Although not used in ordering the HRUs `dynatopGIS` also provides the abiliity to compute flow distances for the hill slope cells.
-The calculation of three istances is supported
+Although not used in ordering the HRUs `dynatopGIS` also provides the ability to compute flow distances for the hill slope cells.
+The calculation of three distances is supported
 
-- *shortest flow length* - the shortest length based on the pixel flow paths
+- *Shortest flow length* - the shortest length based on the pixel flow paths
 to a channel
 - *Dominant flow length* - the distance to a channel moving in the dominant
 (largest fraction) flow direction from any grid cell
@@ -207,8 +207,7 @@ ctch$plot_layer("shortest_flow_length")
 Properties for use in the classification of HRUs or for determining input
 series may be added as additional raster GIS layers. 
 
-In the initial GIS analysis a layer for urban area was developed, which
-processing teh input data produced a map relating to rainfall input.
+In the initial GIS analysis a layer for urban area was developed, while processing the input data produced a map relating to rainfall input.
 These can now be added to the dynatopGIS project by specifying the file
 location and name to call the layer.
 
@@ -227,8 +226,8 @@ ctch$get_layer()
 ## Classifying into Hydrological Response Units
 
 Methods are provided for the classification of the catchment. 
-The classifications generated in this process must include the "band" layer is the clasification is to be used when generating a
- dynatop model (see following section).
+Multiple classifications can be produced but that used to generate the
+`dynatop` model (see following sections) must include the "band" layer.
  
 By definition each channel length is treated as a single class with its own
 Channel HRU. Two ways are
@@ -236,7 +235,7 @@ provided for dividing the hill-slope up into classes.
 The first way is *cutting* where a landscape property is
 divided up into classes. 
 The second is *combining* where unique existing class layers are combined by
-either by pairing (where unique combinations of classes for a new class) or
+either by pairing (where unique combinations of classes form a new class) or
 burning (which enforces classes onto distinct areas).
 
 ### Cutting
@@ -256,7 +255,7 @@ across the range of the variable.
 ctch$classify("atb_20","atb",20)
 ```
 
-It is perhaps better to consider 20 classes with approximatly equal land
+It is perhaps better to consider 20 classes with approximately equal land
 area. it this case the breaks can be computed using the quantiles of the variable
 
 ```{r, atb_20_cut}
@@ -276,7 +275,7 @@ head(ctch$get_method("atb_20"))
 
 ### Combining
 
-The sub-catchments could be added alongside the banding to add a further spatial seperation.
+The sub-catchments could be added alongside the banding to add a further spatial separation.
 
 ```{r, atb_20_sub}
 ctch$combine_classes("atb_20_subcatch",c("atb_20","catchment"))
@@ -293,8 +292,8 @@ Layers burnt into the classification are added after the cuts are applied and
 treated as directly defined HRUs. In the example it may be desirable to burn
 in the Urban areas since these will have a different hydrological behaviour.
 
-Since the layer burnt in are applied with no alteration to their values the
-values specified may clash with those already defined by the cuts. One method
+Since the layers burnt in are applied with no alteration to their values these
+may clash with those already defined by the cuts. One method
 that *nearly* always avoid this is to burn in classes with negative
 values. Let us then adapt the urban layer to have negative values.
 
@@ -305,7 +304,7 @@ ctch$add_layer(file.path(".","processed","neg_extended_eden.tif"),"neg_urban")
 ```
 
 then burn this into the existing classification based on the topographic index
-and subcatchment
+and sub-catchment
 
 ```{r, atb_band_cut_urban_burn}
 ctch$combine_classes("atb_20_subcatch_band_burn_neg_urban","atb_20_subcatch_band",burns="neg_urban")
@@ -323,9 +322,10 @@ head(tmp$groups)
 
 ### Complexity
 
-The number of Hill-slope classes resulting from the classifications reflects the
-complexity of the model. The number of Hill-slope classes can be computed from the
-maps and is shown in the following table. Since these classes may occur in any of the bands the total number of HRUs the upper limit on the number of hill-slope HRUS can be approximated by multiplying the number of classes by the number of bands.
+The number of classes resulting from the classifications reflects the
+complexity of the model. The number of classes can be computed from the
+maps and is shown in the following table. Since these classes may occur in any
+of the bands the resulting number of HRUs, which is also shown is much higher.
 
 
 ```{r num_hru, echo=FALSE, results='asis'}
@@ -373,8 +373,10 @@ suitable for `dynatop`
 
 ## Looking at the `dynatopGIS` model output
 
-The model output by `dynatopGIS` should be adequate for `dyantop` to run, but may not exactly match the representation of the
-catchment required. Looking at the output in more detail shows `atb_20_model.rds` contains three variables.
+The model output by `dynatopGIS` should be adequate for `dyantop` to run, and
+is more fully documented
+[here](https://waternumbers.github.io/dynatop/articles/The_Model_Object.html). Looking
+at the output in more detail shows `atb_20_model.rds` contains three variables.
 
 ```{r model_1}
 ## load the model
@@ -391,7 +393,7 @@ The `hru` variable contains a description of the HRUs. This is given as an list,
 ```{r hru}
 names(mdl$hru[[8]])
 ```
-A summmary of properties is given below, detailed desriptions are found in the [`dynatop` vignettes](https://waternumbers.github.io/dynatop/articles/The_Model_Object.html)
+A summary of properties is given below, detailed descriptions are found in the [`dynatop` vignettes](https://waternumbers.github.io/dynatop/articles/The_Model_Object.html)
 
 | Name              | Class   | Description                                              |
 |-------------------|---------|----------------------------------------------------------|
@@ -410,15 +412,13 @@ A summmary of properties is given below, detailed desriptions are found in the [
 | class             | list    | Classification information from dynatopGIS               |
 
 
-
-
 The `output_flux` variable contains a table in the format used in a call to a `dynatop` simulation to set the time series output.to set the 
 ```{r output_flux}
 mdl$output_flux
 ```
 By default `dynatopGIS` populates this to return the lateral outflows of the surface zones (flux column set to `q_sf`) of the catchment outlets (HRU number in the `id` column) giving then representative names.
 
-This can be replaced by the locations of the river gauges found in the inital GIS processing.
+This can be replaced by the locations of the river gauges found in the initial GIS processing.
 
 ```{r alter_model_2}
 ## To replace this read in the gauge locations generated mealier

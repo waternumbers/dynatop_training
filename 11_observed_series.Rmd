@@ -39,7 +39,7 @@ setwd("../eden_data")
 ## Expected Data
 
 The data passed to `dynatop` when simulating the model is expected
-to be a xts object (a special kind numeric matrix whose row names give the
+to be a `xts` object (a special kind numeric matrix whose row names give the
 time) with a constant time step $\Delta t$. Each column of data should have a
 unique name which is used to specify the time series when building the
 model. 
@@ -50,7 +50,7 @@ given in $m$ accrued over the proceeding time step. So the data value given
 at time $t+\Delta t$ is the total accrued in the interval between time $t$
 and time $t+\Delta t$.
 
-Since columns in the xts object passed to `dynatop` which are not used in the model are ignored, so
+Since columns in the `xts` object passed to `dynatop` which are not used in the model are ignored, so
 there is no danger is combining observed discharge records in the same object
 as the input data.
  
@@ -162,7 +162,7 @@ writeRaster(reproj_rid,file.path(".","processed","precip_id.tif"),overwrite=TRUE
 If available spatial Potential Evapotranspiration time series can be handled
 in exactly the same way as the rainfall. However if there is only a single series generatation of the map of
 id values can be avoided. A simple sinusoidal PET series can be generated
-using the evap_est function in dynatop
+using the `evap_est` function in `dynatop`.
 ```{r pet}
 ## use a maximum of 3 mm/day - output in meters
 pet <- evap_est(index(flow), eMin = 0, eMax = 0.003)

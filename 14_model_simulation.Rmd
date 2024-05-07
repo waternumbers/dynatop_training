@@ -17,7 +17,7 @@ show how the parameters may be altered.
 
 ## Required R packages
 
-his exercise builds upon the early [model creation](./13_model_building.html), using the outputs generated during that
+This exercise builds upon the early [model creation](./13_model_building.html), using the outputs generated during that
 exercise.
 
 The packages used can be attached with
@@ -28,10 +28,16 @@ library("terra")
 library("xts")
 ```
 
+and remember to move to the eden_data directory e.g.
+
+```{r, eval=FALSE}
+setwd("./eden_data")
+```
+
 ## A Simulation
 
 The minimum data need to perform a simulation with dynatop is a model, such
-as that output by dynatopGIS in the [previous
+as that output by `dynatopGIS` in the [previous
 section](./13_model_building.html) and observed data in the format introduced
 [earlier](./11_observed_series.html).
 
@@ -43,21 +49,20 @@ output_defn <- readRDS(file.path(".","dyna","gauge_output_defn.rds"))
 obs <- readRDS(file.path(".","processed","obs.rds"))
 ```
 
-Attach the dynatop package so it is available in the R session then
-initialise a dynatop object by loading the model
+A dynatop object is initialised by loading the model
 
 ```{r load_model}
 hru <- mdl$hru
 ctch_mdl <- dynatop$new(hru)
 ```
-This step performs some basis checks on the model for consistency.
+This step performs some basic checks on the model for consistency.
 The data can then be added; again simple checks are performed.
 
 ```{r add_data}
 ctch_mdl$add_data(obs)
 ```
 
-The initial states of the simulations can be specified in the model
+The initial states of the HRUs can be specified in the model
 object. If, as in the case of this example, the states are not specified then
 any attempt to perform a simulation will fail.
 
@@ -71,7 +76,7 @@ presumes:
 
 - The surface is dry
 - The root zone is partially full (the s_rz0 parameter)
-- There is a specified (see below) uniform maximum recharge rate representing the flow
+- There is a specified (see below) recharge rate representing the flow
   from the unsaturated to saturated zone
 - the saturated zone is at a steady state
 - the unsaturated zone storage ensures that the recharge rate from the
@@ -85,9 +90,8 @@ hru[[1000]]$initialisation
 ## r_us_sz_0 - recharge unsaturated to saturated zone in m/s and
 ```
 
-is input to the method call. A simple way
-of getting an initial estimate of this is to divide the observed discharge at
-the outlet of the catchment for the first time step by the hill-slope surface area. This works best if
+A simple way of getting an initial estimate of the recharge is to divide the observed discharge at
+the outlet of the catchment for the first time step by the catchment area. This works best if
 the first time step has no rainfall and is close to base-flow.
 
 ```{r q0}
@@ -106,7 +110,7 @@ ctch_mdl <- dynatop$new(hru,map=mdl$map)$add_data(obs)$initialise()$sim(output_d
 ### Mass balance
 
 It is possible to output the mass balance for each time step of the
-simulation using the `get_mass_errors` method. The returns an xts object giving
+simulation using the `get_mass_errors` method. The returns an `xts` object giving
 the volumes in the hill-slope states at the start and end of the time step along with the
 other fluxes as volumes. This can easily be used to plot the errors as shown below.
 
@@ -118,14 +122,13 @@ plot( mb$err , main="Mass balance error",ylab="m^3")
 
 ## Visualisations
 
-After a simulation it is possible to get or plot output. Three types of output
+After a simulation it is possible to get or plot output. Two types of output
 are available:
 
-- the flow at the gauges after simulating the channel HRUs
-- the inflows to the channel HRUs after simulating the Hill-slope HRUs
-- the current states of the system after simulating the Hill-slope Grus
+- the time series variable specified in the `output_defn` used in the simulation
+- the states of the system at end of the simulation
 
-All have methods for plotting the data or returning in as a variable as shown
+Both have methods for plotting the data or returning in as a variable as shown
 in the following
 
 ### Gauge flows
@@ -155,16 +158,16 @@ current_state <- ctch_mdl$get_states()
 head(current_state)
 
 ## a single state can be plotted at one time
-ctch_mdl$plot_state("s_sz") ## TOD add map ealier
+ctch_mdl$plot_state("s_sz")
 ```
 
 ## Changing Parameters
 
-The parameters are stored within the HRU descriptions; particuarly the `sf`, `rz`, `uz` and `sz` elements. Each of these contains a `type` variable and corresponding names vector of parameters.
+The parameters are stored within the HRU descriptions; particularly the `sf`, `rz`, `uz` and `sz` elements. Each of these contains a `type` variable and corresponding named vector of parameters.
 The various types and parameters for each zone are described in the (`dynatop` vignettes)[https://waternumbers.github.io/dynatop/articles/HRU.html#surface-zone-representations]. 
 
 The most straight forward way for altering the parameters is two write a function that acts on each HRU, altering the parameters with reference to the properties of the HRU. 
-In the follwoing presents a simple function of setting a faster surface velocity and kinematic solution for the river channels.
+The following presents a simple function of setting a faster surface velocity and kinematic solution for the river channels.
 
 ```{r simple_parameter_change}
 fpar <- function(h){ ## h is the hru
@@ -177,10 +180,6 @@ fpar <- function(h){ ## h is the hru
     h
 }
 ```
-
-
-
-
 
 
 ## Channel Inflow
@@ -241,9 +240,9 @@ plot( ctch_mdl$get_output()[,1:10])
 
 ## Extracting Intermediate States
 
-Unless requested dynatop keeps only the current state during a
+Unless requested `dynatop` keeps only the final state during a
 simulation. To request that states are other time steps are kept a vector of times
-must be passed in the call to the sim or sim_hillslope method
+must be passed in the call to the `sim` method.
 
 ```{r keep_states}
 ## Let us repeat the same simulation

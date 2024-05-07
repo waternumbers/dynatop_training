@@ -296,6 +296,9 @@ $(document).ready(function () {
     <li>
       <a href="23_altering_dynatop.html">Altering dynatop</a>
     </li>
+    <li>
+      <a href="99_session_info.html">Session Info</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -314,25 +317,49 @@ $(document).ready(function () {
 
 <div id="aim" class="section level2">
 <h2>Aim</h2>
-<p>Outline how to parallelise multiple simulations effectively on one or more machines.</p>
+<p>Outline how to parallelise multiple simulations effectively on one or
+more machines.</p>
+</div>
+<div id="required-r-packages" class="section level2">
+<h2>Required R packages</h2>
+<p>This exercise builds upon the earlier examples of <a
+href="./14_model_simulation.html">model simulation</a>.</p>
+<p>The packages used can be attached with</p>
+<pre class="r"><code>library(&quot;dynatop&quot;)
+library(&quot;terra&quot;)
+library(&quot;xts&quot;)
+library(&quot;parallel&quot;)</code></pre>
+<p>and remember to move to the eden_data directory e.g.</p>
+<pre class="r"><code>setwd(&quot;../eden_data&quot;)</code></pre>
 </div>
 <div id="target-problem" class="section level2">
 <h2>Target Problem</h2>
-<p>The aim of this section is to address how to efficiently perform multiple independent runs of <code>dynatop</code>. In the code below we outline how to set up 10000 simulations with the same observed data but different parameters. Since the simulations do not interact the memory used (at least for storing the dynatop object) must be separate for each parallel simulation. This means the problem is distinct from using multiple computational processes to act on the same memory to speed up a single simulation.</p>
+<p>The aim of this section is to address how to efficiently perform
+multiple independent runs of <code>dynatop</code>. In the code below we
+outline how to set up 10000 simulations with the same observed data but
+different parameters. Since the simulations do not interact the memory
+used (at least for storing the dynatop object) must be separate for each
+parallel simulation. This means the problem is distinct from using
+multiple computational processes to act on the same memory to speed up a
+single simulation.</p>
 </div>
 <div id="work-flow" class="section level2">
 <h2>Work Flow</h2>
 <p>A simple but effective workflow is</p>
 <ul>
-<li>Generate and save a function for applying changes in the model.</li>
+<li>Construct a function for applying changes to the model.</li>
 <li>Generate and save a random sample of new parameter values</li>
-<li>Construct a function for evaluating the performance and saving output</li>
+<li>Construct a function for evaluating the performance and saving
+output</li>
 <li>Write a script using the above to perform the simulation</li>
 </ul>
 </div>
 <div id="a-pattern-for-replacing-the-parameters" class="section level2">
 <h2>A Pattern for replacing the parameters</h2>
-<p>As shown <a href="14_model_simulation.html">earlier</a> apply parameters to a HRU is effectively done with a function that apply the changes to a single HRU. In this case the function requires both a HRU description and vector or new parameters.</p>
+<p>As shown <a href="14_model_simulation.html">earlier</a> apply
+parameters to a HRU is effectively done with a function that apply the
+changes to a single HRU. In this case the function requires both a HRU
+description and vector or new parameters.</p>
 <pre class="r"><code>## h is the hru, p is a named vector of parameter values
 fparChange &lt;- function(h,p){
     ## change &quot;m&quot; transmissivty decay parameter depending upon atb class
@@ -362,7 +389,10 @@ writeLines(tmp,file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;fparChange.R&quot;
 </div>
 <div id="random-sample" class="section level2">
 <h2>Random Sample</h2>
-<p>Generate a random sample of the values used in the pattern, along with a sample identifier. This is stored in a numeric matrix. Generating all the samples at once avoids many issues of repeatability and uniqueness which may arise if they are generated separately.</p>
+<p>Generate a random sample of the values used in the pattern, along
+with a sample identifier. This is stored in a numeric matrix. Generating
+all the samples at once avoids many issues of repeatability and
+uniqueness which may arise if they are generated separately.</p>
 <pre class="r"><code>## start by loading the model for reference
 nsim &lt;- 10000
 sample &lt;- cbind(
@@ -389,10 +419,10 @@ saveRDS(sample,file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;sample.rds&quot;))
 ## inputs are i the index of a row of sample and the model - which is altered by the function
 ## It expects the sample, pattern, obs and q0 to be present in the workspace fMC is called from
 ## it does not need its own copy of these since they are not changed
-fMC &lt;- function(i,sample,mdl,obs,q0){
+fMC &lt;- function(i,sample,mdl,obs,q0,fP){
   x &lt;- sample[i,] # the values to substitute in
   ## put sample values into model
-  hru &lt;- lapply( mdl$hru, fparChange,p=x) 
+  hru &lt;- lapply( mdl$hru, fP,p=x) 
   ## put intial conditions into the model
   hru &lt;- lapply(hru,function(h,q0){h$initialisation[&quot;r_uz_sz_0&quot;] &lt;- q0; h},q0=q0)
     ## simulate the model
@@ -428,8 +458,12 @@ writeLines(tmp,file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;fMC.R&quot;))</cod
 </div>
 <div id="execution" class="section level2">
 <h2>Execution</h2>
-<p>To run the simulations on a single R process an example script would be</p>
-<pre class="r"><code>## source function for running
+<p>To run the simulations on a single R process an example script would
+be</p>
+<pre class="r"><code>rm(list=ls())
+library(dynatop)
+
+## source function for running
 source( file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;fMC.R&quot;) ) ## source the function so it is available
 ## load model
 mdl &lt;- readRDS(file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;atb_20_model.rds&quot;))
@@ -439,13 +473,16 @@ obs &lt;- readRDS(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;obs.rds&qu
 source( file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;fparChange.R&quot;))
 ## load sample
 sample &lt;- readRDS(file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;sample.rds&quot;))
+## load gauges
+mdl$output_flux &lt;- readRDS(file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;gauge_output_defn.rds&quot;))
+
 
 q0 &lt;- obs$Sheepmount_obs[1] / sum( sapply(mdl$hru,function(h){h$properties[&quot;area&quot;]}) )
 
 ## this wraps the fMC function to catch any errors and stop then killing the simulation 
-fout &lt;- function(i,sample,mdl,obs,q0){
-  tryCatch({fMC(i,sample,mdl,obs,q0)},
-           error=function(e){e$message}) ## if an error return the message
+fout &lt;- function(i,sample,mdl,obs,q0,fP){
+    tryCatch({fMC(i,sample,mdl,obs,q0,fP)},
+             error=function(e){e$message}) ## if an error return the message
 }
 
 ## use lapply to iterate over the parameter sets - this will run on a single R process
@@ -453,8 +490,12 @@ fout &lt;- function(i,sample,mdl,obs,q0){
 
 ## on linux/mac use mclapply to run across multiple cores on the same machine
 ## alter mc.cores to match the machine being used
-out &lt;- mclapply(1:6,fMC,mdl=mdl,obs=obs,q0=q0,mc.cores=6,mc.preschedule = FALSE)
+## out &lt;- mclapply(1:6,fMC,sample=sample,mdl=mdl,obs=obs,q0=q0,fP=fparChange,mc.cores=6,mc.preschedule = FALSE)
+
 ## on windows/linux/mac you could use parLapply but the set up is more complex
+cl &lt;- makePSOCKcluster(6) # alter number to be number of cores on machine you want to use
+out2 &lt;- parLapply(cl,1:6,fMC,sample=sample,mdl=mdl,obs=obs,q0=q0,fP=fparChange)
+stopCluster(cl)
 ## The `future` package offer an alternative.
 
 
@@ -463,10 +504,14 @@ names(out) &lt;- paste0(&quot;sid_&quot;,sample[,&quot;sid&quot;])
 saveRDS(out,&quot;output.rds&quot;)</code></pre>
 <p>The above script could be run from a shell command line using</p>
 <pre><code>Rscript &lt;my_script_name&gt;.R</code></pre>
-<p>many HPC job submission systems allow for the submission of <span class="math inline">\(n_j\)</span> multiple, near identical jobs, identified as job <span class="math inline">\(j\)</span> of <span class="math inline">\(n_j\)</span>.</p>
-<p>The above script can be adapted for this using command line arguments to receive <span class="math inline">\(j\)</span> and <span class="math inline">\(jn\)</span></p>
-<pre class="r"><code>
-## prices the command line arguments
+<p>many HPC job submission systems allow for the submission of <span
+class="math inline">\(n_j\)</span> multiple, near identical jobs,
+identified as job <span class="math inline">\(j\)</span> of <span
+class="math inline">\(n_j\)</span>.</p>
+<p>The above script can be adapted for this using command line arguments
+to receive <span class="math inline">\(j\)</span> and <span
+class="math inline">\(jn\)</span></p>
+<pre class="r"><code>## prices the command line arguments
 arg &lt;- as.integer(commandArgs(trailingOnly = TRUE))
 if(!all(is.finite(arg))){ stop(&quot;Invalid command line arguments&quot;) }
 j &lt;- arg[1]
@@ -476,19 +521,21 @@ nj &lt;- arg[2]
 library(dynatop)
 source( file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;fMC.R&quot;) ) ## source the function so it is available
 ## load model
-mdl &lt;- readRDS(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;atb_band_model.rds&quot;))
+mdl &lt;- readRDS(file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;atb_20_model.rds&quot;))
 ## load obs
 obs &lt;- readRDS(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;obs.rds&quot;))
-## source parameter change function
-pattern &lt;- readRDS(file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;fparChange.R&quot;))
+## load the parameter function
+source( file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;fparChange.R&quot;))
 ## load sample
 sample &lt;- readRDS(file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;sample.rds&quot;))
+## load gauges
+mdl$output_flux &lt;- readRDS(file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;gauge_output_defn.rds&quot;))
 
 q0 &lt;- as.numeric(obs$Sheepmount_obs[1]) / sum( sapply(mdl$hru,function(h){h$properties[&quot;area&quot;]}) )
 
 ## this wraps the fMC function to catch any errors and stop then killing the simulation 
 fout &lt;- function(i){
-  tryCatch({fMC(i,mdl,q0)},
+  tryCatch({fMC(i,sample,mdl,obs,q0,fP)},
            error=function(e){e$message}) ## if an error return the message
 }
 
@@ -499,7 +546,9 @@ out &lt;- lapply(idx, fout)
 ## save out after naming with the simulation number
 names(out) &lt;- paste0(&quot;sid_&quot;,sample[idx,&quot;sid&quot;])
 saveRDS(out,paste0(&quot;output_&quot;,j,&quot;.rds&quot;))</code></pre>
-<p>This script could be run from a shell command line for job <span class="math inline">\(j=1\)</span> of <span class="math inline">\(n_j=10\)</span> with</p>
+<p>This script could be run from a shell command line for job <span
+class="math inline">\(j=1\)</span> of <span
+class="math inline">\(n_j=10\)</span> with</p>
 <pre><code>Rscript &lt;my_script_name&gt;.R 1 10</code></pre>
 </div>
 

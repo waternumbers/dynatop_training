@@ -296,6 +296,9 @@ $(document).ready(function () {
     <li>
       <a href="23_altering_dynatop.html">Altering dynatop</a>
     </li>
+    <li>
+      <a href="99_session_info.html">Session Info</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -314,27 +317,59 @@ $(document).ready(function () {
 
 <div id="aim" class="section level2">
 <h2>Aim</h2>
-<p>To explore and pre-process the observed data for the Eden catchment.</p>
+<p>To explore and pre-process the observed data for the Eden
+catchment.</p>
 </div>
 <div id="required-r-packages" class="section level2">
 <h2>Required R Packages</h2>
-<p>Alongside the <code>terra</code> package used in the <a href="./10_initial_gis.html">initial GIS processing</a>, two further packages are required. The first, <code>xts</code>, allows for an efficent representation of time series data. The second extra package required is <code>dynatop</code>.</p>
-<p>These are attached to the R environment so that there functions are available.</p>
+<p>Alongside the <code>terra</code> package used in the <a
+href="./10_initial_gis.html">initial GIS processing</a>, two further
+packages are required. The first, <code>xts</code>, allows for an
+efficent representation of time series data. The second extra package
+required is <code>dynatop</code>.</p>
+<p>These are attached to the R environment so that there functions are
+available.</p>
 <pre class="r"><code>library(terra)
 library(xts)
+#&gt; Loading required package: zoo
+#&gt; 
+#&gt; Attaching package: &#39;zoo&#39;
+#&gt; The following object is masked from &#39;package:terra&#39;:
+#&gt; 
+#&gt;     time&lt;-
+#&gt; The following objects are masked from &#39;package:base&#39;:
+#&gt; 
+#&gt;     as.Date, as.Date.numeric
 library(dynatop)</code></pre>
 <p>and remember to move to the eden_data directory e.g.</p>
 <pre class="r"><code>setwd(&quot;../eden_data&quot;)</code></pre>
 </div>
 <div id="expected-data" class="section level2">
 <h2>Expected Data</h2>
-<p>The data passed to <code>dynatop</code> when simulating the model is expected to be a xts object (a special kind numeric matrix whose row names give the time) with a constant time step <span class="math inline">\(\Delta t\)</span>. Each column of data should have a unique name which is used to specify the time series when building the model.</p>
-<p>Two variables are used as inputs, precipitation and potential evapotranspiration (PET). It is expected that the precipitation and potential evapotranspiration inputs series are given in <span class="math inline">\(m\)</span> accrued over the proceeding time step. So the data value given at time <span class="math inline">\(t+\Delta t\)</span> is the total accrued in the interval between time <span class="math inline">\(t\)</span> and time <span class="math inline">\(t+\Delta t\)</span>.</p>
-<p>Since columns in the xts object passed to <code>dynatop</code> which are not used in the model are ignored, so there is no danger is combining observed discharge records in the same object as the input data.</p>
+<p>The data passed to <code>dynatop</code> when simulating the model is
+expected to be a <code>xts</code> object (a special kind numeric matrix
+whose row names give the time) with a constant time step <span
+class="math inline">\(\Delta t\)</span>. Each column of data should have
+a unique name which is used to specify the time series when building the
+model.</p>
+<p>Two variables are used as inputs, precipitation and potential
+evapotranspiration (PET). It is expected that the precipitation and
+potential evapotranspiration inputs series are given in <span
+class="math inline">\(m\)</span> accrued over the proceeding time step.
+So the data value given at time <span class="math inline">\(t+\Delta
+t\)</span> is the total accrued in the interval between time <span
+class="math inline">\(t\)</span> and time <span
+class="math inline">\(t+\Delta t\)</span>.</p>
+<p>Since columns in the <code>xts</code> object passed to
+<code>dynatop</code> which are not used in the model are ignored, so
+there is no danger is combining observed discharge records in the same
+object as the input data.</p>
 </div>
 <div id="data-files" class="section level2">
 <h2>Data Files</h2>
-<p>The example contains two data files Eden_Flow.csv and Eden_Precip.nc. The first is a comma seperated text file of flow data, the later a netcdf file containing a time series of spatial rainfall fields.</p>
+<p>The example contains two data files Eden_Flow.csv and Eden_Precip.nc.
+The first is a comma seperated text file of flow data, the later a
+netcdf file containing a time series of spatial rainfall fields.</p>
 </div>
 <div id="flow-data" class="section level2">
 <h2>Flow Data</h2>
@@ -345,7 +380,10 @@ library(dynatop)</code></pre>
 #&gt; &quot;2020-02-01 00:30:00&quot;,190.9998537
 #&gt; &quot;2020-02-01 00:45:00&quot;,192.1112028
 #&gt; &quot;2020-02-01 01:00:00&quot;,192.5883068</code></pre>
-<p>we see that the Index column gives the time in an unabiguous format recognised by <code>xts</code>. The second column the observed discharges at the Sheepmount gauge as numeric values. We read this in using function avaialbe through the xts package</p>
+<p>we see that the Index column gives the time in an unabiguous format
+recognised by <code>xts</code>. The second column the observed
+discharges at the Sheepmount gauge as numeric values. We read this in
+using function avaialbe through the xts package</p>
 <pre class="r"><code>flow &lt;- as.xts(read.zoo(file.path(&quot;.&quot;,&quot;unprocessed&quot;,&quot;Eden_Flow.csv&quot;),header=TRUE,sep=&quot;,&quot;,drop=FALSE))
 head(flow)
 #&gt;                     Sheepmount_obs
@@ -358,7 +396,8 @@ head(flow)
 </div>
 <div id="rainfall-data" class="section level2">
 <h2>Rainfall Data</h2>
-<p>To explore the rainfall data open the file using the <code>terra</code> package</p>
+<p>To explore the rainfall data open the file using the
+<code>terra</code> package</p>
 <pre class="r"><code>## read in as a multilayered object
 precip_brk &lt;- rast(file.path(&quot;.&quot;,&quot;unprocessed&quot;,&quot;Eden_Precip.nc&quot;))
 ## show summary
@@ -367,7 +406,7 @@ precip_brk
 #&gt; dimensions  : 9, 11, 1392  (nrow, ncol, nlyr)
 #&gt; resolution  : 0.1, 0.1  (x, y)
 #&gt; extent      : -3.2, -2.1, 54.3, 55.2  (xmin, xmax, ymin, ymax)
-#&gt; coord. ref. : lon/lat WGS 84 
+#&gt; coord. ref. : lon/lat WGS 84 (CRS84) (OGC:CRS84) 
 #&gt; source      : Eden_Precip.nc 
 #&gt; varname     : Precipitation (IMERGv6 final precipitation over preceding 30 minutes) 
 #&gt; names       : Preci~ion_1, Preci~ion_2, Preci~ion_3, Preci~ion_4, Preci~ion_5, Preci~ion_6, ... 
@@ -381,16 +420,24 @@ head(time(precip_brk))
 <p>From the properties of precip_brk we see that:</p>
 <ul>
 <li>there are 1392 raster layers covering February 2020</li>
-<li>the projection and resolution of the rainfall grids are different to the DEM</li>
+<li>the projection and resolution of the rainfall grids are different to
+the DEM</li>
 <li>the time step is different to that of the flow data</li>
 </ul>
-<p>To address the projection and resolution differences two approaches could be taken</p>
+<p>To address the projection and resolution differences two approaches
+could be taken</p>
 <ul>
-<li>reproject the rainfall data to match the DEM then extract a time series for each cell, so giving each DEM cell its own rainfall time series</li>
-<li>assign each cell in the DEM to one of the rainfall data raster cells and extract the exisiting rainfall data to the give time series.</li>
+<li>reproject the rainfall data to match the DEM then extract a time
+series for each cell, so giving each DEM cell its own rainfall time
+series</li>
+<li>assign each cell in the DEM to one of the rainfall data raster cells
+and extract the exisiting rainfall data to the give time series.</li>
 </ul>
-<p>Since the DEM has a higher spatial resolution then the rainfall the second approach is more computationally efficent and is recommended.</p>
-<p>To impliment the approach start by creating a raster layer of the same projection and extent as the rainfall feilds but with unique values</p>
+<p>Since the DEM has a higher spatial resolution then the rainfall the
+second approach is more computationally efficent and is recommended.</p>
+<p>To impliment the approach start by creating a raster layer of the
+same projection and extent as the rainfall feilds but with unique
+values</p>
 <pre class="r"><code>rid &lt;- rast(precip_brk[[1]])
 rid &lt;- setValues(rid,1:ncell(rid))
 rid
@@ -398,14 +445,15 @@ rid
 #&gt; dimensions  : 9, 11, 1  (nrow, ncol, nlyr)
 #&gt; resolution  : 0.1, 0.1  (x, y)
 #&gt; extent      : -3.2, -2.1, 54.3, 55.2  (xmin, xmax, ymin, ymax)
-#&gt; coord. ref. : lon/lat WGS 84 
+#&gt; coord. ref. : lon/lat WGS 84 (CRS84) (OGC:CRS84) 
 #&gt; source(s)   : memory
 #&gt; varname     : Precipitation (IMERGv6 final precipitation over preceding 30 minutes) 
 #&gt; name        : Precipitation_1 
 #&gt; min value   :               1 
 #&gt; max value   :              99 
 #&gt; time        : 2020-02-01 00:30:00 UTC</code></pre>
-<p>Then extract the precipitation values to give an xts object where each column is the time series for one value in rid.</p>
+<p>Then extract the precipitation values to give an xts object where
+each column is the time series for one value in rid.</p>
 <pre class="r"><code>precip &lt;- values(precip_brk) # matrix where each row is one cell
 ## add row names based on unique values in rid to give time series names
 rownames(precip) &lt;-  paste0(&quot;precip_&quot;,values(rid))
@@ -413,12 +461,17 @@ rownames(precip) &lt;-  paste0(&quot;precip_&quot;,values(rid))
 precip_datetime &lt;- time(precip_brk)
 ## create the xts object
 precip &lt;- xts(t(precip),order.by=precip_datetime)</code></pre>
-<p>To fix the difference in time step compared with the flow data we resample the precipitation data to a 15 minute timestep. The resample_xts function of dynatop provides a simple method for doing this</p>
+<p>To fix the difference in time step compared with the flow data we
+resample the precipitation data to a 15 minute timestep. The
+resample_xts function of dynatop provides a simple method for doing
+this</p>
 <pre class="r"><code>## call the resample_precip function
 resampled_precip &lt;- resample_xts(precip,900)
 ## look at what it does (assigned rainfall equally between new steps in same time period)
 head(precip[,&quot;precip_48&quot;]) # original data
 #&gt; Warning: object timezone (&#39;UTC&#39;) is different from system timezone (&#39;&#39;)
+#&gt;   NOTE: set &#39;options(xts_check_TZ = FALSE)&#39; to disable this warning
+#&gt;     This note is displayed once per session
 #&gt;                        precip_48
 #&gt; 2020-02-01 00:30:00 0.0000000000
 #&gt; 2020-02-01 01:00:00 0.0001677525
@@ -435,7 +488,10 @@ head(resampled_precip[,&quot;precip_48&quot;]) # resampled data - see how they s
 #&gt; 2020-02-01 01:00:00 8.387624e-05
 #&gt; 2020-02-01 01:15:00 0.000000e+00
 #&gt; 2020-02-01 01:30:00 0.000000e+00</code></pre>
-<p>To assign the DEM cells to rainfall series reproject the raster layer of unique rainfall series numbers (rid) to match the projection and resolution of the DEM using nearest neighbours, then save this for later use.</p>
+<p>To assign the DEM cells to rainfall series reproject the raster layer
+of unique rainfall series numbers (rid) to match the projection and
+resolution of the DEM using nearest neighbours, then save this for later
+use.</p>
 <pre class="r"><code>## load the dem
 eden &lt;- rast(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;eden.tif&quot;))
 ## call the resample_precip function
@@ -448,18 +504,24 @@ writeRaster(reproj_rid,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;preci
 </div>
 <div id="potential-evapotranspriation" class="section level2">
 <h2>Potential Evapotranspriation</h2>
-<p>If available spatial Potential Evapotranspiration time series can be handled in exactly the same way as the rainfall. However if there is only a single series generatation of the map of id values can be avoided. A simple sinusoidal PET series can be generated using the evap_est function in dynatop</p>
+<p>If available spatial Potential Evapotranspiration time series can be
+handled in exactly the same way as the rainfall. However if there is
+only a single series generatation of the map of id values can be
+avoided. A simple sinusoidal PET series can be generated using the
+<code>evap_est</code> function in <code>dynatop</code>.</p>
 <pre class="r"><code>## use a maximum of 3 mm/day - output in meters
 pet &lt;- evap_est(index(flow), eMin = 0, eMax = 0.003)
 names(pet) &lt;- &quot;pet&quot; # ensure series has a name</code></pre>
 </div>
 <div id="combining-series" class="section level2">
 <h2>Combining Series</h2>
-<p>The xts package has a convient functions for merging xts objects by the time. We will save this as an R object for later use</p>
+<p>The xts package has a convient functions for merging xts objects by
+the time. We will save this as an R object for later use</p>
 <pre class="r"><code>obs &lt;- merge(flow,resampled_precip,pet,all=FALSE) ## merge by time stamp
 saveRDS(obs,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;obs.rds&quot;))</code></pre>
 <blockquote>
-<p><strong>WARNING</strong> dynatop does not allow for missing data. Any missing values must be replaced during the pre-processing</p>
+<p><strong>WARNING</strong> dynatop does not allow for missing data. Any
+missing values must be replaced during the pre-processing</p>
 </blockquote>
 </div>
 

@@ -296,6 +296,9 @@ $(document).ready(function () {
     <li>
       <a href="23_altering_dynatop.html">Altering dynatop</a>
     </li>
+    <li>
+      <a href="99_session_info.html">Session Info</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -312,25 +315,50 @@ $(document).ready(function () {
 </div>
 
 
-<p>The following schematic outlines the stages resulting a working Dynamic TOPMODEL for a catchment. It highlights where the <code>dynatopGIS</code> and <code>dynatop</code> packages fit into this process.</p>
+<p>The following schematic outlines the stages resulting a working
+Dynamic TOPMODEL for a catchment. It highlights where the
+<code>dynatopGIS</code> and <code>dynatop</code> packages fit into this
+process.</p>
 <div class="figure" style="text-align: center">
 <img src="images/Build_Schematic.png" alt="Schematic of a Dynamic TOPMODEL construction" width="75%" />
 <p class="caption">
 Schematic of a Dynamic TOPMODEL construction
 </p>
 </div>
-<p>As we will see in the example the <a href="https://waternumbers.github.io/dynatopGIS/index.html"><code>dynatopGIS</code></a> package can help</p>
+<p>As we will see in the example the <a
+href="https://waternumbers.github.io/dynatopGIS/index.html"><code>dynatopGIS</code></a>
+package can help</p>
 <ul>
-<li>Compute standard variables for classification (such as the topographic index)</li>
+<li>Compute standard variables for classification (such as the
+topographic index)</li>
+<li>Compute the spatial ordering of the HRUs</li>
 <li>Build classifications of the catchment</li>
 <li>Construct models suitable for <code>dynatop</code></li>
 </ul>
-<p>The <a href="https://waternumbers.github.io/dynatop/index.html"><code>dynatop</code></a> package allows simulation ans visualation of Dynamic TOPMODELs as well as providing some helper for processing time series input data.</p>
+<p>The <a
+href="https://waternumbers.github.io/dynatop/index.html"><code>dynatop</code></a>
+package allows simulation and visualisation of Dynamic TOPMODELs as well
+as providing some helper for processing time series input data. Although
+in this training presumes that model for <code>dynatop</code> are
+generated using <code>dynatopGIS</code> this need not be the case so
+long as the inputs to <code>dynatop</code> are of the correct
+format.</p>
 <div id="implementation-notes" class="section level1">
 <h1>Implementation notes</h1>
-<p>The <code>dynatopGIS</code> and <code>dynatop</code> packages implement structured, object orientated, data flows. The packages are written using the object orientated framework provided by the <code>R6</code> package. This means that some aspects of working with the objects may appear ìdiosyncratic for some R users. In this training these problems are largely obscured, except for the call structure. However, before adapting the code, or doing more complex analysis users should read about <code>R6</code> class objects (e.g. in the <code>R6</code> package vignettes or in the Advanced R book). One particular gotcha is when copying an object. Using</p>
+<p>The <code>dynatopGIS</code> and <code>dynatop</code> packages
+implement structured, object orientated, data flows. The packages are
+written using the object orientated framework provided by the
+<code>R6</code> package. This means that some aspects of working with
+the objects may appear idiosyncratic for some R users. In this training
+these problems are largely obscured, except for the call structure.
+However, before adapting the code, or doing more complex analysis users
+should read about <code>R6</code> class objects (e.g. in the
+<code>R6</code> package vignettes or in the Advanced R book). One
+particular gotcha is when copying an object. Using</p>
 <pre class="r"><code>my_new_object  &lt;-  my_object</code></pre>
-<p>creates a pointer, that is altering <code>my_new_object</code> also alters <code>my_object</code>. To create a new independent copy of <code>my_object</code> use</p>
+<p>creates a pointer, that is altering <code>my_new_object</code> also
+alters <code>my_object</code>. To create a new independent copy of
+<code>my_object</code> use</p>
 <pre class="r"><code>my_new_object  &lt;-  my_object$clone()</code></pre>
 </div>
 

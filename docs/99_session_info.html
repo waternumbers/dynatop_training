@@ -296,6 +296,9 @@ $(document).ready(function () {
     <li>
       <a href="23_altering_dynatop.html">Altering dynatop</a>
     </li>
+    <li>
+      <a href="99_session_info.html">Session Info</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -315,15 +318,16 @@ $(document).ready(function () {
 <p>The R session used for building this version of the course is</p>
 <pre class="r"><code>print(sessionInfo(),locale = FALSE)</code></pre>
 <pre><code>## R version 4.4.0 (2024-04-24)
-## Platform: x86_64-pc-linux-gnu
-## Running under: Ubuntu 22.04.4 LTS
+## Platform: x86_64-suse-linux-gnu
+## Running under: openSUSE Tumbleweed
 ## 
 ## Matrix products: default
-## BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 
-## LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so;  LAPACK version 3.10.0
+## BLAS:   /usr/lib64/R/lib/libRblas.so 
+## LAPACK: /usr/lib64/R/lib/libRlapack.so;  LAPACK version 3.12.0
 ## 
 ## attached base packages:
-## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## [1] parallel  stats     graphics  grDevices utils     datasets  methods  
+## [8] base     
 ## 
 ## other attached packages:
 ## [1] dynatop_0.3.0.1010    xts_0.13.2            zoo_1.8-12           

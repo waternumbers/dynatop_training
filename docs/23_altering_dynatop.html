@@ -296,6 +296,9 @@ $(document).ready(function () {
     <li>
       <a href="23_altering_dynatop.html">Altering dynatop</a>
     </li>
+    <li>
+      <a href="99_session_info.html">Session Info</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -314,74 +317,194 @@ $(document).ready(function () {
 
 <div id="aim" class="section level2">
 <h2>Aim</h2>
-<p>To a small but substantial change to the dynatop code and rebuild the package</p>
+<p>To a small but substantial change to the dynatop code and rebuild the
+package</p>
 </div>
 <div id="proposed-change" class="section level2">
 <h2>Proposed Change</h2>
-<p>In this section we will make a change to dynatop by allowing for a different representation in the Hill slope HRU. The new representation of the Hill slope HRU will use and existing transmissivity profile but will treat the potential evapotranspiration as being limited only be the amount of water in the root zone.</p>
+<p>In this section we will make a change to dynatop by allowing for a
+different representation in the Hill slope HRU. The new representation
+of the Hill slope HRU will use and existing transmissivity profile but
+will treat the potential evapotranspiration as being limited only be the
+amount of water in the root zone.</p>
 <p>This is achieved by</p>
 <ul>
-<li>Altering the R code to allow for an extra value (“bounded_exponential_pet”) to be accepted for the transmissivity value in the options vector of the model</li>
+<li>Altering the R code to allow for an extra value
+(“bounded_exponential_pet”) to be accepted for the transmissivity value
+in the options vector of the model</li>
 <li>Developing C++ code for the new implementation</li>
 </ul>
 </div>
 <div id="revised-root-zone-solution" class="section level2">
 <h2>Revised Root Zone Solution</h2>
-<p>Following the description and notation in the <a href="https://waternumbers.github.io/dynatop/articles/Hillslope_HRU.html">dynatop vignette</a> the revised root zone gains water from precipitation (<span class="math inline">\(p\)</span>) and the surface zone <span class="math inline">\(\bar{r}_{sf\rightarrow rz}\)</span>. It loses water through evapotranspiration (<span class="math inline">\(a_p\)</span>) and to the unsaturated zone (<span class="math inline">\(\bar{r}_{rz \rightarrow uz}\)</span>). Since all the vertical fluxes are spatially uniform the evolution can be evaluated in terms of the spatial averages. The root zone storage satisfies</p>
-<p><span class="math display">\[\begin{equation} 0 \leq \bar{s}_{rz} \leq s_{rzmax} \end{equation}\]</span></p>
+<p>Following the description and notation in the <a
+href="https://waternumbers.github.io/dynatop/articles/Hillslope_HRU.html">dynatop
+vignette</a> the revised root zone gains water from precipitation (<span
+class="math inline">\(p\)</span>) and the surface zone <span
+class="math inline">\(\bar{r}_{sf\rightarrow rz}\)</span>. It loses
+water through evapotranspiration (<span
+class="math inline">\(a_p\)</span>) and to the unsaturated zone (<span
+class="math inline">\(\bar{r}_{rz \rightarrow uz}\)</span>). Since all
+the vertical fluxes are spatially uniform the evolution can be evaluated
+in terms of the spatial averages. The root zone storage satisfies</p>
+<p><span class="math display">\[\begin{equation} 0 \leq \bar{s}_{rz}
+\leq s_{rzmax} \end{equation}\]</span></p>
 <p>with the governing ODE <span class="math display">\[\begin{equation}
 \frac{d\bar{s}_{rz}}{dt} = p - a_p +
 \bar{r}_{sf\rightarrow rz} - \bar{r}_{rz \rightarrow uz}
 \end{equation}\]</span></p>
-<p>The rate of evapotranspiration <span class="math inline">\(a_p\)</span> equally the potential rate <span class="math inline">\(e_p\)</span> unless <span class="math inline">\(s_{rz}= 0\)</span> when <span class="math display">\[\begin{equation}
-a_p = \min\left(e_p,  p + \bar{r}_{sf\rightarrow rz} - \bar{r}_{rz \rightarrow uz}\right)
+<p>The rate of evapotranspiration <span
+class="math inline">\(a_p\)</span> equally the potential rate <span
+class="math inline">\(e_p\)</span> unless <span
+class="math inline">\(s_{rz}= 0\)</span> when <span
+class="math display">\[\begin{equation}
+a_p = \min\left(e_p,  p + \bar{r}_{sf\rightarrow rz} - \bar{r}_{rz
+\rightarrow uz}\right)
 \end{equation}\]</span></p>
-<p>Fluxes from the surface and to the unsaturated zone are controlled by the level of root zone storage along with the state of the unsaturated and saturated zones.</p>
-<p>For <span class="math inline">\(\bar{s}_{rz} \leq s_{rzmax}\)</span> then <span class="math inline">\(\bar{r}_{rz \rightarrow uz} \leq 0\)</span>. Negative values of <span class="math inline">\(\bar{r}_{rz \rightarrow uz}\)</span> may occur only when water is returned from the unsaturated zone due to saturation caused by lateral inflow to the saturated zone.</p>
-<p>When <span class="math inline">\(\bar{s}_{rz} = s_{rzmax}\)</span> then <span class="math display">\[\begin{equation}
-p - e_p + \bar{r}_{sf\rightarrow rz} - \bar{r}_{rz \rightarrow uz} \leq 0
-\end{equation}\]</span> In this case <span class="math inline">\(\bar{r}_{rz \rightarrow uz}\)</span> may be positive if <span class="math display">\[\begin{equation}
+<p>Fluxes from the surface and to the unsaturated zone are controlled by
+the level of root zone storage along with the state of the unsaturated
+and saturated zones.</p>
+<p>For <span class="math inline">\(\bar{s}_{rz} \leq s_{rzmax}\)</span>
+then <span class="math inline">\(\bar{r}_{rz \rightarrow uz} \leq
+0\)</span>. Negative values of <span class="math inline">\(\bar{r}_{rz
+\rightarrow uz}\)</span> may occur only when water is returned from the
+unsaturated zone due to saturation caused by lateral inflow to the
+saturated zone.</p>
+<p>When <span class="math inline">\(\bar{s}_{rz} = s_{rzmax}\)</span>
+then <span class="math display">\[\begin{equation}
+p - e_p + \bar{r}_{sf\rightarrow rz} - \bar{r}_{rz \rightarrow uz} \leq
+0
+\end{equation}\]</span> In this case <span
+class="math inline">\(\bar{r}_{rz \rightarrow uz}\)</span> may be
+positive if <span class="math display">\[\begin{equation}
 p - e_p + \bar{r}_{sf\rightarrow rz} &gt; 0
-\end{equation}\]</span> so long as the unsaturated zone can receive the water. If <span class="math inline">\(\bar{r}_{rz \rightarrow uz}\)</span> is ‘throttled’ by the rate at which the unsaturated zone can receive water, then <span class="math inline">\(\bar{r}_{sf\rightarrow rz}\)</span> is adjusted (potentially becoming negative) to ensure the equality is met.</p>
+\end{equation}\]</span> so long as the unsaturated zone can receive the
+water. If <span class="math inline">\(\bar{r}_{rz
+\rightarrow uz}\)</span> is ‘throttled’ by the rate at which the
+unsaturated zone can receive water, then <span
+class="math inline">\(\bar{r}_{sf\rightarrow rz}\)</span> is adjusted
+(potentially becoming negative) to ensure the equality is met.</p>
 <div id="algorithm" class="section level3">
 <h3>Algorithm</h3>
-<p>Working through the solution an implementation of the approximating equations which is consistent with maximising the downward flux involves an additional step. Following the existing algorithm which makes use of the psuedo-function <span class="math inline">\(f\left(\check{s}_{sz},\check{r}_{rz \rightarrow uz}\right)\)</span> which returns the value <span class="math display">\[\begin{equation}
-\check{s}_{sz} - 
+<p>Working through the solution an implementation of the approximating
+equations which is consistent with maximising the downward flux involves
+an additional step. Following the existing algorithm which makes use of
+the psuedo-function <span
+class="math inline">\(f\left(\check{s}_{sz},\check{r}_{rz \rightarrow
+uz}\right)\)</span> which returns the value <span
+class="math display">\[\begin{equation}
+\check{s}_{sz} -
 \left. \bar{s}_{sz}\right.\rvert_{\Delta 0} - \Delta t \left(
 \frac{w^{+}}{A}g\left(\check{s}_{sz},\Theta_{sz}\right) -
 \frac{q_{sz}^{-}}{A} - \min\left(\frac{1}{T_d},
-\frac{ \left. \bar{s}_{uz} \right.\rvert_{0} + \Delta t \check{r}_{rz \rightarrow uz} }
+\frac{ \left. \bar{s}_{uz} \right.\rvert_{0} + \Delta t \check{r}_{rz
+\rightarrow uz} }
 { T_{d} \check{s}_{sz} + \Delta t} \right)
 \right)
 \end{equation}\]</span></p>
-<p>based in part on the transmissivity function <span class="math inline">\(g\)</span> the new algorithm is given by the following steps:</p>
+<p>based in part on the transmissivity function <span
+class="math inline">\(g\)</span> the new algorithm is given by the
+following steps:</p>
 <ol style="list-style-type: decimal">
-<li>Compute <span class="math inline">\(\check{r}_{sf \rightarrow rz} = \min\left( k_{sf}, \left. \bar{s}_{sf} \right\rvert_{0} + \frac{\Delta t \hat{q}_{sf}^{-}}{A} \right)\)</span></li>
-<li>Compute <span class="math inline">\(\check{r}_{rz \rightarrow uz} = \max\left(0, \frac{1}{\Delta t}\left( \left. \bar{s}_{rz} \right.\rvert_{0} + \Delta t \left( p + \check{r}_{sf  \rightarrow rz} - e_{p} \right) - s_{rzmax} \right)\right)\)</span></li>
-<li>Test for saturation. If <span class="math inline">\(f\left(0,\check{r}_{rz \rightarrow uz}\right) \geq 0\)</span> then goto 4 else goto 5</li>
-<li>Saturated. Set <span class="math inline">\(\left. \bar{s}_{sz}\right.\rvert_{\Delta t} = 0\)</span> and <span class="math inline">\(\hat{r}_{rz \rightarrow uz} = \frac{1}{\Delta t}\left( \left. \bar{s}_{sz}\right.\rvert_{0} + \Delta t \left( \frac{w^{+}}{A}g\left(0,\Theta_{sz}\right) - \frac{q_{sz}^{-}}{A}\right) - \left. \bar{s}_{uz} \right.\rvert_{0} \right)\)</span>, Goto 7</li>
-<li>Not saturated: find <span class="math inline">\(\left. \bar{s}_{sz}\right.\rvert_{\Delta t}\)</span> such that <span class="math inline">\(f\left(\left. \bar{s}_{sz}\right.\rvert_{\Delta t},\check{r}_{rz \rightarrow  uz}\right) = 0\)</span>.</li>
-<li>Set <span class="math inline">\(\hat{r}_{rz \rightarrow uz} = \min\left(\check{r}_{rz \rightarrow uz},\frac{1}{\Delta t} \left( \left. \bar{s}_{sz} \right.\rvert_{\Delta t} + \frac{\Delta t}{T_d} -  \left. \bar{s}_{uz} \right.\rvert_{0}\right)\right)\)</span>.</li>
-<li>Compute the evapotranspiration <span class="math inline">\(\hat{a}_p = \min\left(e_p, \frac{1}{\Delta t}\left( \left. \bar{s}_{rz}\right.\rvert_{0} + \Delta t \left(p + \check{r}_{sf \rightarrow rz} - \hat{r}_{rz \rightarrow uz}\right)\right)\right)\)</span>.</li>
-<li>Compute <span class="math inline">\(\hat{r}_{sf \rightarrow rz} = \min\left(\check{r}_{sf \rightarrow  rz}, \frac{1}{\Delta t}\left( s_{rzmax} - \left. \bar{s}_{rz} \right.\rvert_{0} - \Delta t \left( p - \hat{a}_p - \hat{r}_{rz  \rightarrow uz} \right) \right)\right)\)</span></li>
-<li>Solve for <span class="math inline">\(\left. \bar{s}_{uz}\right.\rvert_{\Delta t}\)</span>, <span class="math inline">\(\left. \bar{s}_{rz}\right.\rvert_{\Delta t}\)</span> and <span class="math inline">\(\left. \bar{s}_{sf}\right.\rvert_{\Delta t}\)</span> using the computed vertical fluxes and <span class="math inline">\(hat{a}_{p}\)</span></li>
+<li>Compute <span class="math inline">\(\check{r}_{sf \rightarrow rz} =
+\min\left( k_{sf},
+\left. \bar{s}_{sf} \right\rvert_{0} + \frac{\Delta t
+\hat{q}_{sf}^{-}}{A}
+\right)\)</span></li>
+<li>Compute <span class="math inline">\(\check{r}_{rz \rightarrow uz} =
+\max\left(0, \frac{1}{\Delta t}\left(
+\left. \bar{s}_{rz} \right.\rvert_{0} + \Delta t \left( p +
+\check{r}_{sf
+  \rightarrow rz} - e_{p} \right) - s_{rzmax}
+\right)\right)\)</span></li>
+<li>Test for saturation. If <span
+class="math inline">\(f\left(0,\check{r}_{rz \rightarrow uz}\right) \geq
+0\)</span> then goto 4 else goto 5</li>
+<li>Saturated. Set <span class="math inline">\(\left.
+\bar{s}_{sz}\right.\rvert_{\Delta t} = 0\)</span> and <span
+class="math inline">\(\hat{r}_{rz \rightarrow uz} = \frac{1}{\Delta
+t}\left(
+\left. \bar{s}_{sz}\right.\rvert_{0} + \Delta t \left(
+\frac{w^{+}}{A}g\left(0,\Theta_{sz}\right) -
+\frac{q_{sz}^{-}}{A}\right) - \left. \bar{s}_{uz} \right.\rvert_{0}
+\right)\)</span>, Goto 7</li>
+<li>Not saturated: find <span class="math inline">\(\left.
+\bar{s}_{sz}\right.\rvert_{\Delta t}\)</span> such that <span
+class="math inline">\(f\left(\left. \bar{s}_{sz}\right.\rvert_{\Delta
+t},\check{r}_{rz \rightarrow
+  uz}\right) = 0\)</span>.</li>
+<li>Set <span class="math inline">\(\hat{r}_{rz \rightarrow uz} =
+\min\left(\check{r}_{rz \rightarrow uz},\frac{1}{\Delta t} \left(
+\left. \bar{s}_{sz} \right.\rvert_{\Delta t} + \frac{\Delta t}{T_d} -
+\left. \bar{s}_{uz} \right.\rvert_{0}\right)\right)\)</span>.</li>
+<li>Compute the evapotranspiration <span class="math inline">\(\hat{a}_p
+= \min\left(e_p,
+\frac{1}{\Delta t}\left( \left. \bar{s}_{rz}\right.\rvert_{0} + \Delta t
+\left(p + \check{r}_{sf \rightarrow rz} - \hat{r}_{rz \rightarrow
+uz}\right)\right)\right)\)</span>.</li>
+<li>Compute <span class="math inline">\(\hat{r}_{sf \rightarrow rz} =
+\min\left(\check{r}_{sf \rightarrow
+  rz}, \frac{1}{\Delta t}\left( s_{rzmax} -
+\left. \bar{s}_{rz} \right.\rvert_{0} - \Delta t \left( p - \hat{a}_p -
+\hat{r}_{rz
+  \rightarrow uz} \right) \right)\right)\)</span></li>
+<li>Solve for <span class="math inline">\(\left.
+\bar{s}_{uz}\right.\rvert_{\Delta t}\)</span>, <span
+class="math inline">\(\left. \bar{s}_{rz}\right.\rvert_{\Delta
+t}\)</span> and <span class="math inline">\(\left.
+\bar{s}_{sf}\right.\rvert_{\Delta t}\)</span> using the computed
+vertical fluxes and <span class="math inline">\(hat{a}_{p}\)</span></li>
 </ol>
-<p>The first two steps compute the maximum potential downward flux from the surface and root zones. Steps 3-6 solve saturated zone and adjust the flux from the root zone to the unsaturated zone accordingly. Step 7 adjusts the evapotranspiration to ensure the root zone storage is not negative. Step 9 adjusts the flux from the surface zone in the case of upward flow from the unsaturated zone, with Step 9 using the corrected vertical fluxes to solve for the new values of the states.</p>
+<p>The first two steps compute the maximum potential downward flux from
+the surface and root zones. Steps 3-6 solve saturated zone and adjust
+the flux from the root zone to the unsaturated zone accordingly. Step 7
+adjusts the evapotranspiration to ensure the root zone storage is not
+negative. Step 9 adjusts the flux from the surface zone in the case of
+upward flow from the unsaturated zone, with Step 9 using the corrected
+vertical fluxes to solve for the new values of the states.</p>
 </div>
 </div>
 <div id="altering-the-r-code" class="section level2">
 <h2>Altering the R code</h2>
-<p>The key R code in the file dynatop.R. This file contains the code generating the R6 class dyantop and it associated methods (e.g. add_data, sim). Opening the file shows function broken into two groups: public and private. With one exception the public function match the names of the avaialbe methods. The private functions are used by the public functions.</p>
-<p>For the for a model with the new option to be accepted in the dynatop code it must first pass the model checks then be used to trigger a call to the correct C++ code.</p>
-<p>Checks are performed when the dynatop object is created with <code>dynatop$new(model)</code>. Confusingly this calls the public initialize function.</p>
-<p>From the code in dynatop.R it can be seen that initialize calls in turn two further private functions generate_model_description and check_model.</p>
-<p>The function check_model checks the model provided against the description generated by generate_model_description. This means that only this the generation of the model description needs to be changed. The inputs and parameters are identical to those of the “bounded_exponential” transmissivity option, so the changes needed to the generate_model_description function are minimal.</p>
-<p>The second set of changes to the R code ensures the correct C++ code is called. Following the calls from the public initialise and sim_hillslope functions leads to private functions init_hs and sim_hs. Both of which contain <code>switch</code> statements which require alteration.</p>
+<p>The key R code in the file dynatop.R. This file contains the code
+generating the R6 class dyantop and it associated methods
+(e.g. add_data, sim). Opening the file shows function broken into two
+groups: public and private. With one exception the public function match
+the names of the avaialbe methods. The private functions are used by the
+public functions.</p>
+<p>For the for a model with the new option to be accepted in the dynatop
+code it must first pass the model checks then be used to trigger a call
+to the correct C++ code.</p>
+<p>Checks are performed when the dynatop object is created with
+<code>dynatop$new(model)</code>. Confusingly this calls the public
+initialize function.</p>
+<p>From the code in dynatop.R it can be seen that initialize calls in
+turn two further private functions generate_model_description and
+check_model.</p>
+<p>The function check_model checks the model provided against the
+description generated by generate_model_description. This means that
+only this the generation of the model description needs to be changed.
+The inputs and parameters are identical to those of the
+“bounded_exponential” transmissivity option, so the changes needed to
+the generate_model_description function are minimal.</p>
+<p>The second set of changes to the R code ensures the correct C++ code
+is called. Following the calls from the public initialise and
+sim_hillslope functions leads to private functions init_hs and sim_hs.
+Both of which contain <code>switch</code> statements which require
+alteration.</p>
 </div>
 <div id="adding-the-c-code" class="section level2">
 <h2>Adding the C++ code</h2>
-<p>Changing to the handling of the PET input require changes the numerical solution to match the new algorithm. In the src directory copy the file dt_bexp.cpp, the solution to bounded_exponential transmissivity option in the source directory to dt_bexp_pet.cpp. This needs altering to rename the functions to the names used in the R code and to change the algorithm.</p>
-<p>The changes can be algorithm are summarised in following the screenshot of a diff between dt_bexp.cpp and dt_bexp_pet.cpp. Line numbers are shown in blue, red and green represent the lines removed and added.</p>
+<p>Changing to the handling of the PET input require changes the
+numerical solution to match the new algorithm. In the src directory copy
+the file dt_bexp.cpp, the solution to bounded_exponential transmissivity
+option in the source directory to dt_bexp_pet.cpp. This needs altering
+to rename the functions to the names used in the R code and to change
+the algorithm.</p>
+<p>The changes can be algorithm are summarised in following the
+screenshot of a diff between dt_bexp.cpp and dt_bexp_pet.cpp. Line
+numbers are shown in blue, red and green represent the lines removed and
+added.</p>
 <div class="figure" style="text-align: center">
 <img src="images/changed_cpp.png" alt="Github repository of waternumbers" width="100%" />
 <p class="caption">
@@ -391,8 +514,12 @@ Github repository of waternumbers
 </div>
 <div id="testing" class="section level2">
 <h2>Testing</h2>
-<p>To check the altered code compiled we could use <code>devtools::check</code> as when building the package. An alternative way to do it is to use <code>devtools::load_all</code> which mimics installing then attaching the library.</p>
-<p>A test simulation using the model for the Eden catchment build can be done in this way:</p>
+<p>To check the altered code compiled we could use
+<code>devtools::check</code> as when building the package. An
+alternative way to do it is to use <code>devtools::load_all</code> which
+mimics installing then attaching the library.</p>
+<p>A test simulation using the model for the Eden catchment build can be
+done in this way:</p>
 <pre class="r"><code>devtools::load_all(file.path(&quot;.&quot;,&quot;dynatop&quot;)) ## attach the revised package
 mdl &lt;- readRDS(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;atb_band_model.rds&quot;)) ## read in the model
 obs &lt;- readRDS(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;obs.rds&quot;)) ## read in the observed data
@@ -407,8 +534,13 @@ plot(mb$err) ## plot the errors</code></pre>
 </div>
 <div id="summary" class="section level2">
 <h2>Summary</h2>
-<p>This example has scratched the surface of altering dynatop. To complete the alterations tests should be added, the function documentation altered and the changed algorithm documented in a vignette.</p>
-<p>However it demonstrates both the basic structure of the code and the level of complexity required in keeping the numeric solution, input structure and code aligned.</p>
+<p>This example has scratched the surface of altering dynatop. To
+complete the alterations tests should be added, the function
+documentation altered and the changed algorithm documented in a
+vignette.</p>
+<p>However it demonstrates both the basic structure of the code and the
+level of complexity required in keeping the numeric solution, input
+structure and code aligned.</p>
 </div>
 
 

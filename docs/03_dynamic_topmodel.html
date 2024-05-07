@@ -296,6 +296,9 @@ $(document).ready(function () {
     <li>
       <a href="23_altering_dynatop.html">Altering dynatop</a>
     </li>
+    <li>
+      <a href="99_session_info.html">Session Info</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -313,42 +316,73 @@ $(document).ready(function () {
 
 
 <blockquote>
-<p>This a simplified, opinionated introduction. The original motivation for Dynamic TOPMODEL can be found in <a href="https://doi.org/10.1002/hyp.252">Beven &amp; Freer, 2001</a></p>
+<p>This a simplified, opinionated introduction. The original motivation
+for Dynamic TOPMODEL can be found in <a
+href="https://doi.org/10.1002/hyp.252">Beven &amp; Freer, 2001</a></p>
 </blockquote>
 <div id="motivation" class="section level2">
 <h2>Motivation</h2>
-<p>Dynamic TOPMODEL was originally conceived as <em>“A new version of the rainfall-runoff model TOPMODEL is described in which the assumption of a quasi-steady state saturated zone configuration is replaced by a kinematic wave routing of subsurface flow…”</em> allowing for <em>“…the simulation of dynamically variable up-slope contributing areas.”</em></p>
-<p>Revisiting the idea of TOPMODEL (which has done this mainly for hill slopes, but see <a href="https://doi.org/10.1002/hyp.1128">Peters et al. 2003</a>) a model is formulated by</p>
+<p>Dynamic TOPMODEL was originally conceived as <em>“A new version of
+the rainfall-runoff model TOPMODEL is described in which the assumption
+of a quasi-steady state saturated zone configuration is replaced by a
+kinematic wave routing of subsurface flow…”</em> allowing for <em>“…the
+simulation of dynamically variable up-slope contributing
+areas.”</em></p>
+<p>Revisiting the idea of TOPMODEL (which has done this mainly for hill
+slopes, but see <a href="https://doi.org/10.1002/hyp.1128">Peters et
+al. 2003</a>) a model is formulated by</p>
 <ul>
-<li>Classifying the catchment up into areas that respond in a hydrologically similar manner</li>
+<li>Classifying the catchment up into areas that respond in a
+hydrologically similar manner</li>
 <li>Determining the connectivity between each of the classes</li>
-<li>Assigning each class to an appropriate Hydrological Representative Unit (HRU), which solves the hydrological processes for a standardised unit</li>
+<li>Assigning each class to an appropriate Hydrological Representative
+Unit (HRU), which solves the hydrological processes for a standardised
+unit</li>
 </ul>
-<p>In the following these aspects are outlined with reference to the implementation of Dynamic TOPMODEL in the <code>dynatop</code> and <code>dynatopGIS</code> packages.</p>
+<p>In the following these aspects are outlined with reference to the
+implementation of Dynamic TOPMODEL in the <code>dynatop</code> and
+<code>dynatopGIS</code> packages.</p>
 </div>
 <div id="classification-and-connectivity" class="section level2">
 <h2>Classification and Connectivity</h2>
 <div id="classification-part-1" class="section level3">
 <h3>Classification (Part 1)</h3>
-<p>The location of areas with a hydrological similar response is only every going to be partially captures by spatial data. Past TOPMODEL and Dynamic TOPMODEL applications have used classifications based on a topographic index given by the logarithm of up-slope area divided by the local gradient. Using the up-slope area gives some spatial ordering to the classes, but (as we will see with the Eden data) it is not complete. Consider a small catchment represented by a raster of spatial cells with the following topographic index classes</p>
+<p>The location of areas with a hydrological similar response is only
+every going to be partially captured by spatial data. Past TOPMODEL and
+Dynamic TOPMODEL applications have used classifications based on a
+topographic index given by the logarithm of up-slope area divided by the
+local gradient. Using the up-slope area gives some spatial ordering to
+the classes, but (as we will see with the Eden data) it is not complete.
+Consider a small catchment represented by a raster of spatial cells with
+the following topographic index classes</p>
 <div class="figure" style="text-align: center">
 <img src="images/topo_class.png" alt="Map of topographic index classes" width="75%" />
 <p class="caption">
 Map of topographic index classes
 </p>
 </div>
-<p>Since land use could influence the evapotranspiration and infiltration properties a second classification might be desirable. For the small catchment the land use classes are shown below</p>
+<p>Since land use could influence the evapotranspiration and
+infiltration properties a second classification might be desirable. For
+the small catchment the land use classes are shown below</p>
 <div class="figure" style="text-align: center">
 <img src="images/landuse_class.png" alt="Map of land use classes" width="75%" />
 <p class="caption">
 Map of land use classes
 </p>
 </div>
-<p>Combing these topographic index and land use classes gives one initial class for each unique combination.</p>
+<p>Combing these topographic index and land use classes gives one
+initial class for each unique combination.</p>
 </div>
 <div id="connectivity" class="section level3">
 <h3>Connectivity</h3>
-<p>In keeping with earlier spatial analysis TOPMODEL and Dynamic TOPMODEL applications connectivity (flow directions) is assumed to be determined by the surface gradient with any down-slope region receiving flow. This gives a high degree of connectivity between the spatial cells. If a river intercepts a cell it is assumed at it receives all the outward flow. The following figure shows the connectivity for the small catchment.</p>
+<p>In keeping with earlier spatial analysis TOPMODEL and Dynamic
+TOPMODEL applications connectivity (flow directions) is assumed to be
+determined by the surface gradient with any down-slope region receiving
+flow. This gives a high degree of connectivity between the spatial
+cells. If a river intercepts a cell it is assumed that both the surface
+and subsurface flow direction change to follow the river course.The
+following figure shows the connectivity for the small catchment, with
+the river cells highlighted in blue.</p>
 <div class="figure" style="text-align: center">
 <img src="images/combined_class.png" alt="Map of combined topographic and land use classes along with connectivity" width="75%" />
 <p class="caption">
@@ -358,8 +392,14 @@ Map of combined topographic and land use classes along with connectivity
 </div>
 <div id="classification-part-2" class="section level3">
 <h3>Classification (Part 2)</h3>
-<p>Each class is represented by a single HRU, in inflows to which are averaged from the inflows to all the spatial cells of that class. Does this make sense for class 5a, which is both in the upper reaches of the catchment but also adjacent to the river?</p>
-<p>The cells in the catchment can be banded using the connectivity - all cells in a given band receive flows only from those in a higher band. For the small catchment this looks like the following</p>
+<p>Each class is represented by a single HRU, the inflows to which are
+averaged from the inflows to all the spatial cells of that class. Does
+this make sense for class 5a, which is both in the upper reaches of the
+catchment but also adjacent to the river?</p>
+<p>The <code>dynatop</code> author would argue not. To represent the
+spatial positioning the catchment can be banded using the connectivity -
+all cells in a given band receive flows only from those in a higher
+band. For the small catchment this looks like the following</p>
 <div class="figure" style="text-align: center">
 <img src="images/band_class.png" alt="Map of the band classification" width="75%" />
 <p class="caption">
@@ -373,48 +413,65 @@ Map of the band classification
 Map of the combined classification
 </p>
 </div>
-<p>which further separates out the 5a class to the areas close to and further from the river. This gives a further level of spatial refinement to the classification while allowing a for simplification in the catchment representation.</p>
-<p>Introducing the band into the classification has a further advantage. Solving the HRUs starting with those in the highest band ensures that inflows at the current time step are available for use in the numeric solution. This allow the use of computation techniques that are more robust to the choice of solution time step.</p>
+<p>which further separates out the 5a class to the areas close to and
+further from the river. This demonstrates the banding gives a further
+level of spatial refinement to the classification while allowing a for
+simplification in the catchment representation.</p>
+<p>Introducing the band into the classification has a further advantage.
+Solving the HRUs starting with those in the highest band ensures that
+inflows at the current time step are available for use in the numeric
+solution. This allow the use of computation techniques that are more
+robust to the choice of solution time step.</p>
 <blockquote>
-<p>The numeric scheme implemented in the <code>dynatop</code> package makes use of an ordering so that the HRU inflows for the current time step are available. Although other options could be used it is <strong>strongly</strong> recommended that the band is included in all classifications and as teh distance metric when generating models.</p>
+<p>The numeric scheme implemented in the <code>dynatop</code> package
+makes use of an ordering so that the HRU inflows for the current time
+step are available. Although other options could be used it is
+<strong>strongly</strong> recommended that the default banding scheme is
+used.</p>
 </blockquote>
 </div>
 </div>
 <div id="hydrological-response-units" class="section level2">
 <h2>Hydrological Response Units</h2>
-<p>Each type of Hydrological Response Unit HRU represents a parameterised version of a different component of the hydrological system. Two types of HRU are available in <code>dynatop</code>, which represent river channel lengths and hill slopes.</p>
-<div id="channel-hru" class="section level3">
-<h3>Channel HRU</h3>
-<p>The Channel HRU is designed to represent a length of river channel. It implements a time delay histogram routing of the inflow to the river reach to a specified point on the river channel network (e.g. a gauge site) using a time delay histogram, based on constant channel velocity.</p>
-<p>Details of the channel HRU are given in a <code>dynatop</code> <a href="https://waternumbers.github.io/dynatop/articles/Channel_HRU.html">vignette</a>. part of the catchment</p>
-</div>
-<div id="hill-slope-hru" class="section level3">
-<h3>Hill Slope HRU</h3>
-<p>The Hill slope HRU computes the outflow for a representative hill slope whose shape is determined by the total surface area and width across which the outflow occurs.</p>
-<p>The hill slope consists of four zones:</p>
+<p>Each Hydrological Response Unit HRU represents a parameterised
+version of a different part of the hydrological system. The
+representation of each HRU is made up of the four zones:</p>
 <ul>
-<li>A <em>Surface Zone</em> representing the movement of water on the surface</li>
-<li>A <em>Root Zone</em> which controls evapotranspiration, handles the precipitation input and flux of water to the unsaturated zone</li>
-<li>A <em>Unsaturated Zone</em> which represented the water between the root zone and the saturated subsurface</li>
+<li>A <em>Surface Zone</em> representing the movement of water on the
+surface</li>
+<li>A <em>Root Zone</em> which controls evapotranspiration, handles the
+precipitation input and flux of water to the unsaturated zone</li>
+<li>A <em>Unsaturated Zone</em> which represented the water between the
+root zone and the saturated subsurface</li>
 <li>A <em>Saturated Zone</em> representing the saturated subsurface</li>
 </ul>
-<p>The following schematic shows the four zones and the fluxes between them</p>
+<p>The following schematic shows the four zones and the fluxes between
+them</p>
 <div class="figure" style="text-align: center">
 <img src="images/Hillslope_HRU.png" alt="Schematic of the Hill slope HRU" width="75%" />
 <p class="caption">
 Schematic of the Hill slope HRU
 </p>
 </div>
-<p>As shown in the schematic fluxes are passed between the HRUs at two levels, the surface and the saturated zones. Details if the governing equation and numerical solution are given <a href="https://waternumbers.github.io/dynatop/articles/Hillslope_HRU.html">elsewhere</a>. A few key points are:</p>
+<p>As shown in the schematic fluxes are passed between the HRUs at two
+levels, the surface and the saturated zones.</p>
+<p>To allow for some flexibility in the dynamics of the HRU different
+representations can be used for each zone. The governing equation and
+numerical solution of these are given in a <a
+href="https://waternumbers.github.io/dynatop/articles/HRU.html">vignette
+of <code>dynatop</code></a>. A few key points are:</p>
 <ul>
-<li>The lateral flow from the Surface Zone is proportional to the Surface Zone storage</li>
-<li>Evapotranspiration is proportional to the percentage saturation of the Root Zone</li>
-<li>Flow from the root zone to the Unsaturated Zone can occur only when the Root Zone is full</li>
-<li>The Unsaturated Zone is represented by a tank whose time constant depends upon the deficit of the Saturated Zone</li>
-<li>The lateral flow from the Saturated Zone is controlled by the saturated storage deficit through a transmissivity profile which gives the lateral flow per unit outflow width.</li>
+<li>The lateral flow from the Surface and Saturated Zones is computed
+using Muskingham approximations.</li>
+<li>Evapotranspiration is proportional to the percentage saturation of
+the Root Zone</li>
+<li>Flow from the root zone to the Unsaturated Zone can occur only when
+the Root Zone is full</li>
+<li>The Unsaturated Zone is represented by a tank whose time constant
+depends upon the deficit of the Saturated Zone</li>
+<li>The lateral flow from the Saturated Zone is controlled by the
+saturated storage deficit through a transmissivity profile.</li>
 </ul>
-<p>The second part of the training introduces more details of the numeric solution.</p>
-</div>
 </div>
 
 

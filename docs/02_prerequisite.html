@@ -296,6 +296,9 @@ $(document).ready(function () {
     <li>
       <a href="23_altering_dynatop.html">Altering dynatop</a>
     </li>
+    <li>
+      <a href="99_session_info.html">Session Info</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -312,45 +315,82 @@ $(document).ready(function () {
 </div>
 
 
-<p>This is a course on hydrological modelling using a R software package. Part 1 presumes that you have at least a basic knowledge of hydrology and ideally some experience of R. Part 2 requires a more detailed knowledge of R along with some knowledge of the git version control system.</p>
-<p>Useful primers for R can be found on multiple websites such as that of <a href="https://adv-r.hadley.nz/">Hadley Wickham</a> or on <a href="https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf">CRAN</a> but complete knowledge of their contents is not expected.</p>
+<p>This is a course on hydrological modelling using a R software
+package. Part 1 presumes that you have at least a basic knowledge of
+hydrology and ideally some experience of R. Part 2 requires a more
+detailed knowledge of R along with some knowledge of the git version
+control system.</p>
+<p>Useful primers for R can be found on multiple websites such as that
+of <a href="https://adv-r.hadley.nz/">Hadley Wickham</a> or on <a
+href="https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf">CRAN</a>
+but complete knowledge of their contents is not expected.</p>
 <div id="software" class="section level2">
 <h2>Software</h2>
 <div id="part-1" class="section level3">
 <h3>Part 1</h3>
-<p>To make use of the examples on which Part 1 of the course is based requires</p>
+<p>To make use of the examples on which Part 1 of the course is based
+requires</p>
 <div id="an-installation-of-r-4.4.0-or-above" class="section level4">
 <h4>An installation of R 4.4.0 or above</h4>
-<p>Installation instructions for R are available from <a href="https://cran.r-project.org/">CRAN</a> for Linux, Windows and Mac. Full details of the R version and packages used in building this version of the training material can be found <a href="./99_session_info.html">here</a>.</p>
+<p>Installation instructions for R are available from <a
+href="https://cran.r-project.org/">CRAN</a> for Linux, Windows and Mac.
+Full details of the R version and packages used in building this version
+of the training material can be found <a
+href="./99_session_info.html">here</a>.</p>
 </div>
-<div id="a-suitable-text-editor-for-altering-the-r-scripts." class="section level4">
+<div id="a-suitable-text-editor-for-altering-the-r-scripts."
+class="section level4">
 <h4>A suitable text editor for altering the R scripts.</h4>
-<p>While it is possible to complete the course using the built in R GUI’s for Windows and Mac it is recommended to install an editor with syntax highlighting. Popular choices include the <a href="https://www.rstudio.com/products/rstudio/download/#download">Rstudio IDE</a>, VSCode (Instructions <a href="https://www.r-bloggers.com/2021/01/setup-visual-studio-code-to-run-r-on-vscode-2021/">here</a>) or Emacs with <a href="https://ess.r-project.org/index.php?Section=home">ESS</a> all of which provide an integrated development environment.</p>
+<p>While it is possible to complete the course using the built in R
+GUI’s for Windows and Mac it is recommended to install an editor with
+syntax highlighting. Popular choices include the <a
+href="https://www.rstudio.com/products/rstudio/download/#download">Rstudio
+IDE</a>, VSCode (Instructions <a
+href="https://www.r-bloggers.com/2021/01/setup-visual-studio-code-to-run-r-on-vscode-2021/">here</a>)
+or Emacs with <a
+href="https://ess.r-project.org/index.php?Section=home">ESS</a> all of
+which provide an integrated development environment.</p>
 </div>
-<div id="installed-copies-of-dynatop-and-dynatopgis" class="section level4">
-<h4>Installed copies of <code>dynatop</code> and <code>dynatopGIS</code></h4>
-<p>These and there dependencies can be install in the standard way for R packages. At the R command prompt type</p>
+<div id="installed-copies-of-dynatop-and-dynatopgis"
+class="section level4">
+<h4>Installed copies of <code>dynatop</code> and
+<code>dynatopGIS</code></h4>
+<p>These and there dependencies can be install in the standard way for R
+packages. At the R command prompt type</p>
 <pre class="r"><code>install.packages(&#39;dynatop&#39;, repos =c(&#39;https://waternumbers.r-universe.dev&#39;,&#39;https://cloud.r-project.org&#39;))
 install.packages(&#39;dynatopGIS&#39;, repos = c(&#39;https://waternumbers.r-universe.dev&#39;, &#39;https://cloud.r-project.org&#39;))</code></pre>
 </div>
 </div>
 <div id="part-2" class="section level3">
 <h3>Part 2</h3>
-<p>For completing Part 2 of the course which focuses on developing dynatop further software is required.</p>
-<div id="an-installation-of-the-git-version-control-system" class="section level4">
+<p>For completing Part 2 of the course which focuses on developing
+dynatop further software is required.</p>
+<div id="an-installation-of-the-git-version-control-system"
+class="section level4">
 <h4>An installation of the git version control system</h4>
-<p>Details on installing git can be found on the software’s <a href="https://git-scm.com/downloads">webpage</a>. It is presumed that git is available from the command line.</p>
+<p>Details on installing git can be found on the software’s <a
+href="https://git-scm.com/downloads">webpage</a>. It is presumed that
+git is available from the command line.</p>
 </div>
-<div id="an-installation-of-the-pandoc-universal-document-converter" class="section level4">
+<div id="an-installation-of-the-pandoc-universal-document-converter"
+class="section level4">
 <h4>An installation of the pandoc universal document converter</h4>
-<p>Pandoc provides <a href="https://pandoc.org/installing.html">installation instructions</a>.</p>
+<p>Pandoc provides <a
+href="https://pandoc.org/installing.html">installation
+instructions</a>.</p>
 </div>
-<div id="tools-for-building-r-packages-which-include-source-code" class="section level4">
+<div id="tools-for-building-r-packages-which-include-source-code"
+class="section level4">
 <h4>Tools for building R packages which include source code</h4>
-<p>The most efficient method of installing the tools required for building R packages depends upon the platform:</p>
+<p>The most efficient method of installing the tools required for
+building R packages depends upon the platform:</p>
 <ul>
-<li>Windows: a single tool chain <a href="https://cran.r-project.org/bin/windows/Rtools/">Rtools</a> is available.</li>
-<li>Mac: requires Apple Xcode and GNU Fortran compiler. Details of the GNU Fortran compiler version and other libraries that may be required are provided on <a href="https://mac.r-project.org/tools/">CRAN</a></li>
+<li>Windows: a single tool chain <a
+href="https://cran.r-project.org/bin/windows/Rtools/">Rtools</a> is
+available.</li>
+<li>Mac: requires Apple Xcode and GNU Fortran compiler. Details of the
+GNU Fortran compiler version and other libraries that may be required
+are provided on <a href="https://mac.r-project.org/tools/">CRAN</a></li>
 <li>Linux: ensure that gcc and gcc-c++ compilers are installed.</li>
 </ul>
 </div>
@@ -362,8 +402,13 @@ install.packages(&#39;dynatopGIS&#39;, repos = c(&#39;https://waternumbers.r-uni
 </div>
 <div id="data-and-scripts" class="section level2">
 <h2>Data and Scripts</h2>
-<p><a href="eden_data.zip">Download</a> the data for the examples as a zip file. Extracting this should give a directory “eden_data” with four subdirectories. In the code provided is is presumed that the working directory of the R session is “eden_data”.</p>
-<p>To save copying and pasting from the web pages the R code used in the training course is <a href="dynatop_training_rcode.zip">available</a>. These scripts should be used alongside the course material.</p>
+<p><a href="eden_data.zip">Download</a> the data for the examples as a
+zip file. Extracting this should give a directory “eden_data” with four
+subdirectories. In the code provided is is presumed that the working
+directory of the R session is “eden_data”.</p>
+<p>To save copying and pasting from the web pages the R code used in the
+training course is <a href="dynatop_training_rcode.zip">available</a>.
+These scripts should be used alongside the course material.</p>
 </div>
 
 
