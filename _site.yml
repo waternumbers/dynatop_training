@@ -38,4 +38,5 @@ navbar:
           href: 22_building_dynatop.html
         - text: "Altering dynatop"
           href: 23_altering_dynatop.html
-  
+        - text: "Session Info"
+          href: 99_session_info.html

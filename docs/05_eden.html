@@ -13,8 +13,8 @@
 
 <title>River Eden Example</title>
 
-<script src="site_libs/header-attrs-2.9/header-attrs.js"></script>
-<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<script src="site_libs/header-attrs-2.26/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
@@ -60,6 +60,7 @@ if (window.hljs) {
 
 
 
+
 <style type = "text/css">
 .main-container {
   max-width: 940px;
@@ -80,6 +81,9 @@ button.code-folding-btn:focus {
 }
 summary {
   display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
 }
 pre code {
   padding: 0;
@@ -137,11 +141,15 @@ $(document).ready(function () {
     href = "index.html";
   var menuAnchor = $('a[href="' + href + '"]');
 
-  // mark it active
-  menuAnchor.tab('show');
-
-  // if it's got a parent navbar menu mark it active as well
-  menuAnchor.closest('li.dropdown').addClass('active');
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
 
   // Navbar adjustments
   var navHeight = $(".navbar").first().height() + 15;
@@ -170,8 +178,8 @@ $(document).ready(function () {
   border-radius: 4px;
 }
 
-.tabset-dropdown > .nav-tabs > li.active:before {
-  content: "";
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
   font-family: 'Glyphicons Halflings';
   display: inline-block;
   padding: 10px;
@@ -179,16 +187,9 @@ $(document).ready(function () {
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
-  content: "&#xe258;";
-  border: none;
-}
-
-.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
-  content: "";
+  content: "\e258";
   font-family: 'Glyphicons Halflings';
-  display: inline-block;
-  padding: 10px;
-  border-right: 1px solid #ddd;
+  border: none;
 }
 
 .tabset-dropdown > .nav-tabs > li.active {
@@ -232,7 +233,7 @@ $(document).ready(function () {
 <div class="navbar navbar-default  navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
@@ -247,7 +248,7 @@ $(document).ready(function () {
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Programme
      
     <span class="caret"></span>
@@ -295,6 +296,9 @@ $(document).ready(function () {
     <li>
       <a href="23_altering_dynatop.html">Altering dynatop</a>
     </li>
+    <li>
+      <a href="99_session_info.html">Session Info</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -311,8 +315,27 @@ $(document).ready(function () {
 </div>
 
 
-<p>The first half of the training course is working through an example application based on the Eden Catchment in Cumbria, UK (Figure. At the Sheepmount gauging station downstream of Carlisle, which is the lowest monitored point in the catchment, the total area is 2400 km<span class="math inline">\(^2\)</span>.</p>
-<p>The River Eden and its main tributaries including the Rivers Eamont, Irthing, Petteril and Caldew link a number of significant areas for runoff generation which include the northern and eastern parts of the Lake District; areas of the Northern Pennines and Kielder Forest. These areas are typified by high annual rainfall totals and steep terrain. Moreover the confluences of two of these main tributaries lie within the Carlisle urban area resulting in a complex situation where significant inflows on any tributary may result in flooding. In January 2005 Carlisle was flooded by an event with an estimated 0.0067 Annual Exceedance Probability (AEP) at the Sheepmount Gauge (Clarke 2005; Day 2005). Subsequently to this events in 2010, and particularly 2009, came close to over topping the main flood defences. The significance of the 2005 flood, combined with a post event survey of 263 water or wrack marks, has resulted in multiple inundation model studies (Neal et al. 2009; Horritt et al. 2011; Fewtrell et al. 2011) and modelling (Leedan et al. 2013, Smith et al. 2013).</p>
+<p>The first half of the training course is working through an example
+application based on the Eden Catchment in Cumbria, UK (see Figure
+below). At the Sheepmount gauging station downstream of Carlisle, which
+is the lowest monitored point in the catchment, the total area is 2400
+km<span class="math inline">\(^2\)</span>.</p>
+<p>The River Eden and its main tributaries including the Rivers Eamont,
+Irthing, Petteril and Caldew link a number of significant areas for
+runoff generation which include the northern and eastern parts of the
+Lake District; areas of the Northern Pennines and Kielder Forest. These
+areas are typified by high annual rainfall totals and steep terrain.
+Moreover the confluences of two of these main tributaries lie within the
+Carlisle urban area resulting in a complex situation where significant
+inflows on any tributary may result in flooding. In January 2005
+Carlisle was flooded by an event with an estimated 0.0067 Annual
+Exceedance Probability (AEP) at the Sheepmount Gauge (Clarke 2005; Day
+2005). Subsequently to this events in 2010, and particularly 2009, came
+close to over topping the main flood defences. The significance of the
+2005 flood, combined with a post event survey of 263 water or wrack
+marks, has resulted in multiple inundation model studies (Neal et
+al. 2009; Horritt et al. 2011; Fewtrell et al. 2011) and modelling
+(Leedal et al. 2013, Smith et al. 2013).</p>
 <div class="figure" style="text-align: center">
 <img src="images/EdenMap.png" alt="Map of the River Eden Catchment" width="75%" />
 <p class="caption">
@@ -321,7 +344,8 @@ Map of the River Eden Catchment
 </div>
 <div id="available-data" class="section level2">
 <h2>Available Data</h2>
-<p>The directory “eden_data/unprocessed” contains the starting data given in the table below</p>
+<p>The directory “eden_data/unprocessed” contains the starting data
+given in the table below</p>
 <table>
 <colgroup>
 <col width="10%" />
@@ -336,35 +360,48 @@ Map of the River Eden Catchment
 <tbody>
 <tr class="odd">
 <td>Eden_Flow.csv</td>
-<td>Discharge data (m<span class="math inline">\(^3\)</span>/s) for the Sheepmount Gauge provided by the environment Agency</td>
+<td>Discharge data (m<span class="math inline">\(^3\)</span>/s) for the
+Sheepmount Gauge provided by the environment Agency</td>
 </tr>
 <tr class="even">
 <td>Eden_Gauge_Sites.csv</td>
-<td>Locations of selected gauges in the Eden Catchment from the <a href="https://nrfa.ceh.ac.uk/data/search">NRFA</a></td>
+<td>Locations of selected gauges in the Eden Catchment from the <a
+href="https://nrfa.ceh.ac.uk/data/search">NRFA</a></td>
 </tr>
 <tr class="odd">
 <td>Eden_Catchment.*</td>
-<td>Outline of the Study area and sub-catchments. Derived from gauge catchments in the <a href="https://nrfa.ceh.ac.uk/data/search">NRFA</a></td>
+<td>Outline of the Study area and sub-catchments. Derived from gauge
+catchments in the <a
+href="https://nrfa.ceh.ac.uk/data/search">NRFA</a></td>
 </tr>
 <tr class="even">
 <td>Eden_Urban.*</td>
-<td>Locations of urban areas as used in the 2011 census, from <a href="https://data.gov.uk/dataset/15e3be7f-66ed-416c-b0f2-241e87668642/built-up-areas-december-2011-boundaries-v2">data.gov.uk</a></td>
+<td>Locations of urban areas as used in the 2011 census, from <a
+href="https://data.gov.uk/dataset/15e3be7f-66ed-416c-b0f2-241e87668642/built-up-areas-december-2011-boundaries-v2">data.gov.uk</a></td>
 </tr>
 <tr class="odd">
 <td>Eden_Catchment.*</td>
-<td>Outline of the Study area and sub-catchments. Derived from gauge catchments in the <a href="https://nrfa.ceh.ac.uk/data/search">NRFA</a></td>
+<td>Outline of the Study area and sub-catchments. Derived from gauge
+catchments in the <a
+href="https://nrfa.ceh.ac.uk/data/search">NRFA</a></td>
 </tr>
 <tr class="even">
 <td>Eden_River_Network.*</td>
-<td>River Network within the catchment. Taken from <a href="https://www.ordnancesurvey.co.uk/business-government/products/open-map-rivers">OS Open Rivers</a></td>
+<td>River Network within the catchment. Taken from <a
+href="https://www.ordnancesurvey.co.uk/business-government/products/open-map-rivers">OS
+Open Rivers</a></td>
 </tr>
 <tr class="odd">
 <td>Eden_DEM.tif</td>
-<td>Digital Elevation Model generated by aggregating <a href="https://www.ordnancesurvey.co.uk/business-government/products/terrain-50">OS Terrain 50</a> to 100m resolution</td>
+<td>Digital Elevation Model generated by aggregating <a
+href="https://www.ordnancesurvey.co.uk/business-government/products/terrain-50">OS
+Terrain 50</a> to 100m resolution</td>
 </tr>
 <tr class="even">
 <td>Eden_Precip.nc</td>
-<td>A time series of rainfall fields. Derived from the <a href="https://gpm.nasa.gov/data/imerg">GPM IMERG</a> final product by converting accrued rainfall in m</td>
+<td>A time series of rainfall fields. Derived from the <a
+href="https://gpm.nasa.gov/data/imerg">GPM IMERG</a> final product by
+converting accrued rainfall in m</td>
 </tr>
 </tbody>
 </table>

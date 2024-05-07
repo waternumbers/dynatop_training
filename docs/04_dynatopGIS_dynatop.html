@@ -13,8 +13,8 @@
 
 <title>dynatopGIS &amp; dynatop</title>
 
-<script src="site_libs/header-attrs-2.9/header-attrs.js"></script>
-<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<script src="site_libs/header-attrs-2.26/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
@@ -60,6 +60,7 @@ if (window.hljs) {
 
 
 
+
 <style type = "text/css">
 .main-container {
   max-width: 940px;
@@ -80,6 +81,9 @@ button.code-folding-btn:focus {
 }
 summary {
   display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
 }
 pre code {
   padding: 0;
@@ -137,11 +141,15 @@ $(document).ready(function () {
     href = "index.html";
   var menuAnchor = $('a[href="' + href + '"]');
 
-  // mark it active
-  menuAnchor.tab('show');
-
-  // if it's got a parent navbar menu mark it active as well
-  menuAnchor.closest('li.dropdown').addClass('active');
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
 
   // Navbar adjustments
   var navHeight = $(".navbar").first().height() + 15;
@@ -170,8 +178,8 @@ $(document).ready(function () {
   border-radius: 4px;
 }
 
-.tabset-dropdown > .nav-tabs > li.active:before {
-  content: "";
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
   font-family: 'Glyphicons Halflings';
   display: inline-block;
   padding: 10px;
@@ -179,16 +187,9 @@ $(document).ready(function () {
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
-  content: "&#xe258;";
-  border: none;
-}
-
-.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
-  content: "";
+  content: "\e258";
   font-family: 'Glyphicons Halflings';
-  display: inline-block;
-  padding: 10px;
-  border-right: 1px solid #ddd;
+  border: none;
 }
 
 .tabset-dropdown > .nav-tabs > li.active {
@@ -232,7 +233,7 @@ $(document).ready(function () {
 <div class="navbar navbar-default  navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
@@ -247,7 +248,7 @@ $(document).ready(function () {
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Programme
      
     <span class="caret"></span>
@@ -295,6 +296,9 @@ $(document).ready(function () {
     <li>
       <a href="23_altering_dynatop.html">Altering dynatop</a>
     </li>
+    <li>
+      <a href="99_session_info.html">Session Info</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -311,25 +315,50 @@ $(document).ready(function () {
 </div>
 
 
-<p>The following schematic outlines the stages resulting a working Dynamic TOPMODEL for a catchment. It highlights where the <code>dynatopGIS</code> and <code>dynatop</code> packages fit into this process.</p>
+<p>The following schematic outlines the stages resulting a working
+Dynamic TOPMODEL for a catchment. It highlights where the
+<code>dynatopGIS</code> and <code>dynatop</code> packages fit into this
+process.</p>
 <div class="figure" style="text-align: center">
 <img src="images/Build_Schematic.png" alt="Schematic of a Dynamic TOPMODEL construction" width="75%" />
 <p class="caption">
 Schematic of a Dynamic TOPMODEL construction
 </p>
 </div>
-<p>As we will see in the example the <a href="https://waternumbers.github.io/dynatopGIS/index.html"><code>dynatopGIS</code></a> package can help</p>
+<p>As we will see in the example the <a
+href="https://waternumbers.github.io/dynatopGIS/index.html"><code>dynatopGIS</code></a>
+package can help</p>
 <ul>
-<li>Compute standard variables for classification (such as the topographic index)</li>
+<li>Compute standard variables for classification (such as the
+topographic index)</li>
+<li>Compute the spatial ordering of the HRUs</li>
 <li>Build classifications of the catchment</li>
 <li>Construct models suitable for <code>dynatop</code></li>
 </ul>
-<p>The <a href="https://waternumbers.github.io/dynatop/index.html"><code>dynatop</code></a> package allows simulation ans visualation of Dynamic TOPMODELs as well as providing some helper for processing time series input data.</p>
+<p>The <a
+href="https://waternumbers.github.io/dynatop/index.html"><code>dynatop</code></a>
+package allows simulation and visualisation of Dynamic TOPMODELs as well
+as providing some helper for processing time series input data. Although
+in this training presumes that model for <code>dynatop</code> are
+generated using <code>dynatopGIS</code> this need not be the case so
+long as the inputs to <code>dynatop</code> are of the correct
+format.</p>
 <div id="implementation-notes" class="section level1">
 <h1>Implementation notes</h1>
-<p>The <code>dynatopGIS</code> and <code>dynatop</code> packages implement structured, object orientated, data flows. The packages are written using the object orientated framework provided by the <code>R6</code> package. This means that some aspects of working with the objects may appear ìdiosyncratic for some R users. In this training these problems are largely obscured, except for the call structure. However, before adapting the code, or doing more complex analysis users should read about <code>R6</code> class objects (e.g. in the <code>R6</code> package vignettes or in the Advanced R book). One particular gotcha is when copying an object. Using</p>
+<p>The <code>dynatopGIS</code> and <code>dynatop</code> packages
+implement structured, object orientated, data flows. The packages are
+written using the object orientated framework provided by the
+<code>R6</code> package. This means that some aspects of working with
+the objects may appear idiosyncratic for some R users. In this training
+these problems are largely obscured, except for the call structure.
+However, before adapting the code, or doing more complex analysis users
+should read about <code>R6</code> class objects (e.g. in the
+<code>R6</code> package vignettes or in the Advanced R book). One
+particular gotcha is when copying an object. Using</p>
 <pre class="r"><code>my_new_object  &lt;-  my_object</code></pre>
-<p>creates a pointer, that is altering <code>my_new_object</code> also alters <code>my_object</code>. To create a new independent copy of <code>my_object</code> use</p>
+<p>creates a pointer, that is altering <code>my_new_object</code> also
+alters <code>my_object</code>. To create a new independent copy of
+<code>my_object</code> use</p>
 <pre class="r"><code>my_new_object  &lt;-  my_object$clone()</code></pre>
 </div>
 

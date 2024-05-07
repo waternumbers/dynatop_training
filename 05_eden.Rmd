@@ -3,7 +3,7 @@ title: "River Eden Example"
 ---
 
 The first half of the training course is working through an example
-application based on the Eden Catchment in Cumbria, UK (Figure. At the Sheepmount
+application based on the Eden Catchment in Cumbria, UK (see Figure below). At the Sheepmount
 gauging station downstream of Carlisle, which is the lowest
 monitored point in the catchment, the total area is 2400 km$^2$.
 
@@ -20,7 +20,7 @@ Subsequently to this events in 2010, and particularly 2009, came close to over t
 the main flood defences. The significance of the 2005 flood, combined with a post
 event survey of 263 water or wrack marks, has resulted in multiple inundation model
 studies (Neal et al. 2009; Horritt et al. 2011; Fewtrell et al. 2011) and
-modelling (Leedan et al. 2013, Smith et al. 2013).
+modelling (Leedal et al. 2013, Smith et al. 2013).
 
 ```{r, echo=FALSE, purl=FALSE, out.width="75%", fig.align="center", fig.cap="Map of the River Eden Catchment"}
 knitr::include_graphics("./images/EdenMap.png")

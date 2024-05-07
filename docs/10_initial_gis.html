@@ -13,8 +13,8 @@
 
 <title>Initial GIS processing</title>
 
-<script src="site_libs/header-attrs-2.9/header-attrs.js"></script>
-<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<script src="site_libs/header-attrs-2.26/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
@@ -60,6 +60,7 @@ if (window.hljs) {
 
 
 
+
 <style type = "text/css">
 .main-container {
   max-width: 940px;
@@ -80,6 +81,9 @@ button.code-folding-btn:focus {
 }
 summary {
   display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
 }
 pre code {
   padding: 0;
@@ -137,11 +141,15 @@ $(document).ready(function () {
     href = "index.html";
   var menuAnchor = $('a[href="' + href + '"]');
 
-  // mark it active
-  menuAnchor.tab('show');
-
-  // if it's got a parent navbar menu mark it active as well
-  menuAnchor.closest('li.dropdown').addClass('active');
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
 
   // Navbar adjustments
   var navHeight = $(".navbar").first().height() + 15;
@@ -170,8 +178,8 @@ $(document).ready(function () {
   border-radius: 4px;
 }
 
-.tabset-dropdown > .nav-tabs > li.active:before {
-  content: "";
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
   font-family: 'Glyphicons Halflings';
   display: inline-block;
   padding: 10px;
@@ -179,16 +187,9 @@ $(document).ready(function () {
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
-  content: "&#xe258;";
-  border: none;
-}
-
-.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
-  content: "";
+  content: "\e258";
   font-family: 'Glyphicons Halflings';
-  display: inline-block;
-  padding: 10px;
-  border-right: 1px solid #ddd;
+  border: none;
 }
 
 .tabset-dropdown > .nav-tabs > li.active {
@@ -232,7 +233,7 @@ $(document).ready(function () {
 <div class="navbar navbar-default  navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
@@ -247,7 +248,7 @@ $(document).ready(function () {
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Programme
      
     <span class="caret"></span>
@@ -295,6 +296,9 @@ $(document).ready(function () {
     <li>
       <a href="23_altering_dynatop.html">Altering dynatop</a>
     </li>
+    <li>
+      <a href="99_session_info.html">Session Info</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -315,198 +319,269 @@ $(document).ready(function () {
 <h2>Aim</h2>
 <p>To explore and pre-process the GIS data for the Eden catchment.</p>
 </div>
-<div id="installing-required-r-packages" class="section level2">
-<h2>Installing required R packages</h2>
-<p>R has multiple packages for the processing and analysis spatial data. A good overview is given in the <a href="https://cran.r-project.org/web/views/Spatial.html">Spatial Task View on CRAN</a>. For this part of the training course we use a set of mature packages, rgeos, rgdal, and raster. Similar results could be obtained using either of the terra or sf packages.</p>
-<p>To install the packages enter at the R command prompt</p>
-<pre class="r"><code>install.packages(c(&quot;rgeos&quot;,&quot;rgdal&quot;,&quot;raster&quot;,&quot;sp&quot;,&quot;ncdf4&quot;))</code></pre>
-<p>Once installed the raster and sp packages are attached to the R environment so that there functions are available.</p>
-<pre class="r"><code>library(raster)
-#&gt; Loading required package: sp
-library(sp)</code></pre>
+<div id="required-r-packages" class="section level2">
+<h2>Required R Packages</h2>
+<p>R has multiple packages for the processing and analysis spatial data.
+A good overview is given in the <a
+href="https://cran.r-project.org/web/views/Spatial.html">Spatial Task
+View on CRAN</a>. For this part of the training course we use a set of
+mature package <code>terra</code> which is a dependency of
+<code>dynatopGIS</code>. Similar results could be generated with other
+packages.</p>
+<p>Attached the <code>terra</code> package to the R environment so that
+its functions are available.</p>
+<pre class="r"><code>library(terra)
+#&gt; terra 1.7.71
+library(dynatopGIS)</code></pre>
+<p>and remember to move to the eden_data directory e.g.</p>
+<pre class="r"><code>setwd(&quot;../eden_data&quot;)</code></pre>
+</div>
+<div id="data-required-by-dynatopgis" class="section level2">
+<h2>Data Required by <code>dynatopGIS</code></h2>
+<p>To build a Dynamic TOPMODEL the <code>dynatopGIS</code> package
+requires the following</p>
+<ul>
+<li>A raster map of the catchment, possibly delineating
+sub-catchments</li>
+<li>A raster DEM covering the catchment</li>
+<li>A vector polygon representation of the river network</li>
+</ul>
+<p>Optionally the user can also provide</p>
+<ul>
+<li>A raster map delineating spatial rainfall patterns</li>
+<li>A raster map delineating spatial PET patterns</li>
+<li>Raster maps containing further data to help classify the HRUs</li>
+</ul>
+<p>All raster data must in the same resolution and projection as the
+catchment map. The vector river data must have the same projection.</p>
+<blockquote>
+<p><code>dynatopGIS</code> only works with projected raster data with
+square cells and assumes all raster values are numeric! The raster map
+of the catchment should have only <code>NA</code> values in the edge row
+and columns.</p>
+</blockquote>
 </div>
 <div id="loading-data" class="section level2">
 <h2>Loading Data</h2>
-<p>There are four types of spatial data in the example; raster, polygons, lines and points; in three different formats; Geotiff, shapefile and csv.</p>
-<p>To start use functions in the raster package to load both the raster data and that contained in the shapefiles:</p>
-<pre class="r"><code>dem &lt;- raster(file.path(&quot;.&quot;,&quot;unprocessed&quot;,&quot;Eden_DEM.tif&quot;)) # load the dem as a raster layer
-#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
-#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
-eden &lt;- shapefile(file.path(&quot;.&quot;,&quot;unprocessed&quot;,&quot;Eden_Catchment&quot;)) # load the outline of the sub-catchments from the shapefile
-#&gt; Warning in OGRSpatialRef(dsn, layer, morphFromESRI = morphFromESRI, dumpSRS =
-#&gt; dumpSRS, : Discarded datum OSGB_1936 in Proj4 definition: +proj=tmerc +lat_0=49
-#&gt; +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs
-channel &lt;- shapefile(file.path(&quot;.&quot;,&quot;unprocessed&quot;,&quot;Eden_River_Network&quot;)) # load the river network from the shapefile
-#&gt; Warning in OGRSpatialRef(dsn, layer, morphFromESRI = morphFromESRI, dumpSRS =
-#&gt; dumpSRS, : Discarded datum OSGB_1936 in Proj4 definition: +proj=tmerc +lat_0=49
-#&gt; +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs
-urban &lt;- shapefile(file.path(&quot;.&quot;,&quot;unprocessed&quot;,&quot;Eden_Urban&quot;)) # load the urban area map from the shapefile
-#&gt; Warning in OGRSpatialRef(dsn, layer, morphFromESRI = morphFromESRI, dumpSRS =
-#&gt; dumpSRS, : Discarded datum OSGB_1936 in Proj4 definition: +proj=tmerc +lat_0=49
-#&gt; +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs</code></pre>
-<p>Typing the variable name at the R prompt will display a summary of the data loaded, for example</p>
+<p>There are four types of spatial data in the example; raster,
+polygons, lines and points; in three different formats; Geotiff,
+shapefile and csv.</p>
+<p>To start use functions in the raster package to load both the raster
+data and that contained in the shapefiles:</p>
+<pre class="r"><code>dem &lt;- rast(file.path(&quot;.&quot;,&quot;unprocessed&quot;,&quot;Eden_DEM.tif&quot;)) # load the dem as a raster layer
+eden &lt;- vect(file.path(&quot;.&quot;,&quot;unprocessed&quot;,&quot;Eden_Catchment.shp&quot;)) # load the outline of the sub-catchments from the shapefile
+channel &lt;- vect(file.path(&quot;.&quot;,&quot;unprocessed&quot;,&quot;Eden_River_Network.shp&quot;)) # load the river network from the shapefile
+urban &lt;- vect(file.path(&quot;.&quot;,&quot;unprocessed&quot;,&quot;Eden_Urban.shp&quot;)) # load the urban area map from the shapefile</code></pre>
+<p>Typing the variable name at the R prompt will display a summary of
+the data loaded, for example</p>
 <pre class="r"><code>dem
-#&gt; class      : RasterLayer 
-#&gt; dimensions : 863, 629, 542827  (nrow, ncol, ncell)
-#&gt; resolution : 100, 100  (x, y)
-#&gt; extent     : 326000, 388900, 495450, 581750  (xmin, xmax, ymin, ymax)
-#&gt; crs        : +proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs 
-#&gt; source     : Eden_DEM.tif 
-#&gt; names      : Eden_DEM 
-#&gt; values     : -2.7, 923.425  (min, max)</code></pre>
-<p>Comparing between the <code>dem</code>, <code>eden</code>, <code>channel</code> and <code>urban</code> variable shows that:</p>
+#&gt; class       : SpatRaster 
+#&gt; dimensions  : 863, 629, 1  (nrow, ncol, nlyr)
+#&gt; resolution  : 100, 100  (x, y)
+#&gt; extent      : 326000, 388900, 495450, 581750  (xmin, xmax, ymin, ymax)
+#&gt; coord. ref. : OSGB36 / British National Grid (EPSG:27700) 
+#&gt; source      : Eden_DEM.tif 
+#&gt; name        : Eden_DEM 
+#&gt; min value   :   -2.700 
+#&gt; max value   :  923.425</code></pre>
+<p>Compare the <code>dem</code>, <code>eden</code>, <code>channel</code>
+and <code>urban</code> variable to check that:</p>
 <ul>
 <li>there is a common projection</li>
 <li>the cells of DEM are square</li>
 </ul>
-<blockquote>
-<p><strong>WARNING</strong>: dynatopGIS only works with projected raster data with square cells! It is best to make sure you DEM has these properties before starting any analysis.</p>
-</blockquote>
-<p>Reading the gauge locations from the csv file is a two stage process</p>
+<p>Reading the gauge locations from the csv file is a two stage
+process</p>
 <pre class="r"><code> # read in the csv file to a date.frame
 csvGauges &lt;- read.csv(file.path(&quot;.&quot;,&quot;unprocessed&quot;,&quot;Eden_Gauge_Sites.csv&quot;))
-# convert the data frame to a SpatialPointsDataFrame - take projection from the DEM
-gauges &lt;- SpatialPointsDataFrame(coords=csvGauges[,c(&quot;x&quot;,&quot;y&quot;)],proj4string=crs(dem),data=csvGauges)</code></pre>
-<p>Next plot the data using the default methods in the raster package</p>
+# convert the data frame to a SpatVect object - take projection from the DEM
+gauges &lt;- vect(csvGauges,geom=c(&quot;x&quot;,&quot;y&quot;),crs=crs(dem))</code></pre>
+<p>Next plot the data using the default methods in the raster
+package</p>
 <pre class="r"><code>plot(dem) # underlying coloured image with scale
 plot(urban,add=TRUE,col=&quot;grey&quot;) # grey polygons
 plot(channel,add=TRUE,col=&quot;blue&quot;) # channels as blue lines
 plot(eden,add=TRUE) # outlines of sub-catchments in black
-plot(gauges,add=TRUE,col=&quot;red&quot;) # gauges as red +</code></pre>
+plot(gauges,add=TRUE,col=&quot;red&quot;) # gauges as red dot</code></pre>
 <p><img src="10_initial_gis_files/figure-html/data_plot-1.png" width="672" /></p>
 </div>
 <div id="rasterising-layers" class="section level2">
 <h2>Rasterising Layers</h2>
-<p>The basis of the landscape discretisation is the DEM of the catchment. Any information we may want to use in the classification of the catchment leading to the definition of the Hydrological Response Units has to be provided as a raster of the same resolution and projection as the DEM.</p>
-<p>Since both the urban areas and sub-catchments may be used in the classification both are rasterised. In R all raster values must be numeric. For both the urban and sub-catchments the values are taken from the unique identifiers in the data.</p>
-<p>In the case of the urban data there are two possible identifiers objectid and bua_id:</p>
+<p>The basis of the landscape discretisation is the raster catchment
+map. In this example, as in many situation the catchment outlines are
+vectors shapes. These are rasterised using the grid provided by the
+raster DEM. In the catchment map each sub-catchment requires a unique
+numeric value which is provided by the <code>id</code> field.</p>
 <pre class="r"><code>## show data frame with id values
-head(urban@data)
-#&gt;   objectid   bua11cd            bua11nm bua_id has_sd sd_count urban_bua
-#&gt; 0       39 E34000039        Penrith BUA    747      N        0       Yes
-#&gt; 1       47 E34000047  Brough (Eden) BUA   1465      N        0        No
-#&gt; 2      297 E34000297       Gilsland BUA   4584      N        0        No
-#&gt; 3      869 E34000869        Lazonby BUA   1016      N        0        No
-#&gt; 4      899 E34000899 Kirkby Stephen BUA   1359      N        0        No
-#&gt; 5      986 E34000986        Dalston BUA    919      N        0        No
-#&gt;   st_areasha st_lengths
-#&gt; 0  4647359.1  19399.690
-#&gt; 1   324993.0   5799.919
-#&gt; 2   214996.1   3499.903
-#&gt; 3   412499.4   5600.042
-#&gt; 4   692492.4   9500.029
-#&gt; 5   582500.1   7699.932
-## rasterise using objectid as the raster value
-urban_raster &lt;- rasterize(urban, dem, field=&quot;objectid&quot;)
-## plot the resulting raster
-plot(urban_raster)</code></pre>
-<p><img src="10_initial_gis_files/figure-html/raterise_urban-1.png" width="672" /></p>
-<p>For the sub-catchments the values are set to the numeric id:</p>
-<pre class="r"><code>## show data frame with id values
-head(eden@data)
+head(eden)
 #&gt;      id                     label
-#&gt; 0 76007        Eden at Sheepmount
-#&gt; 1 76003          Eamont at Udford
-#&gt; 2 76005    Eden at Temple Sowerby
-#&gt; 3 76017       Eden at Great Corby
-#&gt; 4 76008     Irthing at Greenholme
-#&gt; 5 76010 Petteril at Harraby Green
+#&gt; 1 76007        Eden at Sheepmount
+#&gt; 2 76003          Eamont at Udford
+#&gt; 3 76005    Eden at Temple Sowerby
+#&gt; 4 76017       Eden at Great Corby
+#&gt; 5 76008     Irthing at Greenholme
+#&gt; 6 76010 Petteril at Harraby Green
 ## rasterise
 eden_raster &lt;- rasterize(eden, dem, field=&quot;id&quot;)
 ## plot the resulting raster
 plot(eden_raster)</code></pre>
 <p><img src="10_initial_gis_files/figure-html/rasterise_subcatch-1.png" width="672" /></p>
-<p>The raster fields created (<code>eden_raster</code>, <code>urban_raster</code>) exist only in memory (or temporary files). Since they will be needed later we will save them:</p>
+<p>To ensure the edges are <code>NA</code> values the raster is
+extended, along with that of the DEM</p>
+<pre class="r"><code>eden_raster &lt;- extend(eden_raster,1)
+dem &lt;- extend(dem,1)</code></pre>
+<p>Since the urban areas may be used in the classification they are also
+rasterised. Suitable numeric values are taken from the unique
+identifiers in the data.</p>
+<p>In the case of the urban data there are two possible identifiers
+objectid and bua_id:</p>
+<pre class="r"><code>## show data frame with id values
+head(urban)
+#&gt;   objectid   bua11cd            bua11nm bua_id has_sd sd_count urban_bua
+#&gt; 1       39 E34000039        Penrith BUA    747      N        0       Yes
+#&gt; 2       47 E34000047  Brough (Eden) BUA   1465      N        0        No
+#&gt; 3      297 E34000297       Gilsland BUA   4584      N        0        No
+#&gt; 4      869 E34000869        Lazonby BUA   1016      N        0        No
+#&gt; 5      899 E34000899 Kirkby Stephen BUA   1359      N        0        No
+#&gt; 6      986 E34000986        Dalston BUA    919      N        0        No
+#&gt;   st_areasha st_lengths
+#&gt; 1  4647359.1  19399.690
+#&gt; 2   324993.0   5799.919
+#&gt; 3   214996.1   3499.903
+#&gt; 4   412499.4   5600.042
+#&gt; 5   692492.4   9500.029
+#&gt; 6   582500.1   7699.932
+## rasterise using objectid as the raster value
+urban_raster &lt;- rasterize(urban, eden_raster, field=&quot;objectid&quot;)
+## plot the resulting raster
+plot(urban_raster)</code></pre>
+<p><img src="10_initial_gis_files/figure-html/raterise_urban-1.png" width="672" /></p>
+<p>The raster fields created (<code>eden_raster</code>,
+<code>urban_raster</code> and extended <code>dem</code>) exist only in
+memory (or temporary files). Since they will be needed later we will
+save them:</p>
 <pre class="r"><code>writeRaster(eden_raster,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;eden.tif&quot;),overwrite=TRUE)
-#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
-#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
 writeRaster(urban_raster,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;urban.tif&quot;),overwrite=TRUE)
-#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
-#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition</code></pre>
-</div>
-<div id="digital-elevation-model" class="section level2">
-<h2>Digital Elevation Model</h2>
-<p>In the plot of the loaded data we can see that the DEM extends beyond the boundary of the catchment. The processing in <code>dynatopGIS</code> treats all the finite DEM values as being within the catchment. This means we need to trim the DEM to the catchment boundaries.</p>
-<p>To achieve this we will mask the DEM with the rasterised catchment, so setting all values not in the catchment to <code>NA</code>.</p>
-<pre class="r"><code>masked_dem &lt;- mask(dem,eden_raster)
-plot(masked_dem)
-plot(eden,add=TRUE)</code></pre>
-<p><img src="10_initial_gis_files/figure-html/mask_dem-1.png" width="672" /></p>
-<p>Save the masked DEM for later use:</p>
-<pre class="r"><code>writeRaster(masked_dem,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;dem.tif&quot;),overwrite=TRUE)
-#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
-#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition</code></pre>
-<blockquote>
-<p>To those of familiar with the raster package might have noticed that <code>edenDEM</code> could have created in one line by</p>
-<pre class="r"><code>edenDEM &lt;- rasterize(eden, dem, mask=TRUE)</code></pre>
-</blockquote>
+writeRaster(dem,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;dem.tif&quot;),overwrite=TRUE)</code></pre>
 </div>
 <div id="channel-network" class="section level2">
 <h2>Channel Network</h2>
-<p>The representation of the channel network in dynatop is as a series of connected reach lengths. In the processing done by dynatopGIS Each reach is represented by a single spatial line or polygon. The data for each reach must include an identifier for the head and foot of the reach to allow the connectivity to be derived as well as the reach length. Examining the data for the example with</p>
-<pre class="r"><code>head(channel@data)
-#&gt;            name1                           identifier
-#&gt; 0           &lt;NA&gt; 71496043-333C-4644-814E-B3149484421A
-#&gt; 1 Rowantree Gill C1E710A3-ED27-4F9A-BF57-9E2314535C60
-#&gt; 2      Lady Sike 0B92A0E8-4B7B-43D0-9C01-CECD46AD3942
-#&gt; 3           &lt;NA&gt; 223E669F-BC1A-4610-B0C4-D77DC60F805B
-#&gt; 4    Potter Sike D0D77BE7-8F5F-45A8-9AD4-9EABE2534027
-#&gt; 5     Molds Sike EB6B86F7-4DDD-4FEC-BA86-EAA608D2DF52
-#&gt;                              startNode                              endNode
-#&gt; 0 785AA707-7ACC-433F-8418-BDDA18FABB2C FD4A9B62-950E-4362-B4AC-0713D63B99D1
-#&gt; 1 FD4A9B62-950E-4362-B4AC-0713D63B99D1 323B8FBC-8D31-4130-B924-A236F14BC96D
-#&gt; 2 76150301-B4E4-4B35-8CB0-C562296976A1 41DAD94A-AF47-4302-96B6-06F390CA0D5E
-#&gt; 3 2AF34735-BB17-4A00-BED6-B158A3F3C2A8 86D4F84F-FEDF-42C1-B041-A314D1A45EAD
-#&gt; 4 23347D8B-CEAA-460E-8851-96B8EE7291DC 41DAD94A-AF47-4302-96B6-06F390CA0D5E
-#&gt; 5 86D4F84F-FEDF-42C1-B041-A314D1A45EAD 3AD38B31-B2E8-492C-A4BA-D05440776857
-#&gt;          form         flow fictitious length name2
-#&gt; 0 inlandRiver in direction      false     31  &lt;NA&gt;
-#&gt; 1 inlandRiver in direction      false    986  &lt;NA&gt;
-#&gt; 2 inlandRiver in direction      false    321  &lt;NA&gt;
-#&gt; 3 inlandRiver in direction      false    743  &lt;NA&gt;
-#&gt; 4 inlandRiver in direction      false    263  &lt;NA&gt;
-#&gt; 5 inlandRiver in direction      false     71  &lt;NA&gt;</code></pre>
-<p>we see that</p>
+<p>The channel network in the dynamic TOPMODEL generated by
+<code>dynatopGIS</code> is a series of connected HRUs each representing
+a single reach length. In the processing done by dynatopGIS each reach
+is represented by a single spatial polygon. The data for each reach must
+include the following fields:</p>
 <ul>
-<li>an identifier for the foot of the reach is provided by endNode</li>
-<li>an identifier for the head of the reach is provided by startNode</li>
-<li>the reach length is given in provided by length</li>
+<li>name - The unique identifier/name of the reach</li>
+<li>length - Length of the reach [m]</li>
+<li>startNode - An identifier for the head of the reach</li>
+<li>endNode - An identifier for the foot of the reach</li>
+<li>width - Channel width [m]</li>
+<li>slope - Channel slope [m/m]</li>
 </ul>
-<p>Within the data there is also a unique identifier which can be used to relate the gauges to the channel network.</p>
+<p>The startNode and endNode values are used to define the channel
+connectivity, while the physical properties are used in the
+<code>dynatop</code> numerical solutions.</p>
+<p>Looking at the channel data</p>
+<pre class="r"><code>channel
+#&gt;  class       : SpatVector 
+#&gt;  geometry    : lines 
+#&gt;  dimensions  : 1697, 9  (geometries, attributes)
+#&gt;  extent      : 327613.4, 388606.5, 496531.8, 581285.4  (xmin, xmax, ymin, ymax)
+#&gt;  source      : Eden_River_Network.shp
+#&gt;  coord. ref. : OSGB36 / British National Grid (EPSG:27700) 
+#&gt;  names       :          name1      identifier       startNode         endNode
+#&gt;  type        :          &lt;chr&gt;           &lt;chr&gt;           &lt;chr&gt;           &lt;chr&gt;
+#&gt;  values      :             NA 71496043-333C-~ 785AA707-7ACC-~ FD4A9B62-950E-~
+#&gt;                Rowantree Gill C1E710A3-ED27-~ FD4A9B62-950E-~ 323B8FBC-8D31-~
+#&gt;                     Lady Sike 0B92A0E8-4B7B-~ 76150301-B4E4-~ 41DAD94A-AF47-~
+#&gt;         form         flow fictitious length name2
+#&gt;        &lt;chr&gt;        &lt;chr&gt;      &lt;chr&gt;  &lt;int&gt; &lt;chr&gt;
+#&gt;  inlandRiver in direction      false     31    NA
+#&gt;  inlandRiver in direction      false    986    NA
+#&gt;  inlandRiver in direction      false    321    NA</code></pre>
+<p>we see that it already contains</p>
+<ul>
+<li>an identifier for the foot of the reach called endNode</li>
+<li>an identifier for the head of the reach called startNode</li>
+<li>the reach length</li>
+<li>a unique identifier called identifier</li>
+</ul>
+<p>but is composed to spatial lines rather then polygons.</p>
+<p>The <code>dynatopGIS</code> package provides a function for
+conveniently converting line objects to the correct format.</p>
+<pre class="r"><code>conv_channel &lt;- convert_channel(
+    channel,
+    property_names = c(name = &quot;identifier&quot;, length = &quot;length&quot;, startNode = &quot;startNode&quot;,
+                       endNode= &quot;endNode&quot;),
+    default_width = 2,
+    default_slope = 0.001
+)
+#&gt; Warning in convert_channel(channel, property_names = c(name = &quot;identifier&quot;, :
+#&gt; Modifying to spatial polygons using default width
+#&gt; Warning in convert_channel(channel, property_names = c(name = &quot;identifier&quot;, :
+#&gt; Adding default slope</code></pre>
+<p>The two warning messages reveal that, since they are not specified,
+default width and slope values are added. The width property is used to
+buffer the channel resulting in spatial polygons.</p>
+<pre class="r"><code>conv_channel
+#&gt;  class       : SpatVector 
+#&gt;  geometry    : polygons 
+#&gt;  dimensions  : 1697, 12  (geometries, attributes)
+#&gt;  extent      : 327612.4, 388607.5, 496530.8, 581286.4  (xmin, xmax, ymin, ymax)
+#&gt;  coord. ref. : OSGB36 / British National Grid (EPSG:27700) 
+#&gt;  names       :          name1            name       startNode         endNode
+#&gt;  type        :          &lt;chr&gt;           &lt;chr&gt;           &lt;chr&gt;           &lt;chr&gt;
+#&gt;  values      :             NA 71496043-333C-~ 785AA707-7ACC-~ FD4A9B62-950E-~
+#&gt;                Rowantree Gill C1E710A3-ED27-~ FD4A9B62-950E-~ 323B8FBC-8D31-~
+#&gt;                     Lady Sike 0B92A0E8-4B7B-~ 76150301-B4E4-~ 41DAD94A-AF47-~
+#&gt;         form         flow fictitious length name2 width  area slope
+#&gt;        &lt;chr&gt;        &lt;chr&gt;      &lt;chr&gt;  &lt;num&gt; &lt;chr&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt;
+#&gt;  inlandRiver in direction      false     31    NA     2 64.69 0.001
+#&gt;  inlandRiver in direction      false    986    NA     2  1975 0.001
+#&gt;  inlandRiver in direction      false    321    NA     2 645.2 0.001</code></pre>
+<p>The converted channel data is saved for later use</p>
+<pre class="r"><code>writeVector(conv_channel,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;channel.shp&quot;),overwrite=TRUE)</code></pre>
+<blockquote>
+<p>The use of polygons to represent channel sections allows the shape of
+water features such as lakes to be captured</p>
+</blockquote>
 </div>
 <div id="locating-gauges-on-the-channel-network" class="section level2">
 <h2>Locating Gauges on the Channel Network</h2>
-<p>Before locating the gauges on the network note that in the map of the loaded data there is a single gauge outside to the catchment area. As simple example of manipulating spatial data in R is to remove this by cropping the gauges to the catchment area. This is done by</p>
+<p>Before locating the gauges on the network note that in the map of the
+loaded data there is a single gauge outside to the catchment area. As
+simple example of manipulating spatial data in R is to remove this by
+cropping the gauges to the catchment area. This is done by</p>
 <pre class="r"><code>gauges &lt;- crop(gauges,eden)</code></pre>
-<p>To determine the location of the gauges on the river network we identify for each gauge the closest reach. The identifier of this reach, along with the distance to the gauge data is then added to the gauge data.</p>
-<pre class="r"><code>gauges$chn_identifier &lt;- character(nrow(gauges)) # initialise storage of the channel identifier
-gauges$chn_distance &lt;- numeric(nrow(gauges)) # initialise storage of the distance to the channel
+<p>To determine the location of the gauges on the river network we
+identify for each gauge the closest reach. The identifier of this reach,
+along with the distance to the gauge data is then added to the gauge
+data.</p>
+<pre class="r"><code>dst &lt;- distance(gauges,conv_channel) ## distance between gauges(row) and channels(column)
+idx &lt;- apply(dst,1,which.min) ## index of closest channel for each gauge
 
-## loop to compute nearest reach for each gauge
-for(ii in 1:nrow(gauges)){
-  tmp &lt;- rgeos::gDistance(gauges[ii,], channel, byid=TRUE)
-  jj &lt;- which.min(tmp)
-  gauges$chn_identifier[ii] &lt;- channel$identifier[jj]
-  gauges$chn_distance[ii] &lt;- tmp[jj]
-} </code></pre>
+gauges$chn_identifier &lt;- conv_channel$name[ apply(dst,1,which.min) ]
+gauges$chn_distance &lt;- apply(dst,1,min) ## distance to the channel
+ </code></pre>
 <p>To check the results by plotting:</p>
-<pre class="r"><code>selected &lt;- channel[channel$identifier %in% gauges$chn_identifier,]
-plot(eden) # outlines of subcatchments in black
-plot(channel,add=TRUE,col=&quot;blue&quot;) # channel network in blue
-plot(selected,add=TRUE,col=&quot;orange&quot;) # selected reachs in orange
+<pre class="r"><code>selected &lt;- conv_channel[conv_channel$name %in% gauges$chn_identifier,]
+plot(eden) # outlines of sub-catchments in black
+plot(conv_channel,add=TRUE,col=&quot;blue&quot;,border=&quot;blue&quot;) # channel network in blue
+plot(selected,add=TRUE,col=&quot;orange&quot;,border=&quot;orange&quot;) # selected reachs in orange
 plot(gauges,add=TRUE,col=&quot;red&quot;,pch=21) # gauges as red filled circles</code></pre>
 <p><img src="10_initial_gis_files/figure-html/crop_gauges_plot-1.png" width="672" /></p>
-<p>The cropped list of gauges with channel identifier can be saved to a shapefile:</p>
-<pre class="r"><code>shapefile(gauges,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;gauges&quot;))
-#&gt; Warning in rgdal::writeOGR(x, filename, layer, driver = &quot;ESRI Shapefile&quot;, :
-#&gt; Field names abbreviated for ESRI Shapefile driver
-#&gt; Warning in rgdal::writeOGR(x, filename, layer, driver = &quot;ESRI Shapefile&quot;, :
-#&gt; field name x changed by driver to: x_1</code></pre>
+<p>The cropped list of gauges with channel identifier can be saved to a
+shapefile:</p>
+<pre class="r"><code>writeVector(gauges,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;gauges.shp&quot;),overwrite=TRUE)</code></pre>
 <blockquote>
-<p>The quality of results of any method used for any automatic method of locating the gauges depends upon the accuracy of the GIS data.</p>
+<p>The quality of results of any method used for any automatic method of
+locating the gauges depends upon the accuracy of the GIS data.</p>
 </blockquote>
 <blockquote>
-<p>In the numeric solution used in dyantop it is assumed that a gauge is at the foot of a reach. This should be allowed from when conceptualising the channel reaches.</p>
+<p>In the numeric solution used in <code>dyantop</code> it is assumed
+that a gauge is at the foot of a reach. This should be allowed from when
+conceptualising the channel reaches.</p>
 </blockquote>
 </div>
 

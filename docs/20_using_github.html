@@ -13,8 +13,8 @@
 
 <title>Using Github</title>
 
-<script src="site_libs/header-attrs-2.9/header-attrs.js"></script>
-<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<script src="site_libs/header-attrs-2.26/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
@@ -60,6 +60,7 @@ if (window.hljs) {
 
 
 
+
 <style type = "text/css">
 .main-container {
   max-width: 940px;
@@ -80,6 +81,9 @@ button.code-folding-btn:focus {
 }
 summary {
   display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
 }
 pre code {
   padding: 0;
@@ -137,11 +141,15 @@ $(document).ready(function () {
     href = "index.html";
   var menuAnchor = $('a[href="' + href + '"]');
 
-  // mark it active
-  menuAnchor.tab('show');
-
-  // if it's got a parent navbar menu mark it active as well
-  menuAnchor.closest('li.dropdown').addClass('active');
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
 
   // Navbar adjustments
   var navHeight = $(".navbar").first().height() + 15;
@@ -170,8 +178,8 @@ $(document).ready(function () {
   border-radius: 4px;
 }
 
-.tabset-dropdown > .nav-tabs > li.active:before {
-  content: "";
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
   font-family: 'Glyphicons Halflings';
   display: inline-block;
   padding: 10px;
@@ -179,16 +187,9 @@ $(document).ready(function () {
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
-  content: "&#xe258;";
-  border: none;
-}
-
-.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
-  content: "";
+  content: "\e258";
   font-family: 'Glyphicons Halflings';
-  display: inline-block;
-  padding: 10px;
-  border-right: 1px solid #ddd;
+  border: none;
 }
 
 .tabset-dropdown > .nav-tabs > li.active {
@@ -232,7 +233,7 @@ $(document).ready(function () {
 <div class="navbar navbar-default  navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
@@ -247,7 +248,7 @@ $(document).ready(function () {
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Programme
      
     <span class="caret"></span>
@@ -295,6 +296,9 @@ $(document).ready(function () {
     <li>
       <a href="23_altering_dynatop.html">Altering dynatop</a>
     </li>
+    <li>
+      <a href="99_session_info.html">Session Info</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -313,64 +317,113 @@ $(document).ready(function () {
 
 <div id="aim" class="section level2">
 <h2>Aim</h2>
-<p>To get a basic understanding of Github usage and by forking and cloning the dynatop repository then making a minor change.</p>
+<p>To get a basic understanding of Github usage and by forking and
+cloning the dynatop repository then making a minor change.</p>
 </div>
 <div id="what-is-github" class="section level2">
 <h2>What is Github?</h2>
-<p>According to the <a href="https://training.github.com/downloads/github-git-cheat-sheet.pdf">Github cheat sheet</a> Github is <em>“a platform for hosting and collaborating on Git repositories”</em> and Git is <em>“an open source, distributed version-control system”</em></p>
-<p>Alternatively on a very basic level Git is a way of keeping track of multiple versions of the same files as you work on them and Github is platform that allows you to do this with multiple people. Using Git and Github can be very complex. To go beyond what is covered here use the cheat sheet and the <a href="https://docs.github.com/en/get-started/quickstart/git-and-github-learning-resources">Github learning resources</a>.</p>
+<p>According to the <a
+href="https://training.github.com/downloads/github-git-cheat-sheet.pdf">Github
+cheat sheet</a> Github is <em>“a platform for hosting and collaborating
+on Git repositories”</em> and Git is <em>“an open source, distributed
+version-control system”</em></p>
+<p>Alternatively on a very basic level Git is a way of keeping track of
+multiple versions of the same files as you work on them and Github is
+platform that allows you to do this with multiple people. Using Git and
+Github can be very complex. To go beyond what is covered here use the
+cheat sheet and the <a
+href="https://docs.github.com/en/get-started/quickstart/git-and-github-learning-resources">Github
+learning resources</a>.</p>
 </div>
 <div id="simple-usage" class="section level2">
 <h2>Simple usage</h2>
 <ol style="list-style-type: decimal">
-<li><p>Log into Github in a web browser and navigate to the <a href="https://github.com/waternumbers/dynatop">dynatop page on Github</a>. This displays the contents of the <strong>repository</strong> of projects code (as shown below). A <strong>repository</strong> is the record kept by Git of changes to the project. Since a repository on a service such as github is not on your local machine (and may be shared between multiple users) is sometimes referred to as the <strong>remote</strong> repository.</p>
+<li><p>Log into Github in a web browser and navigate to the <a
+href="https://github.com/waternumbers/dynatop">dynatop page on
+Github</a>. This displays the contents of the
+<strong>repository</strong> of projects code (as shown below). A
+<strong>repository</strong> is the record kept by Git of changes to the
+project. Since a repository on a service such as github is not on your
+local machine (and may be shared between multiple users) is sometimes
+referred to as the <strong>remote</strong> repository.</p>
 <div class="figure" style="text-align: center">
 <img src="images/fork.png" alt="Github repository of waternumbers" width="75%" />
 <p class="caption">
 Github repository of waternumbers
 </p>
 </div></li>
-<li><p>The dynatop repository does not belong to and you do not have permission to alter it on Github. The best way for you to alter alter the code and store it on Github is to <strong>Fork</strong> it (button in top right of web page). This creates your own copy of the dynatop remote repository.</p></li>
-<li><p>To edit the code you will need a copy on your local machine. To do this you need to <strong>clone</strong> the git repository. Click on the green code button and copy the URL displayed. Open a command prompt on your local machine and navigate to the eden_data folder. Enter <code>git clone &lt;URL&gt;</code>. The output should look like the following</p>
+<li><p>The dynatop repository does not belong to and you do not have
+permission to alter it on Github. The best way for you to alter alter
+the code and store it on Github is to <strong>Fork</strong> it (button
+in top right of web page). This creates your own copy of the dynatop
+remote repository.</p></li>
+<li><p>To edit the code you will need a copy on your local machine. To
+do this you need to <strong>clone</strong> the git repository. Click on
+the green code button and copy the URL displayed. Open a command prompt
+on your local machine and navigate to the eden_data folder. Enter
+<code>git clone &lt;URL&gt;</code>. The output should look like the
+following</p>
 <div class="figure" style="text-align: center">
 <img src="images/clone_dynatop_cmd.png" alt="Example of the output of a git clone command" width="75%" />
 <p class="caption">
 Example of the output of a git clone command
 </p>
 </div></li>
-<li><p>When working on code changes you normally want to the leave the currently working code alone. To do this create <strong>branch</strong> which can be used as outlined in the figure below.</p>
+<li><p>When working on code changes you normally want to the leave the
+currently working code alone. To do this create <strong>branch</strong>
+which can be used as outlined in the figure below.</p>
 <div class="figure" style="text-align: center">
 <img src="images/github_flow.png" alt="Splitting and merging a branch as part of a workflow" width="75%" />
 <p class="caption">
 Splitting and merging a branch as part of a workflow
 </p>
 </div>
-<p>A new branch is most easily created on the project web page. Create a training branch as shown in the image</p>
+<p>A new branch is most easily created on the project web page. Create a
+training branch as shown in the image</p>
 <div class="figure" style="text-align: center">
 <img src="images/creating_branch.png" alt="Adding a new branch" width="75%" />
 <p class="caption">
 Adding a new branch
 </p>
 </div>
-<p>Return to the command prompt and type <code>git checkout training</code>, to switch to working on this branch.</p></li>
-<li><p>Next we will make a simple change to one of the files. Enter the dynatop directory and open the DESCRIPTION file. Edit the version number adding numeric character as shown below and save it</p>
+<p>Return to the command prompt and type
+<code>git checkout training</code>, to switch to working on this
+branch.</p></li>
+<li><p>Next we will make a simple change to one of the files. Enter the
+dynatop directory and open the DESCRIPTION file. Edit the version number
+adding numeric character as shown below and save it</p>
 <div class="figure" style="text-align: center">
 <img src="images/Screenshot_version.png" alt="Edited DESCRIPTION file. Highlighted area shows the changes" width="75%" />
 <p class="caption">
 Edited DESCRIPTION file. Highlighted area shows the changes
 </p>
 </div></li>
-<li><p>Return to the command prompt you used before and type <code>git status</code>. The response should show there is one modified file. To add this change to <strong>staging</strong> to show you want to add it to the repository type <code>git add .</code>. You can <strong>commit</strong> it to the local repository with <code>git commit -m "I've changed the version number!"</code>. The message is a chance to say what changed.</p></li>
-<li><p>You have now commited the change to the local repository. To update the change to the remote repository enter <code>git push</code>. Go to your repository website on Github, you should be able to see the changes. If you want to update your local repository from the remote teh corresponding call is <code>git pull</code>.</p></li>
-<li><p>Finally to merge the change back into the master branch you would open a pull request. This is most easily done via the project web page as in the following figure</p>
+<li><p>Return to the command prompt you used before and type
+<code>git status</code>. The response should show there is one modified
+file. To add this change to <strong>staging</strong> to show you want to
+add it to the repository type <code>git add .</code>. You can
+<strong>commit</strong> it to the local repository with
+<code>git commit -m "I've changed the version number!"</code>. The
+message is a chance to say what changed.</p></li>
+<li><p>You have now commited the change to the local repository. To
+update the change to the remote repository enter <code>git push</code>.
+Go to your repository website on Github, you should be able to see the
+changes. If you want to update your local repository from the remote teh
+corresponding call is <code>git pull</code>.</p></li>
+<li><p>Finally to merge the change back into the master branch you would
+open a pull request. This is most easily done via the project web page
+as in the following figure</p>
 <div class="figure" style="text-align: center">
 <img src="images/git_pull.png" alt="Opening a pull request" width="75%" />
 <p class="caption">
 Opening a pull request
 </p>
 </div>
-<p>There is little point in accepting the pull request as so little has been done!</p>
-<p>Pull requests can also be made between remote repositories. You could reguest a change from your dynatop repository is merged back into the original.</p></li>
+<p>There is little point in accepting the pull request as so little has
+been done!</p>
+<p>Pull requests can also be made between remote repositories. You could
+reguest a change from your dynatop repository is merged back into the
+original.</p></li>
 </ol>
 </div>
 

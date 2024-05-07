@@ -16,26 +16,48 @@ knitr::opts_knit$set(root.dir = "./eden_data")
 
 To explore and pre-process the GIS data for the Eden catchment.
 
-## Installing required R packages
+## Required R Packages
 
 R has multiple packages for the processing and analysis spatial data. A good
 overview is given in the [Spatial Task View on
 CRAN](https://cran.r-project.org/web/views/Spatial.html).
-For this
-part of the training course we use a set of mature packages, rgeos, rgdal, and
-raster. Similar results could be obtained using either of the terra or sf
-packages.
+For this part of the training course we use a set of mature package
+`terra` which is a dependency of `dynatopGIS`. Similar results could be generated
+with other packages.
 
-To install the packages enter at the R command prompt
-```{r install_gis, eval=FALSE}
-install.packages(c("rgeos","rgdal","raster","sp","ncdf4"))
-```
-Once installed the raster and sp packages are attached to the R environment so that there
+Attached the `terra` package to the R environment so that its
 functions are available.
 ```{r attach_gis}
-library(raster)
-library(sp)
+library(terra)
+library(dynatopGIS)
 ```
+
+and remember to move to the eden_data directory e.g.
+
+```{r, eval=FALSE}
+setwd("../eden_data")
+```
+
+## Data Required by `dynatopGIS`
+
+To build a Dynamic TOPMODEL the `dynatopGIS` package requires the following
+
+- A raster map of the catchment, possibly delineating sub-catchments
+- A raster DEM covering the catchment
+- A vector polygon representation of the river network
+
+Optionally the user can also provide
+
+- A raster map delineating spatial rainfall patterns
+- A raster map delineating spatial PET patterns
+- Raster maps containing further data to help classify the HRUs
+
+All raster data must in the same resolution and projection as the catchment map. The vector river data must have the same projection.
+
+> `dynatopGIS` only works with projected raster data with square cells and
+> assumes all raster values are numeric!
+> The raster map of the catchment should have only `NA` values in the
+> edge row and columns.
 
 ## Loading Data
 
@@ -46,10 +68,10 @@ To start use functions in the raster package to load both the raster
 data and that contained in the shapefiles:
 
 ```{r, read_raster}
-dem <- raster(file.path(".","unprocessed","Eden_DEM.tif")) # load the dem as a raster layer
-eden <- shapefile(file.path(".","unprocessed","Eden_Catchment")) # load the outline of the sub-catchments from the shapefile
-channel <- shapefile(file.path(".","unprocessed","Eden_River_Network")) # load the river network from the shapefile
-urban <- shapefile(file.path(".","unprocessed","Eden_Urban")) # load the urban area map from the shapefile
+dem <- rast(file.path(".","unprocessed","Eden_DEM.tif")) # load the dem as a raster layer
+eden <- vect(file.path(".","unprocessed","Eden_Catchment.shp")) # load the outline of the sub-catchments from the shapefile
+channel <- vect(file.path(".","unprocessed","Eden_River_Network.shp")) # load the river network from the shapefile
+urban <- vect(file.path(".","unprocessed","Eden_Urban.shp")) # load the urban area map from the shapefile
 ```
 
 Typing the variable name at the R prompt will display a summary of the data
@@ -59,23 +81,18 @@ loaded, for example
 dem
 ```
 
-Comparing between the `dem`, `eden`, `channel` and `urban` variable shows
-that:
+Compare the `dem`, `eden`, `channel` and `urban` variable to check that:
 
 - there is a common projection
 - the cells of DEM are square
-
-> **WARNING**: dynatopGIS only works with
-> projected raster data with square cells! It is best to make sure you DEM has
-> these properties before starting any analysis.
 
 Reading the gauge locations from the csv file is a two stage process
 
 ```{r, read_csv}
  # read in the csv file to a date.frame
 csvGauges <- read.csv(file.path(".","unprocessed","Eden_Gauge_Sites.csv"))
-# convert the data frame to a SpatialPointsDataFrame - take projection from the DEM
-gauges <- SpatialPointsDataFrame(coords=csvGauges[,c("x","y")],proj4string=crs(dem),data=csvGauges)
+# convert the data frame to a SpatVect object - take projection from the DEM
+gauges <- vect(csvGauges,geom=c("x","y"),crs=crs(dem))
 ```
 
 Next plot the data using the default methods in the raster package
@@ -85,96 +102,121 @@ plot(dem) # underlying coloured image with scale
 plot(urban,add=TRUE,col="grey") # grey polygons
 plot(channel,add=TRUE,col="blue") # channels as blue lines
 plot(eden,add=TRUE) # outlines of sub-catchments in black
-plot(gauges,add=TRUE,col="red") # gauges as red +
+plot(gauges,add=TRUE,col="red") # gauges as red dot
 ```
 
 ## Rasterising Layers
 
-The basis of the landscape discretisation is the DEM of the catchment. Any
-information we may want to use in the classification of the catchment leading to the definition
-of the Hydrological Response Units has to be provided as a raster of the
-same resolution and projection as the DEM.
-
-Since both the urban areas and sub-catchments may be used in the classification
-both are rasterised. In R all raster values must be numeric. For both the urban
-and sub-catchments the values are taken from the unique identifiers in the
-data.
-
-In the case of the urban data there are two possible identifiers objectid and bua_id:
-```{r raterise_urban}
-## show data frame with id values
-head(urban@data)
-## rasterise using objectid as the raster value
-urban_raster <- rasterize(urban, dem, field="objectid")
-## plot the resulting raster
-plot(urban_raster)
-```
-
-For the sub-catchments the values are set to the numeric id:
+The basis of the landscape discretisation is the raster catchment map. In this
+example, as in many situation the catchment outlines are vectors shapes. These
+are rasterised using the grid provided by the raster DEM. In the catchment map each
+sub-catchment requires a unique numeric value which is provided by the `id`
+field.
 
 ```{r rasterise_subcatch}
 ## show data frame with id values
-head(eden@data)
+head(eden)
 ## rasterise
 eden_raster <- rasterize(eden, dem, field="id")
 ## plot the resulting raster
 plot(eden_raster)
 ```
 
-The raster fields created (`eden_raster`, `urban_raster`) exist only in memory (or
+To ensure the edges are `NA` values the raster is extended, along with that of
+the DEM
+
+```{r extend_rast}
+eden_raster <- extend(eden_raster,1)
+dem <- extend(dem,1)
+```
+
+Since the urban areas may be used in the classification
+they are also rasterised. Suitable numeric values are taken from the unique identifiers in the
+data.
+
+In the case of the urban data there are two possible identifiers objectid and bua_id:
+```{r raterise_urban}
+## show data frame with id values
+head(urban)
+## rasterise using objectid as the raster value
+urban_raster <- rasterize(urban, eden_raster, field="objectid")
+## plot the resulting raster
+plot(urban_raster)
+```
+
+The raster fields created (`eden_raster`, `urban_raster` and extended `dem`) exist only in memory (or
 temporary files). Since they will be needed later we will save them:
 
 ```{r, save_eden_raster}
 writeRaster(eden_raster,file.path(".","processed","eden.tif"),overwrite=TRUE)
 writeRaster(urban_raster,file.path(".","processed","urban.tif"),overwrite=TRUE)
+writeRaster(dem,file.path(".","processed","dem.tif"),overwrite=TRUE)
 ```
-
-## Digital Elevation Model
-
-In the plot of the loaded data we can see that the DEM extends beyond the boundary of the
-catchment. The processing in `dynatopGIS` treats all the finite DEM values as
-being within the catchment. This means we need to trim the DEM to the
-catchment boundaries.
-
-To achieve this we will mask the DEM with the rasterised catchment, so
-setting all values not in the catchment to `NA`.
-
-```{r, mask_dem}
-masked_dem <- mask(dem,eden_raster)
-plot(masked_dem)
-plot(eden,add=TRUE)
-```
-
-Save the masked DEM for later use:
-
-```{r, save_eden_dem}
-writeRaster(masked_dem,file.path(".","processed","dem.tif"),overwrite=TRUE)
-```
-
-> To those of familiar with the raster package might have noticed that `edenDEM` could have created in one line by
-> ```{r, mask_dem_2,eval=FALSE}
-> edenDEM <- rasterize(eden, dem, mask=TRUE)
-> ```
 
 ## Channel Network
 
-The representation of the channel network in dynatop is as a series of
-connected reach lengths. In the processing done by dynatopGIS Each reach is represented by a single spatial line or polygon. The data for each reach must include an identifier for the
-head and foot of the reach to allow the connectivity to be derived as well as
-the reach length. Examining the data for the example with
+The channel network in the dynamic TOPMODEL generated by
+`dynatopGIS` is a series of connected HRUs each representing a single reach
+length. 
+In the processing done by dynatopGIS each reach is
+represented by a single spatial polygon. The data for each reach must include
+the following fields: 
+
+ - name - The unique identifier/name of the reach
+ - length - Length of the reach [m]
+ - startNode - An identifier for the head of the reach
+ - endNode - An identifier for the foot of the reach
+ - width - Channel width [m]
+ - slope - Channel slope [m/m]
+ 
+ The startNode and endNode values are used to define the channel connectivity,
+ while the physical properties are used in the `dynatop` numerical solutions.
+ 
+ Looking at the channel data
 
 ```{r channel_data}
-head(channel@data)
+channel
 ```
 
-we see that 
+we see that it already contains
 
-- an identifier for the foot of the reach is provided by endNode
-- an identifier for the head of the reach is provided by startNode
-- the reach length is given in provided by length
+- an identifier for the foot of the reach called endNode
+- an identifier for the head of the reach called startNode
+- the reach length
+- a unique identifier called identifier
 
-Within the data there is also a unique identifier which can be used to relate
-the gauges to the channel network.
+but is composed to spatial lines rather then polygons.
+
+The `dynatopGIS` package provides a function for conveniently converting
+line objects to the correct format.
+
+```{r convert_channel}
+conv_channel <- convert_channel(
+    channel,
+    property_names = c(name = "identifier", length = "length", startNode = "startNode",
+                       endNode= "endNode"),
+    default_width = 2,
+    default_slope = 0.001
+)
+```
+
+The two warning messages reveal that, since they are not specified, default
+width and slope values are added. The width property is used to buffer the
+channel resulting in spatial polygons.
+
+```{r conv_channel}
+conv_channel
+```
+
+The converted channel data is saved for later use
+
+```{r, save_eden_channel}
+writeVector(conv_channel,file.path(".","processed","channel.shp"),overwrite=TRUE)
+```
+
+> The use of polygons to represent channel sections allows the shape of water
+> features such as lakes to be captured
+
 
 ## Locating Gauges on the Channel Network
 
@@ -191,37 +233,33 @@ closest reach. The identifier of this reach, along with the distance to
 the gauge data is then added to the gauge data.
 
 ```{r locate_gauges}
-gauges$chn_identifier <- character(nrow(gauges)) # initialise storage of the channel identifier
-gauges$chn_distance <- numeric(nrow(gauges)) # initialise storage of the distance to the channel
+dst <- distance(gauges,conv_channel) ## distance between gauges(row) and channels(column)
+idx <- apply(dst,1,which.min) ## index of closest channel for each gauge
 
-## loop to compute nearest reach for each gauge
-for(ii in 1:nrow(gauges)){
-  tmp <- rgeos::gDistance(gauges[ii,], channel, byid=TRUE)
-  jj <- which.min(tmp)
-  gauges$chn_identifier[ii] <- channel$identifier[jj]
-  gauges$chn_distance[ii] <- tmp[jj]
-} 
+gauges$chn_identifier <- conv_channel$name[ apply(dst,1,which.min) ]
+gauges$chn_distance <- apply(dst,1,min) ## distance to the channel
+ 
 ```
 
 To check the results by plotting:
 
 ```{r crop_gauges_plot}
-selected <- channel[channel$identifier %in% gauges$chn_identifier,]
-plot(eden) # outlines of subcatchments in black
-plot(channel,add=TRUE,col="blue") # channel network in blue
-plot(selected,add=TRUE,col="orange") # selected reachs in orange
+selected <- conv_channel[conv_channel$name %in% gauges$chn_identifier,]
+plot(eden) # outlines of sub-catchments in black
+plot(conv_channel,add=TRUE,col="blue",border="blue") # channel network in blue
+plot(selected,add=TRUE,col="orange",border="orange") # selected reachs in orange
 plot(gauges,add=TRUE,col="red",pch=21) # gauges as red filled circles
 ```
 
 The cropped list of gauges with channel identifier can be saved to a shapefile:
 
 ```{r save_cropped_gauges}
-shapefile(gauges,file.path(".","processed","gauges"))
+writeVector(gauges,file.path(".","processed","gauges.shp"),overwrite=TRUE)
 ```
 
 > The quality of results of any method used for any automatic method of
 > locating the gauges depends upon the accuracy of the GIS data. 
 
 > In the
-> numeric solution used in dyantop it is assumed that a gauge is at the foot of
+> numeric solution used in `dyantop` it is assumed that a gauge is at the foot of
 > a reach. This should be allowed from when conceptualising the channel reaches.

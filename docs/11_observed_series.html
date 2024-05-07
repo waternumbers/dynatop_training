@@ -13,8 +13,8 @@
 
 <title>Processing Observed data</title>
 
-<script src="site_libs/header-attrs-2.9/header-attrs.js"></script>
-<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<script src="site_libs/header-attrs-2.26/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
@@ -60,6 +60,7 @@ if (window.hljs) {
 
 
 
+
 <style type = "text/css">
 .main-container {
   max-width: 940px;
@@ -80,6 +81,9 @@ button.code-folding-btn:focus {
 }
 summary {
   display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
 }
 pre code {
   padding: 0;
@@ -137,11 +141,15 @@ $(document).ready(function () {
     href = "index.html";
   var menuAnchor = $('a[href="' + href + '"]');
 
-  // mark it active
-  menuAnchor.tab('show');
-
-  // if it's got a parent navbar menu mark it active as well
-  menuAnchor.closest('li.dropdown').addClass('active');
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
 
   // Navbar adjustments
   var navHeight = $(".navbar").first().height() + 15;
@@ -170,8 +178,8 @@ $(document).ready(function () {
   border-radius: 4px;
 }
 
-.tabset-dropdown > .nav-tabs > li.active:before {
-  content: "";
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
   font-family: 'Glyphicons Halflings';
   display: inline-block;
   padding: 10px;
@@ -179,16 +187,9 @@ $(document).ready(function () {
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
-  content: "&#xe258;";
-  border: none;
-}
-
-.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
-  content: "";
+  content: "\e258";
   font-family: 'Glyphicons Halflings';
-  display: inline-block;
-  padding: 10px;
-  border-right: 1px solid #ddd;
+  border: none;
 }
 
 .tabset-dropdown > .nav-tabs > li.active {
@@ -232,7 +233,7 @@ $(document).ready(function () {
 <div class="navbar navbar-default  navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
@@ -247,7 +248,7 @@ $(document).ready(function () {
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Programme
      
     <span class="caret"></span>
@@ -295,6 +296,9 @@ $(document).ready(function () {
     <li>
       <a href="23_altering_dynatop.html">Altering dynatop</a>
     </li>
+    <li>
+      <a href="99_session_info.html">Session Info</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -313,34 +317,59 @@ $(document).ready(function () {
 
 <div id="aim" class="section level2">
 <h2>Aim</h2>
-<p>To explore and pre-process the observed data for the Eden catchment.</p>
+<p>To explore and pre-process the observed data for the Eden
+catchment.</p>
 </div>
-<div id="installing-required-r-packages" class="section level2">
-<h2>Installing required R packages</h2>
-<p>Alongside the packages used in the <a href="./10_initial_gis.html">initial GIS processing</a>, two further packages are required. The first, xts, allows for an efficent representation of time series data and can be installed with</p>
-<pre class="r"><code>install.packages(&quot;xts&quot;)</code></pre>
-<p>The second extra package required is dynatop. This can be installed with</p>
-<pre class="r"><code>install.packages(&quot;dynatop&quot;, repos = c(&quot;https://waternumbers.github.io/drat&quot;, &quot;http://cran.rstudio.com&quot;))</code></pre>
-<p>Once installed the required packages are attached to the R environment so that there functions are available.</p>
-<pre class="r"><code>library(raster)
+<div id="required-r-packages" class="section level2">
+<h2>Required R Packages</h2>
+<p>Alongside the <code>terra</code> package used in the <a
+href="./10_initial_gis.html">initial GIS processing</a>, two further
+packages are required. The first, <code>xts</code>, allows for an
+efficent representation of time series data. The second extra package
+required is <code>dynatop</code>.</p>
+<p>These are attached to the R environment so that there functions are
+available.</p>
+<pre class="r"><code>library(terra)
 library(xts)
 #&gt; Loading required package: zoo
 #&gt; 
 #&gt; Attaching package: &#39;zoo&#39;
+#&gt; The following object is masked from &#39;package:terra&#39;:
+#&gt; 
+#&gt;     time&lt;-
 #&gt; The following objects are masked from &#39;package:base&#39;:
 #&gt; 
 #&gt;     as.Date, as.Date.numeric
 library(dynatop)</code></pre>
+<p>and remember to move to the eden_data directory e.g.</p>
+<pre class="r"><code>setwd(&quot;../eden_data&quot;)</code></pre>
 </div>
 <div id="expected-data" class="section level2">
 <h2>Expected Data</h2>
-<p>The data used in dynatop when simulating the model is expected to be a xts object (a special kind numeric matrix whose row names give the time) with a constant time step <span class="math inline">\(\Delta t\)</span>. Each column of data should have a unique name which is used to specify the time series when building the model.</p>
-<p>Three variables are used as inputs, precipitation, potential evapotranspiration and discharge. It is expected that the precipitation and potential evapotranspiration inputs series are given in <span class="math inline">\(m\)</span> accrued over the proceeding time step. So the data value given at time <span class="math inline">\(t+\Delta t\)</span> is the total accrued in the interval between time <span class="math inline">\(t\)</span> and time <span class="math inline">\(t+\Delta t\)</span>.</p>
-<p>The data series of discharge are used for the diffuse and point inputs which can be added to the channel network. These series should be in <span class="math inline">\(m^3/s\)</span>. In the channel HRU solution the value given at time <span class="math inline">\(t+\Delta t\)</span> is presumed to be constant over the interval <span class="math inline">\(t\)</span> to <span class="math inline">\(t+\Delta t\)</span> so ideally the the input series should represent the average flow for this period.</p>
+<p>The data passed to <code>dynatop</code> when simulating the model is
+expected to be a <code>xts</code> object (a special kind numeric matrix
+whose row names give the time) with a constant time step <span
+class="math inline">\(\Delta t\)</span>. Each column of data should have
+a unique name which is used to specify the time series when building the
+model.</p>
+<p>Two variables are used as inputs, precipitation and potential
+evapotranspiration (PET). It is expected that the precipitation and
+potential evapotranspiration inputs series are given in <span
+class="math inline">\(m\)</span> accrued over the proceeding time step.
+So the data value given at time <span class="math inline">\(t+\Delta
+t\)</span> is the total accrued in the interval between time <span
+class="math inline">\(t\)</span> and time <span
+class="math inline">\(t+\Delta t\)</span>.</p>
+<p>Since columns in the <code>xts</code> object passed to
+<code>dynatop</code> which are not used in the model are ignored, so
+there is no danger is combining observed discharge records in the same
+object as the input data.</p>
 </div>
 <div id="data-files" class="section level2">
 <h2>Data Files</h2>
-<p>The example contains two data files Eden_Flow.csv and Eden_Precip.nc. The first is a comma seperated text file of flow data, the later a netcdf file containing a time series of spatial rainfall fields.</p>
+<p>The example contains two data files Eden_Flow.csv and Eden_Precip.nc.
+The first is a comma seperated text file of flow data, the later a
+netcdf file containing a time series of spatial rainfall fields.</p>
 </div>
 <div id="flow-data" class="section level2">
 <h2>Flow Data</h2>
@@ -351,7 +380,10 @@ library(dynatop)</code></pre>
 #&gt; &quot;2020-02-01 00:30:00&quot;,190.9998537
 #&gt; &quot;2020-02-01 00:45:00&quot;,192.1112028
 #&gt; &quot;2020-02-01 01:00:00&quot;,192.5883068</code></pre>
-<p>we see that the Index column gives the time in an unabiguous format recognised by xts. The second column the observed discharges at the Sheepmount gauge as numeric values. We read this in using function avaialbe through the xts package</p>
+<p>we see that the Index column gives the time in an unabiguous format
+recognised by <code>xts</code>. The second column the observed
+discharges at the Sheepmount gauge as numeric values. We read this in
+using function avaialbe through the xts package</p>
 <pre class="r"><code>flow &lt;- as.xts(read.zoo(file.path(&quot;.&quot;,&quot;unprocessed&quot;,&quot;Eden_Flow.csv&quot;),header=TRUE,sep=&quot;,&quot;,drop=FALSE))
 head(flow)
 #&gt;                     Sheepmount_obs
@@ -364,65 +396,82 @@ head(flow)
 </div>
 <div id="rainfall-data" class="section level2">
 <h2>Rainfall Data</h2>
-<p>To explore the rainfall data open the file using the raster package</p>
+<p>To explore the rainfall data open the file using the
+<code>terra</code> package</p>
 <pre class="r"><code>## read in as a multilayered object
-precip_brk &lt;- brick(file.path(&quot;.&quot;,&quot;unprocessed&quot;,&quot;Eden_Precip.nc&quot;))
-#&gt; Loading required namespace: ncdf4
+precip_brk &lt;- rast(file.path(&quot;.&quot;,&quot;unprocessed&quot;,&quot;Eden_Precip.nc&quot;))
 ## show summary
 precip_brk
-#&gt; class      : RasterBrick 
-#&gt; dimensions : 9, 11, 99, 1392  (nrow, ncol, ncell, nlayers)
-#&gt; resolution : 0.1, 0.1  (x, y)
-#&gt; extent     : -3.2, -2.1, 54.3, 55.2  (xmin, xmax, ymin, ymax)
-#&gt; crs        : +proj=longlat +datum=WGS84 +no_defs 
-#&gt; source     : Eden_Precip.nc 
-#&gt; names      : X2020.02.01.00.30.00, X2020.02.01.01.00.00, X2020.02.01.01.30.00, X2020.02.01.02.00.00, X2020.02.01.02.30.00, X2020.02.01.03.00.00, X2020.02.01.03.30.00, X2020.02.01.04.00.00, X2020.02.01.04.30.00, X2020.02.01.05.00.00, X2020.02.01.05.30.00, X2020.02.01.06.00.00, X2020.02.01.06.30.00, X2020.02.01.07.00.00, X2020.02.01.07.30.00, ... 
-#&gt; min values :         0.000000e+00,         0.000000e+00,         0.000000e+00,         0.000000e+00,         0.000000e+00,         0.000000e+00,         0.000000e+00,         0.000000e+00,         0.000000e+00,         0.000000e+00,         0.000000e+00,         0.000000e+00,         0.000000e+00,         0.000000e+00,         0.000000e+00, ... 
-#&gt; max values :         1.193457e-04,         1.677525e-04,         2.946366e-04,         1.077803e-04,         2.722098e-05,         0.000000e+00,         0.000000e+00,         0.000000e+00,         0.000000e+00,         0.000000e+00,         0.000000e+00,         0.000000e+00,         0.000000e+00,         0.000000e+00,         0.000000e+00, ... 
-#&gt; Date/time  : 2020-02-01 00:30:00, 2020-03-01 00:00:00 (min, max)
-#&gt; varname    : Precipitation
+#&gt; class       : SpatRaster 
+#&gt; dimensions  : 9, 11, 1392  (nrow, ncol, nlyr)
+#&gt; resolution  : 0.1, 0.1  (x, y)
+#&gt; extent      : -3.2, -2.1, 54.3, 55.2  (xmin, xmax, ymin, ymax)
+#&gt; coord. ref. : lon/lat WGS 84 (CRS84) (OGC:CRS84) 
+#&gt; source      : Eden_Precip.nc 
+#&gt; varname     : Precipitation (IMERGv6 final precipitation over preceding 30 minutes) 
+#&gt; names       : Preci~ion_1, Preci~ion_2, Preci~ion_3, Preci~ion_4, Preci~ion_5, Preci~ion_6, ... 
+#&gt; unit        :           m,           m,           m,           m,           m,           m, ... 
+#&gt; time        : 2020-02-01 00:30:00 to 2020-03-01 UTC
 ## show start of the z values which are the time stamps as character strings
-head(getZ(precip_brk))
-#&gt; [1] &quot;2020-02-01 00:30:00&quot; &quot;2020-02-01 01:00:00&quot; &quot;2020-02-01 01:30:00&quot;
-#&gt; [4] &quot;2020-02-01 02:00:00&quot; &quot;2020-02-01 02:30:00&quot; &quot;2020-02-01 03:00:00&quot;</code></pre>
+head(time(precip_brk))
+#&gt; [1] &quot;2020-02-01 00:30:00 UTC&quot; &quot;2020-02-01 01:00:00 UTC&quot;
+#&gt; [3] &quot;2020-02-01 01:30:00 UTC&quot; &quot;2020-02-01 02:00:00 UTC&quot;
+#&gt; [5] &quot;2020-02-01 02:30:00 UTC&quot; &quot;2020-02-01 03:00:00 UTC&quot;</code></pre>
 <p>From the properties of precip_brk we see that:</p>
 <ul>
 <li>there are 1392 raster layers covering February 2020</li>
-<li>the projection and resolution of the rainfall grids are different to the DEM</li>
+<li>the projection and resolution of the rainfall grids are different to
+the DEM</li>
 <li>the time step is different to that of the flow data</li>
 </ul>
-<p>To address the projection and resolution differences two approaches could be taken</p>
+<p>To address the projection and resolution differences two approaches
+could be taken</p>
 <ul>
-<li>reproject the rainfall data to match the DEM, so giving each DEM cell its own rainfall time series</li>
-<li>assign each cell in the DEM to one of the rainfall data raster cells and reformat the exisiting rainfall data to the give time series.</li>
+<li>reproject the rainfall data to match the DEM then extract a time
+series for each cell, so giving each DEM cell its own rainfall time
+series</li>
+<li>assign each cell in the DEM to one of the rainfall data raster cells
+and extract the exisiting rainfall data to the give time series.</li>
 </ul>
-<p>Since the DEM has a higher spatial resolution then the rainfall the second approach is more computationally efficent and is recommended.</p>
-<p>To impliment the approach start by creating a raster layer of the same projection and extent as the rainfall feilds but with unique values</p>
-<pre class="r"><code>rid &lt;- raster(precip_brk[[1]])
+<p>Since the DEM has a higher spatial resolution then the rainfall the
+second approach is more computationally efficent and is recommended.</p>
+<p>To impliment the approach start by creating a raster layer of the
+same projection and extent as the rainfall feilds but with unique
+values</p>
+<pre class="r"><code>rid &lt;- rast(precip_brk[[1]])
 rid &lt;- setValues(rid,1:ncell(rid))
 rid
-#&gt; class      : RasterLayer 
-#&gt; dimensions : 9, 11, 99  (nrow, ncol, ncell)
-#&gt; resolution : 0.1, 0.1  (x, y)
-#&gt; extent     : -3.2, -2.1, 54.3, 55.2  (xmin, xmax, ymin, ymax)
-#&gt; crs        : +proj=longlat +datum=WGS84 +no_defs 
-#&gt; source     : memory
-#&gt; names      : layer 
-#&gt; values     : 1, 99  (min, max)</code></pre>
-<p>Then extract the precipitation values to give an xts object where each column is the time series for one value in rid.</p>
-<pre class="r"><code>precip &lt;- getValues(precip_brk) # matrix where each row is one cell
+#&gt; class       : SpatRaster 
+#&gt; dimensions  : 9, 11, 1  (nrow, ncol, nlyr)
+#&gt; resolution  : 0.1, 0.1  (x, y)
+#&gt; extent      : -3.2, -2.1, 54.3, 55.2  (xmin, xmax, ymin, ymax)
+#&gt; coord. ref. : lon/lat WGS 84 (CRS84) (OGC:CRS84) 
+#&gt; source(s)   : memory
+#&gt; varname     : Precipitation (IMERGv6 final precipitation over preceding 30 minutes) 
+#&gt; name        : Precipitation_1 
+#&gt; min value   :               1 
+#&gt; max value   :              99 
+#&gt; time        : 2020-02-01 00:30:00 UTC</code></pre>
+<p>Then extract the precipitation values to give an xts object where
+each column is the time series for one value in rid.</p>
+<pre class="r"><code>precip &lt;- values(precip_brk) # matrix where each row is one cell
 ## add row names based on unique values in rid to give time series names
-rownames(precip) &lt;-  paste0(&quot;precip_&quot;,getValues(rid))
+rownames(precip) &lt;-  paste0(&quot;precip_&quot;,values(rid))
 ## get times as characters and convert to R internal time representation (POSIXct)
-precip_datetime &lt;- as.POSIXct(getZ(precip_brk),tz=&quot;GMT&quot;)
+precip_datetime &lt;- time(precip_brk)
 ## create the xts object
 precip &lt;- xts(t(precip),order.by=precip_datetime)</code></pre>
-<p>To fix the difference in time step compared with the flow data we resample the precipitation data. The resample_xts function of dynatop provides a simple method for doing this</p>
+<p>To fix the difference in time step compared with the flow data we
+resample the precipitation data to a 15 minute timestep. The
+resample_xts function of dynatop provides a simple method for doing
+this</p>
 <pre class="r"><code>## call the resample_precip function
 resampled_precip &lt;- resample_xts(precip,900)
 ## look at what it does (assigned rainfall equally between new steps in same time period)
 head(precip[,&quot;precip_48&quot;]) # original data
-#&gt; Warning: timezone of object (GMT) is different than current timezone ().
+#&gt; Warning: object timezone (&#39;UTC&#39;) is different from system timezone (&#39;&#39;)
+#&gt;   NOTE: set &#39;options(xts_check_TZ = FALSE)&#39; to disable this warning
+#&gt;     This note is displayed once per session
 #&gt;                        precip_48
 #&gt; 2020-02-01 00:30:00 0.0000000000
 #&gt; 2020-02-01 01:00:00 0.0001677525
@@ -430,165 +479,49 @@ head(precip[,&quot;precip_48&quot;]) # original data
 #&gt; 2020-02-01 02:00:00 0.0000000000
 #&gt; 2020-02-01 02:30:00 0.0000000000
 #&gt; 2020-02-01 03:00:00 0.0000000000
-head(resampled_precip) # resampled data - see how they sum to the original values
-#&gt; Warning: timezone of object (GMT) is different than current timezone ().
-#&gt;                     precip_1 precip_2 precip_3 precip_4 precip_5 precip_6
-#&gt; 2020-02-01 00:15:00        0        0        0        0        0        0
-#&gt; 2020-02-01 00:30:00        0        0        0        0        0        0
-#&gt; 2020-02-01 00:45:00        0        0        0        0        0        0
-#&gt; 2020-02-01 01:00:00        0        0        0        0        0        0
-#&gt; 2020-02-01 01:15:00        0        0        0        0        0        0
-#&gt; 2020-02-01 01:30:00        0        0        0        0        0        0
-#&gt;                     precip_7 precip_8 precip_9 precip_10 precip_11 precip_12
-#&gt; 2020-02-01 00:15:00        0        0        0         0         0         0
-#&gt; 2020-02-01 00:30:00        0        0        0         0         0         0
-#&gt; 2020-02-01 00:45:00        0        0        0         0         0         0
-#&gt; 2020-02-01 01:00:00        0        0        0         0         0         0
-#&gt; 2020-02-01 01:15:00        0        0        0         0         0         0
-#&gt; 2020-02-01 01:30:00        0        0        0         0         0         0
-#&gt;                     precip_13 precip_14 precip_15 precip_16 precip_17 precip_18
-#&gt; 2020-02-01 00:15:00         0         0         0         0         0         0
-#&gt; 2020-02-01 00:30:00         0         0         0         0         0         0
-#&gt; 2020-02-01 00:45:00         0         0         0         0         0         0
-#&gt; 2020-02-01 01:00:00         0         0         0         0         0         0
-#&gt; 2020-02-01 01:15:00         0         0         0         0         0         0
-#&gt; 2020-02-01 01:30:00         0         0         0         0         0         0
-#&gt;                     precip_19 precip_20 precip_21 precip_22 precip_23 precip_24
-#&gt; 2020-02-01 00:15:00         0         0         0         0         0         0
-#&gt; 2020-02-01 00:30:00         0         0         0         0         0         0
-#&gt; 2020-02-01 00:45:00         0         0         0         0         0         0
-#&gt; 2020-02-01 01:00:00         0         0         0         0         0         0
-#&gt; 2020-02-01 01:15:00         0         0         0         0         0         0
-#&gt; 2020-02-01 01:30:00         0         0         0         0         0         0
-#&gt;                     precip_25 precip_26 precip_27 precip_28 precip_29 precip_30
-#&gt; 2020-02-01 00:15:00         0         0         0         0         0         0
-#&gt; 2020-02-01 00:30:00         0         0         0         0         0         0
-#&gt; 2020-02-01 00:45:00         0         0         0         0         0         0
-#&gt; 2020-02-01 01:00:00         0         0         0         0         0         0
-#&gt; 2020-02-01 01:15:00         0         0         0         0         0         0
-#&gt; 2020-02-01 01:30:00         0         0         0         0         0         0
-#&gt;                     precip_31 precip_32 precip_33 precip_34 precip_35 precip_36
-#&gt; 2020-02-01 00:15:00         0         0         0         0         0         0
-#&gt; 2020-02-01 00:30:00         0         0         0         0         0         0
-#&gt; 2020-02-01 00:45:00         0         0         0         0         0         0
-#&gt; 2020-02-01 01:00:00         0         0         0         0         0         0
-#&gt; 2020-02-01 01:15:00         0         0         0         0         0         0
-#&gt; 2020-02-01 01:30:00         0         0         0         0         0         0
-#&gt;                     precip_37 precip_38 precip_39 precip_40 precip_41 precip_42
-#&gt; 2020-02-01 00:15:00         0         0         0         0         0         0
-#&gt; 2020-02-01 00:30:00         0         0         0         0         0         0
-#&gt; 2020-02-01 00:45:00         0         0         0         0         0         0
-#&gt; 2020-02-01 01:00:00         0         0         0         0         0         0
-#&gt; 2020-02-01 01:15:00         0         0         0         0         0         0
-#&gt; 2020-02-01 01:30:00         0         0         0         0         0         0
-#&gt;                     precip_43 precip_44    precip_45 precip_46 precip_47
-#&gt; 2020-02-01 00:15:00         0         0 5.967285e-05         0         0
-#&gt; 2020-02-01 00:30:00         0         0 5.967285e-05         0         0
-#&gt; 2020-02-01 00:45:00         0         0 0.000000e+00         0         0
-#&gt; 2020-02-01 01:00:00         0         0 0.000000e+00         0         0
-#&gt; 2020-02-01 01:15:00         0         0 0.000000e+00         0         0
-#&gt; 2020-02-01 01:30:00         0         0 0.000000e+00         0         0
-#&gt;                        precip_48 precip_49 precip_50 precip_51    precip_52
-#&gt; 2020-02-01 00:15:00 0.000000e+00         0         0         0 0.0000000000
-#&gt; 2020-02-01 00:30:00 0.000000e+00         0         0         0 0.0000000000
-#&gt; 2020-02-01 00:45:00 8.387624e-05         0         0         0 0.0000000000
-#&gt; 2020-02-01 01:00:00 8.387624e-05         0         0         0 0.0000000000
-#&gt; 2020-02-01 01:15:00 0.000000e+00         0         0         0 0.0001473183
-#&gt; 2020-02-01 01:30:00 0.000000e+00         0         0         0 0.0001473183
-#&gt;                     precip_53 precip_54 precip_55 precip_56 precip_57 precip_58
-#&gt; 2020-02-01 00:15:00         0         0         0         0         0         0
-#&gt; 2020-02-01 00:30:00         0         0         0         0         0         0
-#&gt; 2020-02-01 00:45:00         0         0         0         0         0         0
-#&gt; 2020-02-01 01:00:00         0         0         0         0         0         0
-#&gt; 2020-02-01 01:15:00         0         0         0         0         0         0
-#&gt; 2020-02-01 01:30:00         0         0         0         0         0         0
-#&gt;                     precip_59 precip_60 precip_61 precip_62 precip_63 precip_64
-#&gt; 2020-02-01 00:15:00         0         0         0         0         0         0
-#&gt; 2020-02-01 00:30:00         0         0         0         0         0         0
-#&gt; 2020-02-01 00:45:00         0         0         0         0         0         0
-#&gt; 2020-02-01 01:00:00         0         0         0         0         0         0
-#&gt; 2020-02-01 01:15:00         0         0         0         0         0         0
-#&gt; 2020-02-01 01:30:00         0         0         0         0         0         0
-#&gt;                     precip_65 precip_66 precip_67 precip_68 precip_69 precip_70
-#&gt; 2020-02-01 00:15:00         0         0         0         0         0         0
-#&gt; 2020-02-01 00:30:00         0         0         0         0         0         0
-#&gt; 2020-02-01 00:45:00         0         0         0         0         0         0
-#&gt; 2020-02-01 01:00:00         0         0         0         0         0         0
-#&gt; 2020-02-01 01:15:00         0         0         0         0         0         0
-#&gt; 2020-02-01 01:30:00         0         0         0         0         0         0
-#&gt;                     precip_71 precip_72 precip_73 precip_74 precip_75 precip_76
-#&gt; 2020-02-01 00:15:00         0         0         0         0         0         0
-#&gt; 2020-02-01 00:30:00         0         0         0         0         0         0
-#&gt; 2020-02-01 00:45:00         0         0         0         0         0         0
-#&gt; 2020-02-01 01:00:00         0         0         0         0         0         0
-#&gt; 2020-02-01 01:15:00         0         0         0         0         0         0
-#&gt; 2020-02-01 01:30:00         0         0         0         0         0         0
-#&gt;                     precip_77    precip_78 precip_79 precip_80    precip_81
-#&gt; 2020-02-01 00:15:00         0 1.808221e-05         0         0 0.000000e+00
-#&gt; 2020-02-01 00:30:00         0 1.808221e-05         0         0 0.000000e+00
-#&gt; 2020-02-01 00:45:00         0 0.000000e+00         0         0 2.706083e-05
-#&gt; 2020-02-01 01:00:00         0 0.000000e+00         0         0 2.706083e-05
-#&gt; 2020-02-01 01:15:00         0 0.000000e+00         0         0 0.000000e+00
-#&gt; 2020-02-01 01:30:00         0 0.000000e+00         0         0 0.000000e+00
-#&gt;                     precip_82 precip_83 precip_84    precip_85 precip_86
-#&gt; 2020-02-01 00:15:00         0         0         0 0.000000e+00         0
-#&gt; 2020-02-01 00:30:00         0         0         0 0.000000e+00         0
-#&gt; 2020-02-01 00:45:00         0         0         0 0.000000e+00         0
-#&gt; 2020-02-01 01:00:00         0         0         0 0.000000e+00         0
-#&gt; 2020-02-01 01:15:00         0         0         0 3.985058e-05         0
-#&gt; 2020-02-01 01:30:00         0         0         0 3.985058e-05         0
-#&gt;                     precip_87 precip_88 precip_89    precip_90 precip_91
-#&gt; 2020-02-01 00:15:00         0         0         0 0.000000e+00         0
-#&gt; 2020-02-01 00:30:00         0         0         0 0.000000e+00         0
-#&gt; 2020-02-01 00:45:00         0         0         0 3.031249e-05         0
-#&gt; 2020-02-01 01:00:00         0         0         0 3.031249e-05         0
-#&gt; 2020-02-01 01:15:00         0         0         0 0.000000e+00         0
-#&gt; 2020-02-01 01:30:00         0         0         0 0.000000e+00         0
-#&gt;                     precip_92 precip_93    precip_94 precip_95 precip_96
-#&gt; 2020-02-01 00:15:00         0         0 0.000000e+00         0         0
-#&gt; 2020-02-01 00:30:00         0         0 0.000000e+00         0         0
-#&gt; 2020-02-01 00:45:00         0         0 0.000000e+00         0         0
-#&gt; 2020-02-01 01:00:00         0         0 0.000000e+00         0         0
-#&gt; 2020-02-01 01:15:00         0         0 4.477972e-05         0         0
-#&gt; 2020-02-01 01:30:00         0         0 4.477972e-05         0         0
-#&gt;                     precip_97 precip_98 precip_99
-#&gt; 2020-02-01 00:15:00         0         0         0
-#&gt; 2020-02-01 00:30:00         0         0         0
-#&gt; 2020-02-01 00:45:00         0         0         0
-#&gt; 2020-02-01 01:00:00         0         0         0
-#&gt; 2020-02-01 01:15:00         0         0         0
-#&gt; 2020-02-01 01:30:00         0         0         0</code></pre>
-<p>To assign the DEM cells to rainfall series reproject the raster layer of unique rainfall series numbers (rid) to match the projection and resolution of the DEM using nearest neighbours, then save this for later use.</p>
+head(resampled_precip[,&quot;precip_48&quot;]) # resampled data - see how they sum to the original values
+#&gt; Warning: object timezone (&#39;UTC&#39;) is different from system timezone (&#39;&#39;)
+#&gt;                        precip_48
+#&gt; 2020-02-01 00:15:00 0.000000e+00
+#&gt; 2020-02-01 00:30:00 0.000000e+00
+#&gt; 2020-02-01 00:45:00 8.387624e-05
+#&gt; 2020-02-01 01:00:00 8.387624e-05
+#&gt; 2020-02-01 01:15:00 0.000000e+00
+#&gt; 2020-02-01 01:30:00 0.000000e+00</code></pre>
+<p>To assign the DEM cells to rainfall series reproject the raster layer
+of unique rainfall series numbers (rid) to match the projection and
+resolution of the DEM using nearest neighbours, then save this for later
+use.</p>
 <pre class="r"><code>## load the dem
-dem &lt;- raster(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;dem.tif&quot;))
-#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
-#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition
+eden &lt;- rast(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;eden.tif&quot;))
 ## call the resample_precip function
-reproj_rid &lt;- projectRaster(rid,dem,method=&quot;ngb&quot;)
-## mask so only values for finite DEM cells
-reproj_rid &lt;- mask(reproj_rid,dem)
+reproj_rid &lt;- project(rid,eden,method=&quot;near&quot;)
 ## A plot for visualisation
 plot(reproj_rid)</code></pre>
 <p><img src="11_observed_series_files/figure-html/resample_space-1.png" width="672" /></p>
 <pre class="r"><code>## save
-writeRaster(reproj_rid,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;precip_id.tif&quot;))
-#&gt; Warning in showSRID(SRS_string, format = &quot;PROJ&quot;, multiline = &quot;NO&quot;, prefer_proj =
-#&gt; prefer_proj): Discarded datum OSGB 1936 in Proj4 definition</code></pre>
+writeRaster(reproj_rid,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;precip_id.tif&quot;),overwrite=TRUE)</code></pre>
 </div>
 <div id="potential-evapotranspriation" class="section level2">
 <h2>Potential Evapotranspriation</h2>
-<p>If available spatial Potential Evapotranspiration time series can be handled in exactly teh same way as the rainfall. However if there is only a single series generatation of the map of id values can be avoided. A simple sinusoidal PET series can be generated using the evap_est function in dynatop</p>
+<p>If available spatial Potential Evapotranspiration time series can be
+handled in exactly the same way as the rainfall. However if there is
+only a single series generatation of the map of id values can be
+avoided. A simple sinusoidal PET series can be generated using the
+<code>evap_est</code> function in <code>dynatop</code>.</p>
 <pre class="r"><code>## use a maximum of 3 mm/day - output in meters
 pet &lt;- evap_est(index(flow), eMin = 0, eMax = 0.003)
-names(pet) &lt;- &quot;PET&quot; # ensure series has a name</code></pre>
+names(pet) &lt;- &quot;pet&quot; # ensure series has a name</code></pre>
 </div>
 <div id="combining-series" class="section level2">
 <h2>Combining Series</h2>
-<p>The xts package has a convient functions for merging xts objects by the time. We will save this as an R object for later use</p>
+<p>The xts package has a convient functions for merging xts objects by
+the time. We will save this as an R object for later use</p>
 <pre class="r"><code>obs &lt;- merge(flow,resampled_precip,pet,all=FALSE) ## merge by time stamp
 saveRDS(obs,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;obs.rds&quot;))</code></pre>
 <blockquote>
-<p><strong>WARNING</strong> dynatop does not allow for missing data. Any missing values must be replaced during the pre-processing</p>
+<p><strong>WARNING</strong> dynatop does not allow for missing data. Any
+missing values must be replaced during the pre-processing</p>
 </blockquote>
 </div>
 

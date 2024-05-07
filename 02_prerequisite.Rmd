@@ -3,8 +3,10 @@ title: "Prerequisites"
 ---
 
 This is a course on hydrological modelling using a R software package.
-It is presumed that you have at least a basic knowledge of hydrology and
+Part 1 presumes that you have at least a basic knowledge of hydrology and
 ideally some experience of R.
+Part 2 requires a more detailed knowledge of R along with some knowledge of
+the git version control system.
 
 Useful primers for R can be found on multiple websites such as that of
 [Hadley Wickham](https://adv-r.hadley.nz/) or on
@@ -13,16 +15,18 @@ complete knowledge of their contents is not expected.
 
 ## Software
 
+### Part 1
+
 To make use of the examples on which Part 1 of the course is based requires
 
-- An installation of R 4.1.0 or above
-- A suitable text editor for altering the R scripts.
+#### An installation of R 4.4.0 or above
 
 Installation instructions for R are available from
 [CRAN](https://cran.r-project.org/) for Linux, Windows and Mac.
 Full details of the R version and packages used in building this version of
 the training material can be found [here](./99_session_info.html).
 
+#### A suitable text editor for altering the R scripts.
 
 While it is possible to complete the course using the built in R GUI's for
 Windows and Mac it is recommended to install an editor with syntax
@@ -33,17 +37,32 @@ IDE](https://www.rstudio.com/products/rstudio/download/#download), VSCode
 or Emacs with [ESS](https://ess.r-project.org/index.php?Section=home) all of
 which provide an integrated development environment.
 
+#### Installed copies of `dynatop` and `dynatopGIS`
+
+These and there dependencies can be install in the standard way for R packages. At the R command
+prompt type
+
+```{r, eval=FALSE}
+install.packages('dynatop', repos =c('https://waternumbers.r-universe.dev','https://cloud.r-project.org'))
+install.packages('dynatopGIS', repos = c('https://waternumbers.r-universe.dev', 'https://cloud.r-project.org'))
+```
+
+### Part 2
+
 For completing Part 2 of the course which focuses on developing
 dynatop further software is required. 
 
-- An installation of the git version control system
-- An installation of the pandoc universal document converter
-- Tools for building R packages which include source code
-- An account on [github](https://github.com/)
+#### An installation of the git version control system
 
 Details on installing git can be found on the software's [webpage](https://git-scm.com/downloads).
-Pandoc provides [installation instructions](https://pandoc.org/installing.html).
-In both cases it is presumed that the installed packages are available from the command line.
+It is presumed that git is available from the command line.
+
+#### An installation of the pandoc universal document converter
+
+Pandoc provides [installation
+instructions](https://pandoc.org/installing.html).
+
+#### Tools for building R packages which include source code
 
 The most efficient method of installing the tools required for building R
 packages depends upon the platform:
@@ -53,10 +72,13 @@ packages depends upon the platform:
 - Mac: requires Apple Xcode and GNU Fortran compiler. Details of the GNU
   Fortran compiler version and other libraries that may be required are
   provided on [CRAN](https://mac.r-project.org/tools/)
-- Linux: ensure that gcc and gcc-c++ compilers are installed along with the
-  boost libraries and their development headers
+- Linux: ensure that gcc and gcc-c++ compilers are installed.
 
-## Data
+#### An account on [github](https://github.com/)
+
+This is required to fork and alter the source code.
+
+## Data and Scripts
 
 [Download](eden_data.zip) the data for the examples as a zip
 file. Extracting this should give a directory "eden_data" with four
