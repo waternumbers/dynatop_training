@@ -1,9 +1,9 @@
 # dynatop_training
 
 This repository contains training material relating to the
-[dynatop](https://waternumbers.github.io/dynatop/) and
-[dynatopGIS](https://waternumbers.github.io/dynatopGIS/) packages.
-The current training materials relate to versions 0.3 of both packages which
+[dynatop](https://waternumbers.github.io/dynatop/) (and previously the
+[dynatopGIS](https://waternumbers.github.io/dynatopGIS/)) package.
+The current training materials relate to versions 0.4 of both packages which
 are available on [r-universe](https://waternumbers.r-universe.dev/builds). 
 Older training material relating relating to versions v0.2 can be found in v02
 branch of this repository

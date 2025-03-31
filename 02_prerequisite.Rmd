@@ -1,6 +1,4 @@
----
-title: "Prerequisites"
----
+# Prerequisites
 
 This is a course on hydrological modelling using a R software package.
 Part 1 presumes that you have at least a basic knowledge of hydrology and

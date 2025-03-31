@@ -1,0 +1,12 @@
+book_filename: Dynamic TOPMODEL
+repo: https://github.com/rstudio/bookdown/
+output_dir: docs
+exclude: ["eden_data"]
+delete_merged_file: true
+language:
+  label:
+    fig: "FIGURE "
+    tab: "TABLE "
+  ui:
+    edit: "Edit"
+    chapter_name: "Chapter "

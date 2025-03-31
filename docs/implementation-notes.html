@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Dynamic TOPMODEL</title>
+  <title>Chapter 5 Implementation notes | Dynamic TOPMODEL</title>
   <meta name="description" content="The first official book authored by the core R Markdown developers that provides a comprehensive and accurate reference to the R Markdown ecosystem. With R Markdown, you can easily create reproducible data analysis reports, presentations, dashboards, interactive applications, books, dissertations, websites, and journal articles, while enjoying the simplicity of Markdown and the great power of R and other languages." />
   <meta name="generator" content="bookdown 0.42 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Dynamic TOPMODEL" />
+  <meta property="og:title" content="Chapter 5 Implementation notes | Dynamic TOPMODEL" />
   <meta property="og:type" content="book" />
   <meta property="og:image" content="https://bookdown.org/yihui/rmarkdown//images/cover.png" />
   <meta property="og:description" content="The first official book authored by the core R Markdown developers that provides a comprehensive and accurate reference to the R Markdown ecosystem. With R Markdown, you can easily create reproducible data analysis reports, presentations, dashboards, interactive applications, books, dissertations, websites, and journal articles, while enjoying the simplicity of Markdown and the great power of R and other languages." />
   <meta name="github-repo" content="rstudio/rmarkdown-book" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Dynamic TOPMODEL" />
+  <meta name="twitter:title" content="Chapter 5 Implementation notes | Dynamic TOPMODEL" />
   
   <meta name="twitter:description" content="The first official book authored by the core R Markdown developers that provides a comprehensive and accurate reference to the R Markdown ecosystem. With R Markdown, you can easily create reproducible data analysis reports, presentations, dashboards, interactive applications, books, dissertations, websites, and journal articles, while enjoying the simplicity of Markdown and the great power of R and other languages." />
   <meta name="twitter:image" content="https://bookdown.org/yihui/rmarkdown//images/cover.png" />
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-
-<link rel="next" href="prerequisites.html"/>
+<link rel="prev" href="dynatopgis-dynatop.html"/>
+<link rel="next" href="river-eden-example.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -181,30 +181,19 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="header">
-<h1 class="title">Dynamic TOPMODEL</h1>
-<p class="author"><em>Paul J. Smith</em></p>
-<p class="date"><em>2025-03-31</em></p>
-</div>
-<div id="preface" class="section level1 hasAnchor" number="1">
-<h1><span class="header-section-number">Chapter 1</span> Preface<a href="index.html#preface" class="anchor-section" aria-label="Anchor link to header"></a></h1>
-<p>This training course is split into two parts. Part 1 aims to:</p>
-<ul>
-<li>Provide an outline of Dynamic TOPMODEL as implemented in the <code>dynatop</code> and
-<code>dynatopGIS</code> packages</li>
-<li>Demonstrate the use the <code>dynatop</code> and
-<code>dynatopGIS</code> packages with a hands on example</li>
-<li>Give some suggestions as to the effective use of the <code>dynatop</code> and
-<code>dynatopGIS</code> packages</li>
-</ul>
-<p>Part 2 of the course is targeted at those that wish to extent or develop the packages and covers:</p>
-<ul>
-<li>Looking at the source code of <code>dynatop</code> by forking and cloning the software repository</li>
-<li>Altering and building the source code</li>
-</ul>
-<!-- - Funding -->
-<!-- - Feedback -->
-<!-- - Work through Progamme in order -->
+<div id="implementation-notes" class="section level1 hasAnchor" number="5">
+<h1><span class="header-section-number">Chapter 5</span> Implementation notes<a href="implementation-notes.html#implementation-notes" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>The <code>dynatopGIS</code> and <code>dynatop</code> packages implement structured, object orientated, data
+flows. The packages are written using the object orientated framework
+provided by the <code>R6</code> package. This means that some aspects of working with the
+objects may appear idiosyncratic for some R users. In this training these problems are largely obscured, except for the
+call structure. However, before adapting the code, or doing more complex analysis
+users should read about <code>R6</code> class objects (e.g. in the <code>R6</code> package vignettes
+or in the Advanced R book). One particular gotcha is when copying an object. Using</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="implementation-notes.html#cb2-1" tabindex="-1"></a>my_new_object  <span class="ot">&lt;-</span>  my_object</span></code></pre></div>
+<p>creates a pointer, that is altering <code>my_new_object</code> also alters
+<code>my_object</code>. To create a new independent copy of <code>my_object</code> use</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="implementation-notes.html#cb3-1" tabindex="-1"></a>my_new_object  <span class="ot">&lt;-</span>  my_object<span class="sc">$</span><span class="fu">clone</span>()</span></code></pre></div>
 
 </div>
             </section>
@@ -212,8 +201,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           </div>
         </div>
       </div>
-
-<a href="prerequisites.html" class="navigation navigation-next navigation-unique" aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="dynatopgis-dynatop.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="river-eden-example.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

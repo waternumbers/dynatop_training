@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Dynamic TOPMODEL</title>
+  <title>Chapter 6 River Eden Example | Dynamic TOPMODEL</title>
   <meta name="description" content="The first official book authored by the core R Markdown developers that provides a comprehensive and accurate reference to the R Markdown ecosystem. With R Markdown, you can easily create reproducible data analysis reports, presentations, dashboards, interactive applications, books, dissertations, websites, and journal articles, while enjoying the simplicity of Markdown and the great power of R and other languages." />
   <meta name="generator" content="bookdown 0.42 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Dynamic TOPMODEL" />
+  <meta property="og:title" content="Chapter 6 River Eden Example | Dynamic TOPMODEL" />
   <meta property="og:type" content="book" />
   <meta property="og:image" content="https://bookdown.org/yihui/rmarkdown//images/cover.png" />
   <meta property="og:description" content="The first official book authored by the core R Markdown developers that provides a comprehensive and accurate reference to the R Markdown ecosystem. With R Markdown, you can easily create reproducible data analysis reports, presentations, dashboards, interactive applications, books, dissertations, websites, and journal articles, while enjoying the simplicity of Markdown and the great power of R and other languages." />
   <meta name="github-repo" content="rstudio/rmarkdown-book" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Dynamic TOPMODEL" />
+  <meta name="twitter:title" content="Chapter 6 River Eden Example | Dynamic TOPMODEL" />
   
   <meta name="twitter:description" content="The first official book authored by the core R Markdown developers that provides a comprehensive and accurate reference to the R Markdown ecosystem. With R Markdown, you can easily create reproducible data analysis reports, presentations, dashboards, interactive applications, books, dissertations, websites, and journal articles, while enjoying the simplicity of Markdown and the great power of R and other languages." />
   <meta name="twitter:image" content="https://bookdown.org/yihui/rmarkdown//images/cover.png" />
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
+<link rel="prev" href="implementation-notes.html"/>
 
-<link rel="next" href="prerequisites.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -181,39 +181,97 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="header">
-<h1 class="title">Dynamic TOPMODEL</h1>
-<p class="author"><em>Paul J. Smith</em></p>
-<p class="date"><em>2025-03-31</em></p>
+<div id="river-eden-example" class="section level1 hasAnchor" number="6">
+<h1><span class="header-section-number">Chapter 6</span> River Eden Example<a href="river-eden-example.html#river-eden-example" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>The first half of the training course is working through an example
+application based on the Eden Catchment in Cumbria, UK (see Figure below). At the Sheepmount
+gauging station downstream of Carlisle, which is the lowest
+monitored point in the catchment, the total area is 2400 km<span class="math inline">\(^2\)</span>.</p>
+<p>The River Eden and its main tributaries
+including the Rivers Eamont, Irthing, Petteril and Caldew link a number of significant
+areas for runoff generation which include the northern and eastern parts of the Lake
+District; areas of the Northern Pennines and Kielder Forest. These areas are typified by
+high annual rainfall totals and steep terrain. Moreover the confluences of two of
+these main tributaries lie within the Carlisle urban area resulting in a complex situation
+where significant inflows on any tributary may result in flooding.
+In January 2005 Carlisle was flooded by an event with an estimated 0.0067 Annual
+Exceedance Probability (AEP) at the Sheepmount Gauge (Clarke 2005; Day 2005).
+Subsequently to this events in 2010, and particularly 2009, came close to over topping
+the main flood defences. The significance of the 2005 flood, combined with a post
+event survey of 263 water or wrack marks, has resulted in multiple inundation model
+studies (Neal et al. 2009; Horritt et al. 2011; Fewtrell et al. 2011) and
+modelling (Leedal et al. 2013, Smith et al. 2013).</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:unnamed-chunk-12"></span>
+<img src="images/EdenMap.png" alt="Map of the River Eden Catchment" width="75%" />
+<p class="caption">
+FIGURE 6.1: Map of the River Eden Catchment
+</p>
 </div>
-<div id="preface" class="section level1 hasAnchor" number="1">
-<h1><span class="header-section-number">Chapter 1</span> Preface<a href="index.html#preface" class="anchor-section" aria-label="Anchor link to header"></a></h1>
-<p>This training course is split into two parts. Part 1 aims to:</p>
-<ul>
-<li>Provide an outline of Dynamic TOPMODEL as implemented in the <code>dynatop</code> and
-<code>dynatopGIS</code> packages</li>
-<li>Demonstrate the use the <code>dynatop</code> and
-<code>dynatopGIS</code> packages with a hands on example</li>
-<li>Give some suggestions as to the effective use of the <code>dynatop</code> and
-<code>dynatopGIS</code> packages</li>
-</ul>
-<p>Part 2 of the course is targeted at those that wish to extent or develop the packages and covers:</p>
-<ul>
-<li>Looking at the source code of <code>dynatop</code> by forking and cloning the software repository</li>
-<li>Altering and building the source code</li>
-</ul>
-<!-- - Funding -->
-<!-- - Feedback -->
-<!-- - Work through Progamme in order -->
+<div id="available-data" class="section level2 hasAnchor" number="6.1">
+<h2><span class="header-section-number">6.1</span> Available Data<a href="river-eden-example.html#available-data" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>The directory “eden_data/unprocessed” contains the starting data given in the
+table below</p>
+<table>
+<colgroup>
+<col width="10%" />
+<col width="89%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>File</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Eden_Flow.csv</td>
+<td>Discharge data (m<span class="math inline">\(^3\)</span>/s) for the Sheepmount Gauge provided by the environment Agency</td>
+</tr>
+<tr class="even">
+<td>Eden_Gauge_Sites.csv</td>
+<td>Locations of selected gauges in the Eden Catchment from the <a href="https://nrfa.ceh.ac.uk/data/search">NRFA</a></td>
+</tr>
+<tr class="odd">
+<td>Eden_Catchment.*</td>
+<td>Outline of the Study area and sub-catchments. Derived from gauge catchments in the <a href="https://nrfa.ceh.ac.uk/data/search">NRFA</a></td>
+</tr>
+<tr class="even">
+<td>Eden_Urban.*</td>
+<td>Locations of urban areas as used in the 2011 census, from <a href="https://data.gov.uk/dataset/15e3be7f-66ed-416c-b0f2-241e87668642/built-up-areas-december-2011-boundaries-v2">data.gov.uk</a></td>
+</tr>
+<tr class="odd">
+<td>Eden_Catchment.*</td>
+<td>Outline of the Study area and sub-catchments. Derived from gauge catchments in the <a href="https://nrfa.ceh.ac.uk/data/search">NRFA</a></td>
+</tr>
+<tr class="even">
+<td>Eden_River_Network.*</td>
+<td>River Network within the catchment. Taken from <a href="https://www.ordnancesurvey.co.uk/business-government/products/open-map-rivers">OS Open Rivers</a></td>
+</tr>
+<tr class="odd">
+<td>Eden_DEM.tif</td>
+<td>Digital Elevation Model generated by aggregating <a href="https://www.ordnancesurvey.co.uk/business-government/products/terrain-50">OS Terrain 50</a> to 100m resolution</td>
+</tr>
+<tr class="even">
+<td>Eden_Precip.nc</td>
+<td>A time series of rainfall fields. Derived from the <a href="https://gpm.nasa.gov/data/imerg">GPM IMERG</a> final product by converting accrued rainfall in m</td>
+</tr>
+</tbody>
+</table>
+<!-- Leedal D., Weerts A.H., Smith P.J. & Beven K.J. Application of -->
+<!-- data-based mechanistic modelling for ﬂood forecasting at -->
+<!-- multiple locations in the Eden catchment in the National -->
+<!-- Flood Forecasting System (England and Wales). Hydrol Earth -->
+<!-- Syst Sc i 2013, 17, 177–185. -->
 
+</div>
 </div>
             </section>
 
           </div>
         </div>
       </div>
+<a href="implementation-notes.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
 
-<a href="prerequisites.html" class="navigation navigation-next navigation-unique" aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

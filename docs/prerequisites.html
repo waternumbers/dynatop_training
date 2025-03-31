@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Dynamic TOPMODEL</title>
+  <title>Chapter 2 Prerequisites | Dynamic TOPMODEL</title>
   <meta name="description" content="The first official book authored by the core R Markdown developers that provides a comprehensive and accurate reference to the R Markdown ecosystem. With R Markdown, you can easily create reproducible data analysis reports, presentations, dashboards, interactive applications, books, dissertations, websites, and journal articles, while enjoying the simplicity of Markdown and the great power of R and other languages." />
   <meta name="generator" content="bookdown 0.42 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Dynamic TOPMODEL" />
+  <meta property="og:title" content="Chapter 2 Prerequisites | Dynamic TOPMODEL" />
   <meta property="og:type" content="book" />
   <meta property="og:image" content="https://bookdown.org/yihui/rmarkdown//images/cover.png" />
   <meta property="og:description" content="The first official book authored by the core R Markdown developers that provides a comprehensive and accurate reference to the R Markdown ecosystem. With R Markdown, you can easily create reproducible data analysis reports, presentations, dashboards, interactive applications, books, dissertations, websites, and journal articles, while enjoying the simplicity of Markdown and the great power of R and other languages." />
   <meta name="github-repo" content="rstudio/rmarkdown-book" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Dynamic TOPMODEL" />
+  <meta name="twitter:title" content="Chapter 2 Prerequisites | Dynamic TOPMODEL" />
   
   <meta name="twitter:description" content="The first official book authored by the core R Markdown developers that provides a comprehensive and accurate reference to the R Markdown ecosystem. With R Markdown, you can easily create reproducible data analysis reports, presentations, dashboards, interactive applications, books, dissertations, websites, and journal articles, while enjoying the simplicity of Markdown and the great power of R and other languages." />
   <meta name="twitter:image" content="https://bookdown.org/yihui/rmarkdown//images/cover.png" />
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-
-<link rel="next" href="prerequisites.html"/>
+<link rel="prev" href="index.html"/>
+<link rel="next" href="dynamic-topmodel.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -181,39 +181,100 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="header">
-<h1 class="title">Dynamic TOPMODEL</h1>
-<p class="author"><em>Paul J. Smith</em></p>
-<p class="date"><em>2025-03-31</em></p>
+<div id="prerequisites" class="section level1 hasAnchor" number="2">
+<h1><span class="header-section-number">Chapter 2</span> Prerequisites<a href="prerequisites.html#prerequisites" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>This is a course on hydrological modelling using a R software package.
+Part 1 presumes that you have at least a basic knowledge of hydrology and
+ideally some experience of R.
+Part 2 requires a more detailed knowledge of R along with some knowledge of
+the git version control system.</p>
+<p>Useful primers for R can be found on multiple websites such as that of
+<a href="https://adv-r.hadley.nz/">Hadley Wickham</a> or on
+<a href="https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf">CRAN</a> but
+complete knowledge of their contents is not expected.</p>
+<div id="software" class="section level2 hasAnchor" number="2.1">
+<h2><span class="header-section-number">2.1</span> Software<a href="prerequisites.html#software" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="part-1" class="section level3 hasAnchor" number="2.1.1">
+<h3><span class="header-section-number">2.1.1</span> Part 1<a href="prerequisites.html#part-1" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>To make use of the examples on which Part 1 of the course is based requires</p>
+<div id="an-installation-of-r-4.4.0-or-above" class="section level4 hasAnchor" number="2.1.1.1">
+<h4><span class="header-section-number">2.1.1.1</span> An installation of R 4.4.0 or above<a href="prerequisites.html#an-installation-of-r-4.4.0-or-above" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Installation instructions for R are available from
+<a href="https://cran.r-project.org/">CRAN</a> for Linux, Windows and Mac.
+Full details of the R version and packages used in building this version of
+the training material can be found <a href="./99_session_info.html">here</a>.</p>
 </div>
-<div id="preface" class="section level1 hasAnchor" number="1">
-<h1><span class="header-section-number">Chapter 1</span> Preface<a href="index.html#preface" class="anchor-section" aria-label="Anchor link to header"></a></h1>
-<p>This training course is split into two parts. Part 1 aims to:</p>
+<div id="a-suitable-text-editor-for-altering-the-r-scripts." class="section level4 hasAnchor" number="2.1.1.2">
+<h4><span class="header-section-number">2.1.1.2</span> A suitable text editor for altering the R scripts.<a href="prerequisites.html#a-suitable-text-editor-for-altering-the-r-scripts." class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>While it is possible to complete the course using the built in R GUI’s for
+Windows and Mac it is recommended to install an editor with syntax
+highlighting. Popular choices include the <a href="https://www.rstudio.com/products/rstudio/download/#download">Rstudio
+IDE</a>, VSCode
+(Instructions
+<a href="https://www.r-bloggers.com/2021/01/setup-visual-studio-code-to-run-r-on-vscode-2021/">here</a>)
+or Emacs with <a href="https://ess.r-project.org/index.php?Section=home">ESS</a> all of
+which provide an integrated development environment.</p>
+</div>
+<div id="installed-copies-of-dynatop-and-dynatopgis" class="section level4 hasAnchor" number="2.1.1.3">
+<h4><span class="header-section-number">2.1.1.3</span> Installed copies of <code>dynatop</code> and <code>dynatopGIS</code><a href="prerequisites.html#installed-copies-of-dynatop-and-dynatopgis" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>These and there dependencies can be install in the standard way for R packages. At the R command
+prompt type</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="prerequisites.html#cb1-1" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&#39;dynatop&#39;</span>, <span class="at">repos =</span><span class="fu">c</span>(<span class="st">&#39;https://waternumbers.r-universe.dev&#39;</span>,<span class="st">&#39;https://cloud.r-project.org&#39;</span>))</span>
+<span id="cb1-2"><a href="prerequisites.html#cb1-2" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&#39;dynatopGIS&#39;</span>, <span class="at">repos =</span> <span class="fu">c</span>(<span class="st">&#39;https://waternumbers.r-universe.dev&#39;</span>, <span class="st">&#39;https://cloud.r-project.org&#39;</span>))</span></code></pre></div>
+</div>
+</div>
+<div id="part-2" class="section level3 hasAnchor" number="2.1.2">
+<h3><span class="header-section-number">2.1.2</span> Part 2<a href="prerequisites.html#part-2" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>For completing Part 2 of the course which focuses on developing
+dynatop further software is required.</p>
+<div id="an-installation-of-the-git-version-control-system" class="section level4 hasAnchor" number="2.1.2.1">
+<h4><span class="header-section-number">2.1.2.1</span> An installation of the git version control system<a href="prerequisites.html#an-installation-of-the-git-version-control-system" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Details on installing git can be found on the software’s <a href="https://git-scm.com/downloads">webpage</a>.
+It is presumed that git is available from the command line.</p>
+</div>
+<div id="an-installation-of-the-pandoc-universal-document-converter" class="section level4 hasAnchor" number="2.1.2.2">
+<h4><span class="header-section-number">2.1.2.2</span> An installation of the pandoc universal document converter<a href="prerequisites.html#an-installation-of-the-pandoc-universal-document-converter" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Pandoc provides <a href="https://pandoc.org/installing.html">installation
+instructions</a>.</p>
+</div>
+<div id="tools-for-building-r-packages-which-include-source-code" class="section level4 hasAnchor" number="2.1.2.3">
+<h4><span class="header-section-number">2.1.2.3</span> Tools for building R packages which include source code<a href="prerequisites.html#tools-for-building-r-packages-which-include-source-code" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>The most efficient method of installing the tools required for building R
+packages depends upon the platform:</p>
 <ul>
-<li>Provide an outline of Dynamic TOPMODEL as implemented in the <code>dynatop</code> and
-<code>dynatopGIS</code> packages</li>
-<li>Demonstrate the use the <code>dynatop</code> and
-<code>dynatopGIS</code> packages with a hands on example</li>
-<li>Give some suggestions as to the effective use of the <code>dynatop</code> and
-<code>dynatopGIS</code> packages</li>
+<li>Windows: a single tool chain
+<a href="https://cran.r-project.org/bin/windows/Rtools/">Rtools</a> is available.</li>
+<li>Mac: requires Apple Xcode and GNU Fortran compiler. Details of the GNU
+Fortran compiler version and other libraries that may be required are
+provided on <a href="https://mac.r-project.org/tools/">CRAN</a></li>
+<li>Linux: ensure that gcc and gcc-c++ compilers are installed.</li>
 </ul>
-<p>Part 2 of the course is targeted at those that wish to extent or develop the packages and covers:</p>
-<ul>
-<li>Looking at the source code of <code>dynatop</code> by forking and cloning the software repository</li>
-<li>Altering and building the source code</li>
-</ul>
-<!-- - Funding -->
-<!-- - Feedback -->
-<!-- - Work through Progamme in order -->
+</div>
+<div id="an-account-on-github" class="section level4 hasAnchor" number="2.1.2.4">
+<h4><span class="header-section-number">2.1.2.4</span> An account on <a href="https://github.com/">github</a><a href="prerequisites.html#an-account-on-github" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>This is required to fork and alter the source code.</p>
+</div>
+</div>
+</div>
+<div id="data-and-scripts" class="section level2 hasAnchor" number="2.2">
+<h2><span class="header-section-number">2.2</span> Data and Scripts<a href="prerequisites.html#data-and-scripts" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p><a href="eden_data.zip">Download</a> the data for the examples as a zip
+file. Extracting this should give a directory “eden_data” with four
+subdirectories. In the code provided is is presumed that the working directory
+of the R session is “eden_data”.</p>
+<p>To save copying and pasting from the web pages the R code used in the
+training course is <a href="dynatop_training_rcode.zip">available</a>. These scripts
+should be used alongside the course material.</p>
 
+</div>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-
-<a href="prerequisites.html" class="navigation navigation-next navigation-unique" aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="index.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="dynamic-topmodel.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

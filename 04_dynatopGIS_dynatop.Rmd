@@ -1,6 +1,4 @@
----
-title: "dynatopGIS & dynatop"
----
+# dynatopGIS & dynatop
 
 ```{r, include = FALSE, purl=FALSE}
 #output: rmarkdown::html_vignette

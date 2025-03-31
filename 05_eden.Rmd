@@ -1,6 +1,4 @@
----
-title: "River Eden Example"
----
+# River Eden Example
 
 The first half of the training course is working through an example
 application based on the Eden Catchment in Cumbria, UK (see Figure below). At the Sheepmount

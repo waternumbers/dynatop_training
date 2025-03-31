@@ -1,6 +1,4 @@
----
-title: "Dynamic TOPMODEL"
----
+# Dynamic TOPMODEL
 
 > This a simplified, opinionated introduction. The original motivation for
 > Dynamic TOPMODEL can be found in  [Beven & Freer,

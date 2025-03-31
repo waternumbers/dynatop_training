@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Dynamic TOPMODEL</title>
+  <title>Chapter 4 dynatopGIS &amp; dynatop | Dynamic TOPMODEL</title>
   <meta name="description" content="The first official book authored by the core R Markdown developers that provides a comprehensive and accurate reference to the R Markdown ecosystem. With R Markdown, you can easily create reproducible data analysis reports, presentations, dashboards, interactive applications, books, dissertations, websites, and journal articles, while enjoying the simplicity of Markdown and the great power of R and other languages." />
   <meta name="generator" content="bookdown 0.42 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Dynamic TOPMODEL" />
+  <meta property="og:title" content="Chapter 4 dynatopGIS &amp; dynatop | Dynamic TOPMODEL" />
   <meta property="og:type" content="book" />
   <meta property="og:image" content="https://bookdown.org/yihui/rmarkdown//images/cover.png" />
   <meta property="og:description" content="The first official book authored by the core R Markdown developers that provides a comprehensive and accurate reference to the R Markdown ecosystem. With R Markdown, you can easily create reproducible data analysis reports, presentations, dashboards, interactive applications, books, dissertations, websites, and journal articles, while enjoying the simplicity of Markdown and the great power of R and other languages." />
   <meta name="github-repo" content="rstudio/rmarkdown-book" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Dynamic TOPMODEL" />
+  <meta name="twitter:title" content="Chapter 4 dynatopGIS &amp; dynatop | Dynamic TOPMODEL" />
   
   <meta name="twitter:description" content="The first official book authored by the core R Markdown developers that provides a comprehensive and accurate reference to the R Markdown ecosystem. With R Markdown, you can easily create reproducible data analysis reports, presentations, dashboards, interactive applications, books, dissertations, websites, and journal articles, while enjoying the simplicity of Markdown and the great power of R and other languages." />
   <meta name="twitter:image" content="https://bookdown.org/yihui/rmarkdown//images/cover.png" />
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-
-<link rel="next" href="prerequisites.html"/>
+<link rel="prev" href="dynamic-topmodel.html"/>
+<link rel="next" href="implementation-notes.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -181,39 +181,38 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="header">
-<h1 class="title">Dynamic TOPMODEL</h1>
-<p class="author"><em>Paul J. Smith</em></p>
-<p class="date"><em>2025-03-31</em></p>
+<div id="dynatopgis-dynatop" class="section level1 hasAnchor" number="4">
+<h1><span class="header-section-number">Chapter 4</span> dynatopGIS &amp; dynatop<a href="dynatopgis-dynatop.html#dynatopgis-dynatop" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>The following schematic outlines the stages resulting a working Dynamic
+TOPMODEL for a catchment. It highlights where the <code>dynatopGIS</code> and <code>dynatop</code>
+packages fit into this process.</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:unnamed-chunk-9"></span>
+<img src="images/Build_Schematic.png" alt="Schematic of a Dynamic TOPMODEL construction" width="75%" />
+<p class="caption">
+FIGURE 4.1: Schematic of a Dynamic TOPMODEL construction
+</p>
 </div>
-<div id="preface" class="section level1 hasAnchor" number="1">
-<h1><span class="header-section-number">Chapter 1</span> Preface<a href="index.html#preface" class="anchor-section" aria-label="Anchor link to header"></a></h1>
-<p>This training course is split into two parts. Part 1 aims to:</p>
+<p>As we will see in the example the <a href="https://waternumbers.github.io/dynatopGIS/index.html"><code>dynatopGIS</code></a> package can help</p>
 <ul>
-<li>Provide an outline of Dynamic TOPMODEL as implemented in the <code>dynatop</code> and
-<code>dynatopGIS</code> packages</li>
-<li>Demonstrate the use the <code>dynatop</code> and
-<code>dynatopGIS</code> packages with a hands on example</li>
-<li>Give some suggestions as to the effective use of the <code>dynatop</code> and
-<code>dynatopGIS</code> packages</li>
+<li>Compute standard variables for classification (such as the topographic
+index)</li>
+<li>Compute the spatial ordering of the HRUs</li>
+<li>Build classifications of the catchment</li>
+<li>Construct models suitable for <code>dynatop</code></li>
 </ul>
-<p>Part 2 of the course is targeted at those that wish to extent or develop the packages and covers:</p>
-<ul>
-<li>Looking at the source code of <code>dynatop</code> by forking and cloning the software repository</li>
-<li>Altering and building the source code</li>
-</ul>
-<!-- - Funding -->
-<!-- - Feedback -->
-<!-- - Work through Progamme in order -->
-
+<p>The <a href="https://waternumbers.github.io/dynatop/index.html"><code>dynatop</code></a> package allows simulation and visualisation of Dynamic TOPMODELs as well as
+providing some helper for processing time series input data.
+Although in this training presumes that model for <code>dynatop</code> are generated
+using <code>dynatopGIS</code> this need not be the case so long as the inputs to
+<code>dynatop</code> are of the correct format.</p>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-
-<a href="prerequisites.html" class="navigation navigation-next navigation-unique" aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="dynamic-topmodel.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="implementation-notes.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
