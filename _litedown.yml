@@ -1,0 +1,13 @@
+---
+site:
+  rebuild: "outdated"
+  pattern: "[.]R?md$"
+output:
+  html:
+    options:
+      js_highlight: false
+    meta:
+      css: []
+      js: []
+      include_after: "&copy; 2022-2025 Paul Smith"
+---

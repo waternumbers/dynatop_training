@@ -1,16 +1,6 @@
 ---
 title: "Initial GIS processing"
 ---
- 
-
-```{r, include = FALSE, purl=FALSE}
-knitr::opts_chunk$set(
-                    collapse = TRUE,
-                    comment = "#>"
-                  )
-knitr::opts_knit$set(root.dir = "./eden_data")
-```
-
 
 ## Aim
 
@@ -35,7 +25,7 @@ library(dynatopGIS)
 and remember to move to the eden_data directory e.g.
 
 ```{r, eval=FALSE}
-setwd("../eden_data")
+setwd("./eden_data")
 ```
 
 ## Data Required by `dynatopGIS`
@@ -68,10 +58,10 @@ To start use functions in the raster package to load both the raster
 data and that contained in the shapefiles:
 
 ```{r, read_raster}
-dem <- rast(file.path(".","unprocessed","Eden_DEM.tif")) # load the dem as a raster layer
-eden <- vect(file.path(".","unprocessed","Eden_Catchment.shp")) # load the outline of the sub-catchments from the shapefile
-channel <- vect(file.path(".","unprocessed","Eden_River_Network.shp")) # load the river network from the shapefile
-urban <- vect(file.path(".","unprocessed","Eden_Urban.shp")) # load the urban area map from the shapefile
+dem <- rast(file.path(".","eden_data","unprocessed","Eden_DEM.tif")) # load the dem as a raster layer
+eden <- vect(file.path(".","eden_data","unprocessed","Eden_Catchment.shp")) # load the outline of the sub-catchments from the shapefile
+channel <- vect(file.path(".","eden_data","unprocessed","Eden_River_Network.shp")) # load the river network from the shapefile
+urban <- vect(file.path(".","eden_data","unprocessed","Eden_Urban.shp")) # load the urban area map from the shapefile
 ```
 
 Typing the variable name at the R prompt will display a summary of the data
@@ -90,7 +80,7 @@ Reading the gauge locations from the csv file is a two stage process
 
 ```{r, read_csv}
  # read in the csv file to a date.frame
-csvGauges <- read.csv(file.path(".","unprocessed","Eden_Gauge_Sites.csv"))
+csvGauges <- read.csv(file.path(".","eden_data","unprocessed","Eden_Gauge_Sites.csv"))
 # convert the data frame to a SpatVect object - take projection from the DEM
 gauges <- vect(csvGauges,geom=c("x","y"),crs=crs(dem))
 ```
@@ -148,9 +138,9 @@ The raster fields created (`eden_raster`, `urban_raster` and extended `dem`) exi
 temporary files). Since they will be needed later we will save them:
 
 ```{r, save_eden_raster}
-writeRaster(eden_raster,file.path(".","processed","eden.tif"),overwrite=TRUE)
-writeRaster(urban_raster,file.path(".","processed","urban.tif"),overwrite=TRUE)
-writeRaster(dem,file.path(".","processed","dem.tif"),overwrite=TRUE)
+writeRaster(eden_raster,file.path(".","eden_data","processed","eden.tif"),overwrite=TRUE)
+writeRaster(urban_raster,file.path(".","eden_data","processed","urban.tif"),overwrite=TRUE)
+writeRaster(dem,file.path(".","eden_data","processed","dem.tif"),overwrite=TRUE)
 ```
 
 ## Channel Network
@@ -195,8 +185,7 @@ conv_channel <- convert_channel(
     channel,
     property_names = c(name = "identifier", length = "length", startNode = "startNode",
                        endNode= "endNode"),
-    default_width = 2,
-    default_slope = 0.001
+    defaults=c(width = 2,slope = 0.001,depth=1)
 )
 ```
 
@@ -211,7 +200,7 @@ conv_channel
 The converted channel data is saved for later use
 
 ```{r, save_eden_channel}
-writeVector(conv_channel,file.path(".","processed","channel.shp"),overwrite=TRUE)
+writeVector(conv_channel,file.path(".","eden_data","processed","channel.shp"),overwrite=TRUE)
 ```
 
 > The use of polygons to represent channel sections allows the shape of water
@@ -254,7 +243,7 @@ plot(gauges,add=TRUE,col="red",pch=21) # gauges as red filled circles
 The cropped list of gauges with channel identifier can be saved to a shapefile:
 
 ```{r save_cropped_gauges}
-writeVector(gauges,file.path(".","processed","gauges.shp"),overwrite=TRUE)
+writeVector(gauges,file.path(".","eden_data","processed","gauges.shp"),overwrite=TRUE)
 ```
 
 > The quality of results of any method used for any automatic method of
