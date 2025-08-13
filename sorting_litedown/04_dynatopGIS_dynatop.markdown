@@ -1,32 +1,29 @@
 # dynatopGIS & dynatop
 
-```{r, include = FALSE, purl=FALSE}
-#output: rmarkdown::html_vignette
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
-```
-
 The following schematic outlines the stages resulting a working Dynamic
 TOPMODEL for a catchment. It highlights where the `dynatopGIS` and `dynatop`
-packages fit into this process. 
+packages fit into this process.
 
 :::: {.figure}
-![Build Scematic](./images/images/Build_Schematic.png){width="75%", align="center"}
-construction"}
+
+![Build Scematic](./images/images/Build_Schematic.png){width=“75%”, align=“center”}
+construction”}
+
 ::: {.caption}
+
 [](#@fig:build_schematic) Schematic of a Dynamic TOPMODEL construction
+
 :::
+
 ::::
 
 As we will see in the example the [`dynatopGIS`](https://waternumbers.github.io/dynatopGIS/index.html) package can help
 
-- Compute standard variables for classification (such as the topographic
-  index)
-- Compute the spatial ordering of the HRUs
-- Build classifications of the catchment
-- Construct models suitable for `dynatop`
+  - Compute standard variables for classification (such as the topographic
+    index)
+  - Compute the spatial ordering of the HRUs
+  - Build classifications of the catchment
+  - Construct models suitable for `dynatop`
 
 The [`dynatop`](https://waternumbers.github.io/dynatop/index.html) package allows simulation and visualisation of Dynamic TOPMODELs as well as
 providing some helper for processing time series input data.
@@ -44,13 +41,13 @@ call structure. However, before adapting the code, or doing more complex analysi
 users should read about `R6` class objects (e.g. in the `R6` package vignettes
 or in the Advanced R book). One particular gotcha is when copying an object. Using
 
-```{r eval=FALSE, purl=FALSE}
+``` {.r}
 my_new_object  <-  my_object
 ```
 
 creates a pointer, that is altering `my_new_object` also alters
 `my_object`. To create a new independent copy of `my_object` use
 
-```{r eval=FALSE, purl=FALSE}
+``` {.r}
 my_new_object  <-  my_object$clone()
 ```

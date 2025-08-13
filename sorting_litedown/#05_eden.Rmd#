@@ -46,7 +46,7 @@ table below
 :::
 | File                 | Contents                                                                                                                                                                             |
 |:---------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| Eden_Flow.csv        | Discharge data (m$^3$/s) for the Sheepmount\ Gauge provided by the environment Agency                                                                                                |
+| Eden_Flow.csv        | Discharge data (m$^3$/s) for the Sheepmount Gauge provided by the environment Agency                                                                                                |
 | Eden_Gauge_Sites.csv | Locations of selected gauges in the Eden Catchment from the [NRFA](https://nrfa.ceh.ac.uk/data/search)                                                                               |
 | Eden_Catchment.*     | Outline of the Study area and sub-catchments. Derived from gauge catchments in the [NRFA](https://nrfa.ceh.ac.uk/data/search)                                                        |
 | Eden_Urban.*         | Locations of urban areas as used in the 2011 census, from [data.gov.uk](https://data.gov.uk/dataset/15e3be7f-66ed-416c-b0f2-241e87668642/built-up-areas-december-2011-boundaries-v2) |

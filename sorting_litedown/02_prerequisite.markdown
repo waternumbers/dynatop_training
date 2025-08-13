@@ -26,7 +26,7 @@ the training material can be found [here](./99_session_info.html).
 
 #### A suitable text editor for altering the R scripts.
 
-While it is possible to complete the course using the built in R GUI's for
+While it is possible to complete the course using the built in R GUI’s for
 Windows and Mac it is recommended to install an editor with syntax
 highlighting. Popular choices include the [Rstudio
 IDE](https://www.rstudio.com/products/rstudio/download/#download), VSCode
@@ -40,7 +40,7 @@ which provide an integrated development environment.
 These and there dependencies can be install in the standard way for R packages. At the R command
 prompt type
 
-```{r, eval=FALSE}
+``` {.r}
 install.packages('dynatop', repos =c('https://waternumbers.r-universe.dev','https://cloud.r-project.org'))
 install.packages('dynatopGIS', repos = c('https://waternumbers.r-universe.dev', 'https://cloud.r-project.org'))
 ```
@@ -48,11 +48,11 @@ install.packages('dynatopGIS', repos = c('https://waternumbers.r-universe.dev', 
 ### Part 2
 
 For completing Part 2 of the course which focuses on developing
-dynatop further software is required. 
+dynatop further software is required.
 
 #### An installation of the git version control system
 
-Details on installing git can be found on the software's [webpage](https://git-scm.com/downloads).
+Details on installing git can be found on the software’s [webpage](https://git-scm.com/downloads).
 It is presumed that git is available from the command line.
 
 #### An installation of the pandoc universal document converter
@@ -65,12 +65,12 @@ instructions](https://pandoc.org/installing.html).
 The most efficient method of installing the tools required for building R
 packages depends upon the platform:
 
-- Windows: a single tool chain
- [Rtools](https://cran.r-project.org/bin/windows/Rtools/) is available.
-- Mac: requires Apple Xcode and GNU Fortran compiler. Details of the GNU
-  Fortran compiler version and other libraries that may be required are
-  provided on [CRAN](https://mac.r-project.org/tools/)
-- Linux: ensure that gcc and gcc-c++ compilers are installed.
+  - Windows: a single tool chain
+    [Rtools](https://cran.r-project.org/bin/windows/Rtools/) is available.
+  - Mac: requires Apple Xcode and GNU Fortran compiler. Details of the GNU
+    Fortran compiler version and other libraries that may be required are
+    provided on [CRAN](https://mac.r-project.org/tools/)
+  - Linux: ensure that gcc and gcc-c++ compilers are installed.
 
 #### An account on [github](https://github.com/)
 
@@ -79,9 +79,9 @@ This is required to fork and alter the source code.
 ## Data and Scripts
 
 [Download](eden_data.zip) the data for the examples as a zip
-file. Extracting this should give a directory "eden_data" with four
+file. Extracting this should give a directory “eden\_data” with four
 subdirectories. In the code provided is is presumed that the working directory
-of the R session is "eden_data".
+of the R session is “eden\_data”.
 
 To save copying and pasting from the web pages the R code used in the
 training course is [available](dynatop_training_rcode.zip). These scripts

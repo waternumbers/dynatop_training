@@ -6,21 +6,21 @@
 
 ## Motivation
 
-Dynamic TOPMODEL was originally conceived as *"A new version of the rainfall-runoff model TOPMODEL
+Dynamic TOPMODEL was originally conceived as *“A new version of the rainfall-runoff model TOPMODEL
 is described in which the assumption of a quasi-steady state saturated zone
-configuration is replaced by a kinematic wave routing of subsurface flow..."*
-allowing for *"...the simulation of dynamically variable up-slope contributing
-areas."*
+configuration is replaced by a kinematic wave routing of subsurface flow…”*
+allowing for *”…the simulation of dynamically variable up-slope contributing
+areas.”*
 
 Revisiting the idea of TOPMODEL (which has done this mainly for hill slopes, but
 see [Peters et al. 2003](https://doi.org/10.1002/hyp.1128)) a
 model is formulated by
 
-- Classifying the catchment up into areas that respond in a hydrologically
-  similar manner
-- Determining the connectivity between each of the classes
-- Assigning each class to an appropriate Hydrological Representative Unit
-  (HRU), which solves the hydrological processes for a standardised unit
+  - Classifying the catchment up into areas that respond in a hydrologically
+    similar manner
+  - Determining the connectivity between each of the classes
+  - Assigning each class to an appropriate Hydrological Representative Unit
+    (HRU), which solves the hydrological processes for a standardised unit
 
 In the following these aspects are outlined with reference to the
 implementation of Dynamic TOPMODEL in the `dynatop` and `dynatopGIS` packages.
@@ -38,23 +38,32 @@ with the Eden data) it is not complete. Consider a
 small catchment represented by a raster of spatial cells with the following topographic index classes
 
 :::: {.figure}
-![topo class](./images/images/topo_class.png){width="75%", align="center"}
-::: {.caption}
-[](#@fig:topo_index) Map of topographic index classes
-:::
-::::
 
+![topo class](./images/images/topo_class.png){width=“75%”, align=“center”}
+
+::: {.caption}
+
+[](#@fig:topo_index) Map of topographic index classes
+
+:::
+
+::::
 
 Since land use could influence the evapotranspiration and infiltration
 properties a second classification might be desirable. For the
 small catchment the land use classes are shown below
 
 :::: {.figure}
-![landuse class](./images/images/landuse_class.png){width="75%",
-align="center"}
+
+![landuse class](./images/images/landuse_class.png){width=“75%”,
+align=“center”}
+
 ::: {.caption}
+
 [](#@fig:land_use) Map of land use classes
+
 :::
+
 ::::
 
 Combing these topographic index and land use classes gives one initial class
@@ -71,16 +80,21 @@ the river course.The following figure shows the
 connectivity for the small catchment, with the river cells highlighted in blue.
 
 :::: {.figure}
-![combined class](./images/images/combined_class.png){width="75%", align="center"}
+
+![combined class](./images/images/combined_class.png){width=“75%”, align=“center”}
+
 ::: {.caption}
+
 [](#@fig:combined_class) Map of combined topographic and land use classes along with connectivity
+
 :::
+
 ::::
 
 ### Classification (Part 2)
 
 Each class is represented by a single HRU, the inflows to which are
-averaged from the inflows to all the spatial cells of that class. 
+averaged from the inflows to all the spatial cells of that class.
 Does this make sense for class 5a, which is both in the upper reaches
 of the catchment but also adjacent to the river?
 
@@ -89,22 +103,31 @@ in a given band receive flows only from those in a higher band. For the small
 catchment this looks like the following
 
 :::: {.figure}
-![band class image](./images/images/band_class.png){width="75%", align="center"}
+
+![band class image](./images/images/band_class.png){width=“75%”, align=“center”}
+
 ::: {.caption}
+
 [](#@fig:band) Map of the band classification
+
 :::
+
 ::::
 
 Combing this into the classification gives
 
 :::: {.figure}
-![combined and band class
-image](./images/images/combined_class_with_band.png){width="75%", align="center"}
-::: {.caption}
-[](#@fig:combined_band) Map of the combined classification
-:::
-::::
 
+![combined and band class
+image](./images/images/combined_class_with_band.png){width=“75%”, align=“center”}
+
+::: {.caption}
+
+[](#@fig:combined_band) Map of the combined classification
+
+:::
+
+::::
 
 which further separates out the 5a class to the areas close to and further
 from the river. This demonstrates the banding gives a further level of spatial refinement to the
@@ -126,39 +149,43 @@ Each Hydrological Response Unit HRU represents a parameterised version
 of a different part of the hydrological system. The representation of each HRU
 is made up of the four zones:
 
-- A *Surface Zone* representing the movement of water on the surface
-- A *Root Zone* which controls evapotranspiration, handles the precipitation
-  input and flux of water to the unsaturated zone
-- A *Unsaturated Zone* which represented the water between the root zone and
-the saturated subsurface
-- A *Saturated Zone* representing the saturated subsurface
+  - A *Surface Zone* representing the movement of water on the surface
+  - A *Root Zone* which controls evapotranspiration, handles the precipitation
+    input and flux of water to the unsaturated zone
+  - A *Unsaturated Zone* which represented the water between the root zone and
+    the saturated subsurface
+  - A *Saturated Zone* representing the saturated subsurface
 
 The following schematic shows the four zones and the fluxes between
 them
 
 :::: {.figure}
-![HRU](./images/images/Hillslope_HRU.png){width="75%", align="center", fig.cap="Schematic of the Hill slope HRU"}
+
+![HRU](./images/images/Hillslope_HRU.png){width=“75%”, align=“center”, fig.cap=“Schematic of the Hill slope HRU”}
+
 ::: {.caption}
+
 [](#@fig:hru) Schematic of the Hill slope HRU
+
 :::
+
 ::::
 
 As shown in the schematic fluxes are passed between the HRUs at two levels,
-the surface and the saturated zones. 
+the surface and the saturated zones.
 
 To allow for some flexibility in the dynamics of the HRU different
 representations can be used for each zone. The governing equation and
 numerical solution of these are given in a [vignette of `dynatop`](https://waternumbers.github.io/dynatop/articles/HRU.html). A few
 key points are:
 
-- The lateral flow from the Surface and Saturated Zones is computed using
-  Muskingham approximations.
-- Evapotranspiration is proportional to the percentage saturation of the Root
-  Zone
-- Flow from the root zone to the Unsaturated Zone can occur only when the Root
-  Zone is full
-- The Unsaturated Zone is represented by a tank whose time constant depends
-  upon the deficit of the Saturated Zone
-- The lateral flow from the Saturated Zone is controlled by the saturated
-storage deficit through a transmissivity profile.
-
+  - The lateral flow from the Surface and Saturated Zones is computed using
+    Muskingham approximations.
+  - Evapotranspiration is proportional to the percentage saturation of the Root
+    Zone
+  - Flow from the root zone to the Unsaturated Zone can occur only when the Root
+    Zone is full
+  - The Unsaturated Zone is represented by a tank whose time constant depends
+    upon the deficit of the Saturated Zone
+  - The lateral flow from the Saturated Zone is controlled by the saturated
+    storage deficit through a transmissivity profile.

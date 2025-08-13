@@ -17,11 +17,37 @@ unlink(out)
 
 ## remove existing folder of results and unzip zip file
 unlink("./eden_data",recursive=TRUE)
-unzip("eden_data.zip")       
+unzip("eden_data.zip")
 
 ## run to build the site
 rmarkdown::clean_site(quiet=TRUE,preview=FALSE)
 rmarkdown::render_site() #quiet=TRUE)
 
 ## create
+rm(list=ls())
+library("litedown")
+library("tinytex")
 
+fuse_book()
+fuse_book(output=".tex")
+pdflatex("index.tex")
+
+
+## simple plain html
+rm(list=ls())
+library("litedown")
+
+render <- function(fileName){
+    mdFileName <- paste0(tools::file_path_sans_ext(fileName),".markdown")
+    htmlFileName <- paste0(tools::file_path_sans_ext(fileName),".html")
+    fuse(fileName,mdFileName)
+    tmp <- mark(mdFileName, output=NA)
+    tmplate <- paste(readLines("test_template.html"),collapse="\n")
+    out <- gsub("[$]body[$]",tmp,tmplate)
+    writeLines(out,htmlFileName)
+}
+
+for(ii in list.files(".",pattern="*.Rmd$")){
+    print(ii)
+    render(ii)
+}
