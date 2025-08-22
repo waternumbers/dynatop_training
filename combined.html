@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+  <!--
+      %\VignetteEngine{knitr::knitr_notangle}
+      %\VignetteIndexEntry{An R HTML Vignette with knitr}
+    -->
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <style type="text/css">
+      body,td{width:800px;margin:auto;}
+    </style>
+    <title>An R HTML vignette with knitr</title>
+    <link rel="stylesheet"
+	  href="https://classless.de/classless.css">
+    <!-- <style> -->
+    <!--   :root, html[data-theme='light'] { -->
+    <!-- 	  --navpos: fixed /*| absolute */ -->
+    <!--   } -->
+    <!-- </style> -->
+  </head>
+  
+  <body>
+  <nav>
+    <ul>
+      <li>dynatop Training</li>
+      <li class="float-right sticky">Menu ▾
+	<ul>
+          <li><a href="#welcome">Welcome</a></li>
+          <li><a href="#">Menu 2</a></li>
+	</ul>
+      </li>
+    </ul>
+  </nav>
+  <!-- Welcome section -->
+  <h1 id="welcome">Welcome</h1>
+
+  <p>This training course is split into two parts. Part 1 aims
+    to:</p>
+  <ul>
+    <li>Provide an outline of Dynamic TOPMODEL as implemented in the
+      <code>dynatop</code> and <code>dynatopGIS</code> packages</li>
+    <li>Demonstrate the use the <code>dynatop</code> and
+      <code>dynatopGIS</code> packages with a hands on example</li>
+    <li>Give some suggestions as to the effective use of the
+      <code>dynatop</code> and <code>dynatopGIS</code> packages</li>
+  </ul>
+  <aside>Floating images could be described in a side note.</aside>
+  <p>Part 2 of the course is targeted at those that wish to extent or
+    develop the packages and covers:</p>
+  <ul>
+    <li>Looking at the source code of <code>dynatop</code> by forking and
+      cloning the software repository</li>
+    <li>Altering and building the source code</li>
+  </ul>
+  
+  <!-- Prerequisites -->
+  <h1 id="prerequisitees">Prerequisites</h1>
+  
+  <p>This is a course on hydrological modelling using a R software
+    package. Part 1 presumes that you have at least a basic knowledge of
+    hydrology and ideally some experience of R. Part 2 requires a more
+    detailed knowledge of R along with some knowledge of the git version
+    control system.</p>
+  <p>Useful primers for R can be found on multiple websites such as that
+    of <a href="https://adv-r.hadley.nz/">Hadley Wickham</a> or on
+    <a href="https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf">CRAN</a>
+    but complete knowledge of their contents is not expected.</p>
+  
+  <h2 id="software">Software</h2>
+  <h3 id = "part-1">Part 1</h3>
+  <p>To make use of the examples on which Part 1 of the course is based
+    requires</p>
+  <h4>An installation of R 4.4.0 or above</h4>
+  <p>Installation instructions for R are available from
+    <a href="https://cran.r-project.org/">CRAN</a> for Linux, Windows and Mac.
+    Full details of the R version and packages used in building this version
+    of the training material can be found
+    <a href="./99_session_info.html">here</a>.</p>
+  <h4>A suitable text editor for altering the R scripts.</h4>
+  <p>While it is possible to complete the course using the built in R
+    GUI’s for Windows and Mac it is recommended to install an editor with
+    syntax highlighting. Popular choices include the
+    <a href="https://www.rstudio.com/products/rstudio/download/#download">Rstudio
+      IDE</a>, VSCode (Instructions <a
+				      href="https://www.r-bloggers.com/2021/01/setup-visual-studio-code-to-run-r-on-vscode-2021/">here</a>)
+    or Emacs with <a
+		    href="https://ess.r-project.org/index.php?Section=home">ESS</a> all of
+    which provide an integrated development environment.</p>
+  
+  <h4>Installed copies of <code>dynatop</code> and <code>dynatopGIS</code></h4>
+  <p>These and there dependencies can be install in the standard way for R
+    packages. At the R command prompt type</p>
+  <pre class="r"><code>install.packages(&#39;dynatop&#39;, repos =c(&#39;https://waternumbers.r-universe.dev&#39;,&#39;https://cloud.r-project.org&#39;))
+      install.packages(&#39;dynatopGIS&#39;, repos = c(&#39;https://waternumbers.r-universe.dev&#39;, &#39;https://cloud.r-project.org&#39;))</code></pre>
+  
+  <h3>Part 2</h3>
+  <p>For completing Part 2 of the course which focuses on developing
+    dynatop further software is required.</p>
+  <h4>An installation of the git version control system</h4>
+  <p>Details on installing git can be found on the software’s <a
+								href="https://git-scm.com/downloads">webpage</a>. It is presumed that
+    git is available from the command line.</p>
+  <h4>An installation of the pandoc universal document converter</h4>
+    <p>Pandoc provides <a
+			 href="https://pandoc.org/installing.html">installation
+	instructions</a>.</p>
+    <h4>Tools for building R packages which include source code</h4>
+  <p>The most efficient method of installing the tools required for
+    building R packages depends upon the platform:</p>
+  <ul>
+    <li>Windows: a single tool chain <a
+				       href="https://cran.r-project.org/bin/windows/Rtools/">Rtools</a> is
+      available.</li>
+    <li>Mac: requires Apple Xcode and GNU Fortran compiler. Details of the
+      GNU Fortran compiler version and other libraries that may be required
+      are provided on <a href="https://mac.r-project.org/tools/">CRAN</a></li>
+    <li>Linux: ensure that gcc and gcc-c++ compilers are installed.</li>
+  </ul>
+  
+  <h4>An account on <a href="https://github.com/">github</a></h4>
+  <p>This is required to fork and alter the source code.</p>
+    
+    <h2>Data and Scripts</h2>
+    <p><a href="eden_data.zip">Download</a> the data for the examples as a
+      zip file. Extracting this should give a directory “eden_data” with four
+      subdirectories. In the code provided is is presumed that the working
+      directory of the R session is “eden_data”.</p>
+    <p>To save copying and pasting from the web pages the R code used in the
+      training course is <a href="dynatop_training_rcode.zip">available</a>.
+      These scripts should be used alongside the course material.</p>
+
+    <!-- dynamic TOPMODEL -->
+
+    <h1 id="dynamic-topmodel">Dynamic TOPMODEL</h1>
+    
+    <blockquote>
+      <p>This a simplified, opinionated introduction. The original motivation
+	for Dynamic TOPMODEL can be found in <a
+					       href="https://doi.org/10.1002/hyp.252">Beven &amp; Freer, 2001</a></p>
+    </blockquote>
+    
+    <h2>Motivation</h2>
+    <p>Dynamic TOPMODEL was originally conceived as <em>“A new version of
+	the rainfall-runoff model TOPMODEL is described in which the assumption
+	of a quasi-steady state saturated zone configuration is replaced by a
+	kinematic wave routing of subsurface flow…”</em> allowing for <em>“…the
+	simulation of dynamically variable up-slope contributing
+	areas.”</em></p>
+    <p>Revisiting the idea of TOPMODEL (which has done this mainly for hill
+      slopes, but see <a href="https://doi.org/10.1002/hyp.1128">Peters et
+	al. 2003</a>) a model is formulated by</p>
+    <ul>
+      <li>Classifying the catchment up into areas that respond in a
+	hydrologically similar manner</li>
+      <li>Determining the connectivity between each of the classes</li>
+      <li>Assigning each class to an appropriate Hydrological Representative
+	Unit (HRU), which solves the hydrological processes for a standardised
+	unit</li>
+    </ul>
+    <p>In the following these aspects are outlined with reference to the
+      implementation of Dynamic TOPMODEL in the <code>dynatop</code> and
+      <code>dynatopGIS</code> packages.</p>
+    
+    <h2>Classification and Connectivity</h2>
+    <h3>Classification (Part 1)</h3>
+    <p>The location of areas with a hydrological similar response is only
+      every going to be partially captured by spatial data. Past TOPMODEL and
+      Dynamic TOPMODEL applications have used classifications based on a
+      topographic index given by the logarithm of up-slope area divided by the
+      local gradient. Using the up-slope area gives some spatial ordering to
+      the classes, but (as we will see with the Eden data) it is not complete.
+      Consider a small catchment represented by a raster of spatial cells with
+      the following topographic index classes</p>
+    
+    <figure>
+      <img src="images/topo_class.png" alt="Map of topographic index classes" width="75%" />
+      <figcaption>
+	Map of topographic index classes
+      </figcaption>
+    </figure>
+
+    <p>Since land use could influence the evapotranspiration and
+      infiltration properties a second classification might be desirable. For
+      the small catchment the land use classes are shown below</p>
+    
+    <figure>
+      <img src="images/landuse_class.png" alt="Map of land use classes" width="75%" />
+      <figcaption>
+	Map of land use classes
+      </figcaption>
+    </figure>
+    
+    <p>Combing these topographic index and land use classes gives one
+      initial class for each unique combination.</p>
+    
+    <h3>Connectivity</h3>
+    <p>In keeping with earlier spatial analysis TOPMODEL and Dynamic
+      TOPMODEL applications connectivity (flow directions) is assumed to be
+      determined by the surface gradient with any down-slope region receiving
+      flow. This gives a high degree of connectivity between the spatial
+      cells. If a river intercepts a cell it is assumed that both the surface
+      and subsurface flow direction change to follow the river course.The
+      following figure shows the connectivity for the small catchment, with
+      the river cells highlighted in blue.</p>
+    
+    <figure>
+      <img src="images/combined_class.png" alt="Map of combined topographic and land use classes along with connectivity" width="75%" />
+      <figcaption>
+	Map of combined topographic and land use classes along with connectivity
+      </figcaption>
+    </figure>
+    
+    <h3>Classification (Part 2)</h3>
+    <p>Each class is represented by a single HRU, the inflows to which are
+      averaged from the inflows to all the spatial cells of that class. Does
+      this make sense for class 5a, which is both in the upper reaches of the
+      catchment but also adjacent to the river?</p>
+    <p>The <code>dynatop</code> author would argue not. To represent the
+      spatial positioning the catchment can be banded using the connectivity -
+      all cells in a given band receive flows only from those in a higher
+      band. For the small catchment this looks like the following</p>
+
+    <figure>
+      <img src="images/band_class.png" alt="Map of the band classification" width="75%" />
+      <figcaption>
+	Map of the band classification
+      </figcaption>
+    </figure>
+    
+    <p>Combing this into the classification gives</p>
+
+    <figure>
+      <img src="images/combined_class_with_band.png" alt="Map of the combined classification" width="75%" />
+      <figcaption>
+	Map of the combined classification
+      </figcaption>
+    </figure>
+
+    <p>which further separates out the 5a class to the areas close to and
+      further from the river. This demonstrates the banding gives a further
+      level of spatial refinement to the classification while allowing a for
+      simplification in the catchment representation.</p>
+    <p>Introducing the band into the classification has a further advantage.
+      Solving the HRUs starting with those in the highest band ensures that
+      inflows at the current time step are available for use in the numeric
+      solution. This allow the use of computation techniques that are more
+      robust to the choice of solution time step.</p>
+    <blockquote>
+      <p>The numeric scheme implemented in the <code>dynatop</code> package
+	makes use of an ordering so that the HRU inflows for the current time
+	step are available. Although other options could be used it is
+	<strong>strongly</strong> recommended that the default banding scheme is
+	used.</p>
+    </blockquote>
+    
+    <h2>Hydrological Response Units</h2>
+    <p>Each Hydrological Response Unit HRU represents a parameterised
+      version of a different part of the hydrological system. The
+      representation of each HRU is made up of the four zones:</p>
+    <ul>
+      <li>A <em>Surface Zone</em> representing the movement of water on the
+	surface</li>
+      <li>A <em>Root Zone</em> which controls evapotranspiration, handles the
+	precipitation input and flux of water to the unsaturated zone</li>
+      <li>A <em>Unsaturated Zone</em> which represented the water between the
+	root zone and the saturated subsurface</li>
+      <li>A <em>Saturated Zone</em> representing the saturated subsurface</li>
+    </ul>
+    <p>The following schematic shows the four zones and the fluxes between
+      them</p>
+    <figure>
+      <img src="images/Hillslope_HRU.png" alt="Schematic of the Hill slope HRU" width="75%" />
+      <figcaption>
+	Schematic of the Hill slope HRU
+      </figcaption>
+    </figure>
+
+    <p>As shown in the schematic fluxes are passed between the HRUs at two
+      levels, the surface and the saturated zones.</p>
+    <p>To allow for some flexibility in the dynamics of the HRU different
+      representations can be used for each zone. The governing equation and
+      numerical solution of these are given in a <a
+						   href="https://waternumbers.github.io/dynatop/articles/HRU.html">vignette
+	of <code>dynatop</code></a>. A few key points are:</p>
+    <ul>
+      <li>The lateral flow from the Surface and Saturated Zones is computed
+	using Muskingham approximations.</li>
+      <li>Evapotranspiration is proportional to the percentage saturation of
+	the Root Zone</li>
+      <li>Flow from the root zone to the Unsaturated Zone can occur only when
+	the Root Zone is full</li>
+      <li>The Unsaturated Zone is represented by a tank whose time constant
+	depends upon the deficit of the Saturated Zone</li>
+      <li>The lateral flow from the Saturated Zone is controlled by the
+	saturated storage deficit through a transmissivity profile.</li>
+    </ul>
+    
+  </body>
+</html>
