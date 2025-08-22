@@ -1,0 +1,48 @@
+<h1>A level one heading</h1>
+<h2>A level two heading</h2>
+<p>The <a href="#fig-one">following schematic</a> outlines the stages resulting a working Dynamic
+TOPMODEL for a catchment. It highlights where the <code>dynatopGIS</code> and <code>dynatop</code>
+packages fit into this process.</p>
+<figure id="fig-one">
+<p><img src="image.png" alt="Build Scematic" />{width=“75%”,align=“center”}</p>
+  <figcaption>Fig.1 - Example figure</figcaption>
+</figure>
+<p>As we will see in the example the <a href="https://waternumbers.github.io/dynatopGIS/index.html"><code>dynatopGIS</code></a> package can help</p>
+<ul>
+<li>Compute standard variables for classification (such as the topographic
+index)
+<ul>
+<li>A second order list</li>
+</ul>
+</li>
+<li>Compute the spatial ordering of the HRUs</li>
+<li>Build classifications of the catchment</li>
+<li>Construct models suitable for <code>dynatop</code></li>
+</ul>
+<p>The <a href="https://waternumbers.github.io/dynatop/index.html"><code>dynatop</code></a> package allows simulation and visualisation of Dynamic TOPMODELs as well as
+providing some helper for processing time series input data.
+Although in this training presumes that model for <code>dynatop</code> are generated
+using <code>dynatopGIS</code> this need not be the case so long as the inputs to
+<code>dynatop</code> are of the correct format.</p>
+<h1>Implementation notes</h1>
+<p>The <code>dynatopGIS</code> and <code>dynatop</code> packages implement structured, object orientated, data
+flows. The packages are written using the object orientated framework
+provided by the <code>R6</code> package. This means that some aspects of working with the
+objects may appear idiosyncratic for some R users. In this training these problems are largely obscured, except for the
+call structure. However, before adapting the code, or doing more complex analysis
+users should read about <code>R6</code> class objects (e.g. in the <code>R6</code> package vignettes
+or in the Advanced R book). One particular gotcha is when copying an object. Using</p>
+<pre><code class="language-{.r}">my_new_object  &lt;-  my_object
+</code></pre>
+<p>creates a pointer, that is altering <code>my_new_object</code> also alters
+<code>my_object</code>. To create a new independent copy of <code>my_object</code> use</p>
+<pre><code class="language-{.r}">my_new_object  &lt;-  my_object$clone()
+</code></pre>
+<figure id="fig-two">
+<p><img src="example__files/chunk-3-1.png" alt="" /></p>
+  <figcaption>Fig.2 - An R generated figure</figcaption>
+</figure>
+<pre><code class="language-{.r}">plot(1:10)
+</code></pre>
+<p><img src="example__files/chunk-4-1.png" alt="" /></p>
+

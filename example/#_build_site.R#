@@ -1,0 +1,16 @@
+
+## simple plain html
+rm(list=ls())
+setwd("./example")
+
+render <- function(fileName){
+    mdFileName <- paste0(tools::file_path_sans_ext(fileName),".markdown")
+    htmlFileName <- paste0(tools::file_path_sans_ext(fileName),".html")
+    litedown::fuse(fileName,mdFileName)
+    tmp <- commonmark::markdown_html(readLines(mdFileName),extensions=TRUE)
+    tmplate <- paste(readLines("template.html"),collapse="\n")
+    out <- gsub("[$]body[$]",tmp,tmplate)
+    writeLines(out,htmlFileName)
+}
+
+render("example.Rmd")
