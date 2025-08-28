@@ -1,0 +1,2102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="keywords" content="dynatop,Dynamic Topmodel,hydrology">
+    <meta name="author" content="Paul Smith">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="./Classless_files/favicon.png" sizes="any">
+    
+    <title>dynatop Development</title>
+    <link rel="stylesheet"
+	  href="https://classless.de/classless.css">
+    <style>
+      :root, html {
+	  --navpos: fixed
+      }
+      section{padding-top:52px}
+    </style>
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" integrity="sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP" crossorigin="anonymous"> -->
+    <link rel="stylesheet" href="./katex/katex.min.css">
+    <!-- The loading of KaTeX is deferred to speed up page rendering -->
+    <!-- <Script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js" integrity="sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6" crossorigin="anonymous"></script> -->
+    <script defer src="./katex/katex.min.js"></script>
+    
+    <!-- To automatically render math in text elements, include the auto-render extension: -->
+    <!-- <script defer src="./katex/auto-render.min.js" onload="renderMathInElement(document.body);"></script> -->
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js" integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+  </head>
+  
+  <body>
+    <header>
+      	<nav>
+	  <ul>
+	    <li><span>dynatop Training ▾</span> <!--</li>-->
+	    <!-- <li class="sticky"><span>Menu ▾</span> -->
+	      <!-- <li class="float-right sticky"><span>Menu ▾</span> -->
+	      <ul>
+		<li><a href="#welcome">Welcome</a></li>
+		<li><a href="#prerequisites">prerequisites</a></li>
+		<li><a href="#dynamic-topmodel">Dynamic Topmodel</a></li>
+		<li><a href="#dynatop">dynatop</a></li>
+		<li><a href="#gis-processing">Initial GIS processing</a></li>
+		<li><a href="#obs-processing">Processing Observed data</a></li>
+		<li><a href="#model-building">Model Building</a></li>
+		<li><a href="#simulation">Running a Simulation</a></li>
+		<li><a href="#monte-carlo">Monte-Carlo Runs</a></li>
+	      </ul>
+	    </li>
+	  </ul>
+	</nav>
+      
+    </header>
+    <main>
+      <article>
+	<section id="welcome">
+	  <!-- Welcome section -->
+	  <h1>Welcome</h1>
+	  
+	  <p>This training course is split into two parts. Part 1 aims
+	    to:</p>
+	  <ul>
+	    <li>Provide an outline of Dynamic TOPMODEL as implemented in the
+	      <code>dynatop</code> and <code>dynatopGIS</code> packages</li>
+	  <li>Demonstrate the use the <code>dynatop</code> and
+	    <code>dynatopGIS</code> packages with a hands on example</li>
+	  <li>Give some suggestions as to the effective use of the
+	    <code>dynatop</code> and <code>dynatopGIS</code> packages</li>
+	</ul>
+	<p>Part 2 of the course is targeted at those that wish to extent or
+	  develop the packages and covers:</p>
+	<ul>
+	  <li>Looking at the source code of <code>dynatop</code> by forking and
+	    cloning the software repository</li>
+	  <li>Altering and building the source code</li>
+	</ul>
+      </section>	
+	<!-- Prerequisites -->
+      <section id="prerequisites">
+	<h2>Prerequisites</h2>
+	
+	<p>This is a course on hydrological modelling using a R software
+	package. Part 1 presumes that you have at least a basic knowledge of
+	hydrology and ideally some experience of R. Part 2 requires a more
+	detailed knowledge of R along with some knowledge of the git version
+	control system.</p>
+      <p>Useful primers for R can be found on multiple websites such as that
+	of <a href="https://adv-r.hadley.nz/">Hadley Wickham</a> or on
+	<a href="https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf">CRAN</a>
+	but complete knowledge of their contents is not expected.</p>
+      
+      <h3 id="software">Software</h3>
+      <h4 id = "part-1">Part 1</h4>
+      <p>To make use of the examples on which Part 1 of the course is based
+	requires</p>
+      <h5>An installation of R 4.4.0 or above</h5>
+      <p>Installation instructions for R are available from
+	<a href="https://cran.r-project.org/">CRAN</a> for Linux, Windows and Mac.
+	Full details of the R version and packages used in building this version
+	of the training material can be found
+	<a href="./99_session_info.html">here</a>.</p>
+      <h5>A suitable text editor for altering the R scripts.</h5>
+      <p>While it is possible to complete the course using the built in R
+	GUI’s for Windows and Mac it is recommended to install an editor with
+	syntax highlighting. Popular choices include the
+	<a href="https://www.rstudio.com/products/rstudio/download/#download">Rstudio
+	  IDE</a>, VSCode (Instructions <a
+					  href="https://www.r-bloggers.com/2021/01/setup-visual-studio-code-to-run-r-on-vscode-2021/">here</a>)
+	or Emacs with <a
+			href="https://ess.r-project.org/index.php?Section=home">ESS</a> all of
+	which provide an integrated development environment.</p>
+      
+      <h5>Installed copies of <code>dynatop</code> and <code>dynatopGIS</code></h5>
+      <p>These and there dependencies can be install in the standard way for R
+	packages. At the R command prompt type</p>
+      <pre class="r"><code>install.packages(&#39;dynatop&#39;, repos =c(&#39;https://waternumbers.r-universe.dev&#39;,&#39;https://cloud.r-project.org&#39;))
+	  install.packages(&#39;dynatopGIS&#39;, repos = c(&#39;https://waternumbers.r-universe.dev&#39;, &#39;https://cloud.r-project.org&#39;))</code></pre>
+      
+      <h4>Part 2</h4>
+      <p>For completing Part 2 of the course which focuses on developing
+	dynatop further software is required.</p>
+      <h5>An installation of the git version control system</h5>
+      <p>Details on installing git can be found on the software’s <a
+								    href="https://git-scm.com/downloads">webpage</a>. It is presumed that
+	git is available from the command line.</p>
+      <h5>An installation of the pandoc universal document converter</h5>
+      <p>Pandoc provides <a
+			   href="https://pandoc.org/installing.html">installation
+	  instructions</a>.</p>
+      <h5>Tools for building R packages which include source code</h5>
+      <p>The most efficient method of installing the tools required for
+	building R packages depends upon the platform:</p>
+      <ul>
+	<li>Windows: a single tool chain <a
+					   href="https://cran.r-project.org/bin/windows/Rtools/">Rtools</a> is
+	  available.</li>
+	<li>Mac: requires Apple Xcode and GNU Fortran compiler. Details of the
+	  GNU Fortran compiler version and other libraries that may be required
+	  are provided on <a href="https://mac.r-project.org/tools/">CRAN</a></li>
+	<li>Linux: ensure that gcc and gcc-c++ compilers are installed.</li>
+      </ul>
+      
+      <h5>An account on <a href="https://github.com/">github</a></h5>
+      <p>This is required to fork and alter the source code.</p>
+      
+      <h3>Data and Scripts</h3>
+      <p><a href="eden_data.zip">Download</a> the data for the examples as a
+	zip file. Extracting this should give a directory “eden_data” with four
+	subdirectories. In the code provided is is presumed that the working
+	directory of the R session is “eden_data”.</p>
+      <p>To save copying and pasting from the web pages the R code used in the
+	training course is <a href="dynatop_training_rcode.zip">available</a>.
+	These scripts should be used alongside the course material.</p>
+      </section>
+      
+      <section id="dynamic-topmodel">
+	<!-- dynamic TOPMODEL -->
+      
+	<h2>Dynamic TOPMODEL</h2>
+	
+	<blockquote>
+	<p>This a simplified, opinionated introduction. The original motivation
+	  for Dynamic TOPMODEL can be found in <a
+						 href="https://doi.org/10.1002/hyp.252">Beven &amp; Freer, 2001</a></p>
+      </blockquote>
+      
+      <h3>Motivation</h3>
+      <p>Dynamic TOPMODEL was originally conceived as <em>“A new version of
+	  the rainfall-runoff model TOPMODEL is described in which the assumption
+	  of a quasi-steady state saturated zone configuration is replaced by a
+	  kinematic wave routing of subsurface flow…”</em> allowing for <em>“…the
+	  simulation of dynamically variable up-slope contributing
+	  areas.”</em></p>
+      <p>Revisiting the idea of TOPMODEL (which has done this mainly for hill
+	slopes, but see <a href="https://doi.org/10.1002/hyp.1128">Peters et
+	  al. 2003</a>) a model is formulated by</p>
+      <ul>
+	<li>Classifying the catchment up into areas that respond in a
+	  hydrologically similar manner</li>
+	<li>Determining the connectivity between each of the classes</li>
+	<li>Assigning each class to an appropriate Hydrological Representative
+	  Unit (HRU), which solves the hydrological processes for a standardised
+	  unit</li>
+      </ul>
+      <p>In the following these aspects are outlined with reference to the
+	implementation of Dynamic TOPMODEL in the <code>dynatop</code> and
+	<code>dynatopGIS</code> packages.</p>
+      
+      <h3>Classification and Connectivity</h3>
+      <h4>Classification (Part 1)</h4>
+      <p>The location of areas with a hydrological similar response is only
+	every going to be partially captured by spatial data. Past TOPMODEL and
+	Dynamic TOPMODEL applications have used classifications based on a
+	topographic index given by the logarithm of up-slope area divided by the
+	local gradient. Using the up-slope area gives some spatial ordering to
+	the classes, but (as we will see with the Eden data) it is not complete.
+	Consider a small catchment represented by a raster of spatial cells with
+	the following topographic index classes</p>
+      
+      <figure>
+	<img src="images/topo_class.png" alt="Map of topographic index classes" width="75%" />
+	<figcaption>
+	  Map of topographic index classes
+	</figcaption>
+      </figure>
+      
+      <p>Since land use could influence the evapotranspiration and
+	infiltration properties a second classification might be desirable. For
+	the small catchment the land use classes are shown below</p>
+      
+      <figure>
+	<img src="images/landuse_class.png" alt="Map of land use classes" width="75%" />
+	<figcaption>
+	  Map of land use classes
+	</figcaption>
+      </figure>
+      
+      <p>Combing these topographic index and land use classes gives one
+	initial class for each unique combination.</p>
+      
+      <h4>Connectivity</h4>
+      <p>In keeping with earlier spatial analysis TOPMODEL and Dynamic
+	TOPMODEL applications connectivity (flow directions) is assumed to be
+	determined by the surface gradient with any down-slope region receiving
+	flow. This gives a high degree of connectivity between the spatial
+	cells. If a river intercepts a cell it is assumed that both the surface
+	and subsurface flow direction change to follow the river course.The
+	following figure shows the connectivity for the small catchment, with
+	the river cells highlighted in blue.</p>
+      
+      <figure>
+	<img src="images/combined_class.png" alt="Map of combined topographic and land use classes along with connectivity" width="75%" />
+	<figcaption>
+	  Map of combined topographic and land use classes along with connectivity
+	</figcaption>
+      </figure>
+      
+      <h4>Classification (Part 2)</h4>
+      <p>Each class is represented by a single HRU, the inflows to which are
+	averaged from the inflows to all the spatial cells of that class. Does
+	this make sense for class 5a, which is both in the upper reaches of the
+	catchment but also adjacent to the river?</p>
+      <p>The <code>dynatop</code> author would argue not. To represent the
+	spatial positioning the catchment can be banded using the connectivity -
+	all cells in a given band receive flows only from those in a higher
+	band. For the small catchment this looks like the following</p>
+      
+      <figure>
+	<img src="images/band_class.png" alt="Map of the band classification" width="75%" />
+	<figcaption>
+	  Map of the band classification
+	</figcaption>
+      </figure>
+      
+      <p>Combing this into the classification gives</p>
+      
+      <figure>
+	<img src="images/combined_class_with_band.png" alt="Map of the combined classification" width="75%" />
+	<figcaption>
+	  Map of the combined classification
+	</figcaption>
+      </figure>
+      
+      <p>which further separates out the 5a class to the areas close to and
+	further from the river. This demonstrates the banding gives a further
+	level of spatial refinement to the classification while allowing a for
+	simplification in the catchment representation.</p>
+      <p>Introducing the band into the classification has a further advantage.
+	Solving the HRUs starting with those in the highest band ensures that
+	inflows at the current time step are available for use in the numeric
+	solution. This allow the use of computation techniques that are more
+	robust to the choice of solution time step.</p>
+      <blockquote>
+	<p>The numeric scheme implemented in the <code>dynatop</code> package
+	  makes use of an ordering so that the HRU inflows for the current time
+	  step are available. Although other options could be used it is
+	  <strong>strongly</strong> recommended that the default banding scheme is
+	  used.</p>
+      </blockquote>
+      
+      <h3>Hydrological Response Units</h3>
+      
+      <p>Each Hydrological Response Unit HRU represents a parameterised
+	version of a different part of the hydrological system. The
+	representation of each HRU is made up of the four zones:</p>
+      <ul>
+	<li>A <em>Surface Zone</em> representing the movement of water on the
+	  surface</li>
+	<li>A <em>Root Zone</em> which controls evapotranspiration, handles the
+	  precipitation input and flux of water to the unsaturated zone</li>
+	<li>A <em>Unsaturated Zone</em> which represented the water between the
+	  root zone and the saturated subsurface</li>
+	<li>A <em>Saturated Zone</em> representing the saturated subsurface</li>
+      </ul>
+      <p>The following schematic shows the four zones and the fluxes between
+	them</p>
+      
+      <figure>
+	<img src="images/Hillslope_HRU.png" alt="Schematic of the Hill slope HRU" width="75%" />
+	<figcaption>
+	  Schematic of the Hill slope HRU
+	</figcaption>
+      </figure>
+      
+      <p>As shown in the schematic fluxes are passed between the HRUs at two
+	levels, the surface and the saturated zones.</p>
+      <p>To allow for some flexibility in the dynamics of the HRU different
+	representations can be used for each zone. The governing equation and
+	numerical solution of these are given in a <a
+						     href="https://waternumbers.github.io/dynatop/articles/HRU.html">vignette
+	  of <code>dynatop</code></a>. A few key points are:</p>
+      <ul>
+	<li>The lateral flow from the Surface and Saturated Zones is computed
+	  using Muskingham approximations.</li>
+	<li>Evapotranspiration is proportional to the percentage saturation of
+	  the Root Zone</li>
+	<li>Flow from the root zone to the Unsaturated Zone can occur only when
+	  the Root Zone is full</li>
+	<li>The Unsaturated Zone is represented by a tank whose time constant
+	  depends upon the deficit of the Saturated Zone</li>
+	<li>The lateral flow from the Saturated Zone is controlled by the
+	  saturated storage deficit through a transmissivity profile.</li>
+      </ul>
+      </section>
+      <section id="dynatop">
+	<!-- THIS IS WHERE I GOT TO -->
+	
+	<!-- 04 -->
+	<h2>dynatopGIS &amp; dynatop</h2>
+	
+      <p>The following schematic outlines the stages resulting a working
+	Dynamic TOPMODEL for a catchment. It highlights where the
+	<code>dynatopGIS</code> and <code>dynatop</code> packages fit into this
+	process.</p>
+
+      
+      <figure>
+	<img src="images/Build_Schematic.png" alt="Schematic of a Dynamic TOPMODEL construction" width="75%" />
+	<figcaption>
+	  Schematic of a Dynamic TOPMODEL construction
+	</figcaption>
+      </figure>
+      
+      <p>As we will see in the example the <a
+					     href="https://waternumbers.github.io/dynatopGIS/index.html"><code>dynatopGIS</code></a>
+	package can help</p>
+      <ul>
+	<li>Compute standard variables for classification (such as the
+	  topographic index)</li>
+	<li>Compute the spatial ordering of the HRUs</li>
+	<li>Build classifications of the catchment</li>
+	<li>Construct models suitable for <code>dynatop</code></li>
+      </ul>
+      
+      <p>The <a href="https://waternumbers.github.io/dynatop/index.html"><code>dynatop</code></a>
+	package allows simulation and visualisation of Dynamic TOPMODELs as well
+	as providing some helper for processing time series input data. Although
+	in this training presumes that model for <code>dynatop</code> are
+	generated using <code>dynatopGIS</code> this need not be the case so
+	long as the inputs to <code>dynatop</code> are of the correct
+	format.</p>
+      
+      <h2>Implementation notes</h2>
+      
+      <p>The <code>dynatopGIS</code> and <code>dynatop</code> packages
+	implement structured, object orientated, data flows. The packages are
+	written using the object orientated framework provided by the
+	<code>R6</code> package. This means that some aspects of working with
+	the objects may appear idiosyncratic for some R users. In this training
+	these problems are largely obscured, except for the call structure.
+	However, before adapting the code, or doing more complex analysis users
+	should read about <code>R6</code> class objects (e.g. in the
+	<code>R6</code> package vignettes or in the Advanced R book). One
+	particular gotcha is when copying an object. Using</p>
+      <pre class="r"><code>my_new_object  &lt;-  my_object</code></pre>
+      <p>creates a pointer, that is altering <code>my_new_object</code> also
+	alters <code>my_object</code>. To create a new independent copy of
+	<code>my_object</code> use</p>
+      <pre class="r"><code>my_new_object  &lt;-  my_object$clone()</code></pre>
+
+      </section>
+      <section id="gis-processing">
+      
+      <!-- 10 -->
+      <h2>Initial GIS processing</h2>
+
+      <h3>Aim</h3>
+      <p>To explore and pre-process the GIS data for the Eden catchment.</p>
+      
+      <h3>Required R Packages</h3>
+      
+      <p>R has multiple packages for the processing and analysis spatial data.
+	A good overview is given in the <a
+					  href="https://cran.r-project.org/web/views/Spatial.html">Spatial Task
+	  View on CRAN</a>. For this part of the training course we use a set of
+	mature package <code>terra</code> which is a dependency of
+	<code>dynatopGIS</code>. Similar results could be generated with other
+	packages.</p>
+      <p>Attached the <code>terra</code> package to the R environment so that
+	its functions are available.</p>
+      <pre class="r"><code>library(terra)
+	  #&gt; terra 1.7.71
+	  library(dynatopGIS)</code></pre>
+      <p>and remember to move to the eden_data directory e.g.</p>
+      <pre class="r"><code>setwd(&quot;../eden_data&quot;)</code></pre>
+      
+      <h3>Data Required by <code>dynatopGIS</code></h3>
+      <p>To build a Dynamic TOPMODEL the <code>dynatopGIS</code> package
+	requires the following</p>
+      <ul>
+	<li>A raster map of the catchment, possibly delineating
+	  sub-catchments</li>
+	<li>A raster DEM covering the catchment</li>
+	<li>A vector polygon representation of the river network</li>
+      </ul>
+      <p>Optionally the user can also provide</p>
+      <ul>
+	<li>A raster map delineating spatial rainfall patterns</li>
+	<li>A raster map delineating spatial PET patterns</li>
+	<li>Raster maps containing further data to help classify the HRUs</li>
+      </ul>
+      <p>All raster data must in the same resolution and projection as the
+	catchment map. The vector river data must have the same
+	projection.</p>
+      
+      <blockquote>	
+	<p><code>dynatopGIS</code> only works with projected raster data with
+	  square cells and assumes all raster values are numeric! The raster map
+	  of the catchment should have only <code>NA</code> values in the edge row
+	  and columns.</p>
+      </blockquote>
+      
+      <h3>Loading Data</h3>
+      <p>There are four types of spatial data in the example; raster,
+	polygons, lines and points; in three different formats; Geotiff,
+	shapefile and csv.</p>
+      <p>To start use functions in the raster package to load both the raster
+	data and that contained in the shapefiles:</p>
+      <pre class="r"><code>dem &lt;- rast(file.path(&quot;.&quot;,&quot;unprocessed&quot;,&quot;Eden_DEM.tif&quot;)) # load the dem as a raster layer
+	  eden &lt;- vect(file.path(&quot;.&quot;,&quot;unprocessed&quot;,&quot;Eden_Catchment.shp&quot;)) # load the outline of the sub-catchments from the shapefile
+	  channel &lt;- vect(file.path(&quot;.&quot;,&quot;unprocessed&quot;,&quot;Eden_River_Network.shp&quot;)) # load the river network from the shapefile
+	  urban &lt;- vect(file.path(&quot;.&quot;,&quot;unprocessed&quot;,&quot;Eden_Urban.shp&quot;)) # load the urban area map from the shapefile</code></pre>
+      <p>Typing the variable name at the R prompt will display a summary of
+	the data loaded, for example</p>
+      <pre class="r"><code>dem
+	  #&gt; class       : SpatRaster 
+	  #&gt; dimensions  : 863, 629, 1  (nrow, ncol, nlyr)
+	  #&gt; resolution  : 100, 100  (x, y)
+	  #&gt; extent      : 326000, 388900, 495450, 581750  (xmin, xmax, ymin, ymax)
+	  #&gt; coord. ref. : OSGB36 / British National Grid (EPSG:27700) 
+	  #&gt; source      : Eden_DEM.tif 
+	  #&gt; name        : Eden_DEM 
+	  #&gt; min value   :   -2.700 
+	  #&gt; max value   :  923.425</code></pre>
+      <p>Compare the <code>dem</code>, <code>eden</code>, <code>channel</code>
+	and <code>urban</code> variable to check that:</p>
+      <ul>
+	<li>there is a common projection</li>
+	<li>the cells of DEM are square</li>
+      </ul>
+      <p>Reading the gauge locations from the csv file is a two stage
+	process</p>
+      <pre class="r"><code> # read in the csv file to a date.frame
+	  csvGauges &lt;- read.csv(file.path(&quot;.&quot;,&quot;unprocessed&quot;,&quot;Eden_Gauge_Sites.csv&quot;))
+	  # convert the data frame to a SpatVect object - take projection from the DEM
+	  gauges &lt;- vect(csvGauges,geom=c(&quot;x&quot;,&quot;y&quot;),crs=crs(dem))</code></pre>
+      <p>Next plot the data using the default methods in the raster
+	package</p>
+      
+      <pre class="r"><code>plot(dem) # underlying coloured image with scale
+	  plot(urban,add=TRUE,col=&quot;grey&quot;) # grey polygons
+	  plot(channel,add=TRUE,col=&quot;blue&quot;) # channels as blue lines
+	  plot(eden,add=TRUE) # outlines of sub-catchments in black
+	  plot(gauges,add=TRUE,col=&quot;red&quot;) # gauges as red dot</code></pre>
+      <p><img src="10_initial_gis_files/figure-html/data_plot-1.png" width="672" /></p>
+      
+      
+      
+      <h3>Rasterising Layers</h3>
+      <p>The basis of the landscape discretisation is the raster catchment
+	map. In this example, as in many situation the catchment outlines are
+	vectors shapes. These are rasterised using the grid provided by the
+	raster DEM. In the catchment map each sub-catchment requires a unique
+	numeric value which is provided by the <code>id</code> field.</p>
+      <pre class="r"><code>## show data frame with id values
+	  head(eden)
+	  #&gt;      id                     label
+	  #&gt; 1 76007        Eden at Sheepmount
+	  #&gt; 2 76003          Eamont at Udford
+	  #&gt; 3 76005    Eden at Temple Sowerby
+	  #&gt; 4 76017       Eden at Great Corby
+	  #&gt; 5 76008     Irthing at Greenholme
+	  #&gt; 6 76010 Petteril at Harraby Green
+	  ## rasterise
+	  eden_raster &lt;- rasterize(eden, dem, field=&quot;id&quot;)
+	  ## plot the resulting raster
+	  plot(eden_raster)</code></pre>
+      <p><img src="10_initial_gis_files/figure-html/rasterise_subcatch-1.png" width="672" /></p>
+      <p>To ensure the edges are <code>NA</code> values the raster is
+	extended, along with that of the DEM</p>
+      <pre class="r"><code>eden_raster &lt;- extend(eden_raster,1)
+	  dem &lt;- extend(dem,1)</code></pre>
+      <p>Since the urban areas may be used in the classification they are also
+	rasterised. Suitable numeric values are taken from the unique
+	identifiers in the data.</p>
+      <p>In the case of the urban data there are two possible identifiers
+	objectid and bua_id:</p>
+      <pre class="r"><code>## show data frame with id values
+	  head(urban)
+	  #&gt;   objectid   bua11cd            bua11nm bua_id has_sd sd_count urban_bua
+	  #&gt; 1       39 E34000039        Penrith BUA    747      N        0       Yes
+	  #&gt; 2       47 E34000047  Brough (Eden) BUA   1465      N        0        No
+	  #&gt; 3      297 E34000297       Gilsland BUA   4584      N        0        No
+	  #&gt; 4      869 E34000869        Lazonby BUA   1016      N        0        No
+	  #&gt; 5      899 E34000899 Kirkby Stephen BUA   1359      N        0        No
+	  #&gt; 6      986 E34000986        Dalston BUA    919      N        0        No
+	  #&gt;   st_areasha st_lengths
+	  #&gt; 1  4647359.1  19399.690
+	  #&gt; 2   324993.0   5799.919
+	  #&gt; 3   214996.1   3499.903
+	  #&gt; 4   412499.4   5600.042
+	  #&gt; 5   692492.4   9500.029
+	  #&gt; 6   582500.1   7699.932
+	  ## rasterise using objectid as the raster value
+	  urban_raster &lt;- rasterize(urban, eden_raster, field=&quot;objectid&quot;)
+	  ## plot the resulting raster
+	  plot(urban_raster)</code></pre>
+      <p><img src="10_initial_gis_files/figure-html/raterise_urban-1.png" width="672" /></p>
+      <p>The raster fields created (<code>eden_raster</code>,
+	<code>urban_raster</code> and extended <code>dem</code>) exist only in
+	memory (or temporary files). Since they will be needed later we will
+	save them:</p>
+      <pre class="r"><code>writeRaster(eden_raster,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;eden.tif&quot;),overwrite=TRUE)
+	  writeRaster(urban_raster,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;urban.tif&quot;),overwrite=TRUE)
+	  writeRaster(dem,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;dem.tif&quot;),overwrite=TRUE)</code></pre>
+
+      
+      <h3>Channel Network</h3>
+      <p>The channel network in the dynamic TOPMODEL generated by
+	<code>dynatopGIS</code> is a series of connected HRUs each representing
+	a single reach length. In the processing done by dynatopGIS each reach
+	is represented by a single spatial polygon. The data for each reach must
+	include the following fields:</p>
+      <ul>
+	<li>name - The unique identifier/name of the reach</li>
+	<li>length - Length of the reach [m]</li>
+	<li>startNode - An identifier for the head of the reach</li>
+	<li>endNode - An identifier for the foot of the reach</li>
+	<li>width - Channel width [m]</li>
+	<li>slope - Channel slope [m/m]</li>
+      </ul>
+      <p>The startNode and endNode values are used to define the channel
+	connectivity, while the physical properties are used in the
+	<code>dynatop</code> numerical solutions.</p>
+      <p>Looking at the channel data</p>
+      <pre class="r"><code>channel
+	  #&gt;  class       : SpatVector 
+	  #&gt;  geometry    : lines 
+	  #&gt;  dimensions  : 1697, 9  (geometries, attributes)
+	  #&gt;  extent      : 327613.4, 388606.5, 496531.8, 581285.4  (xmin, xmax, ymin, ymax)
+	  #&gt;  source      : Eden_River_Network.shp
+	  #&gt;  coord. ref. : OSGB36 / British National Grid (EPSG:27700) 
+	  #&gt;  names       :          name1      identifier       startNode         endNode
+	  #&gt;  type        :          &lt;chr&gt;           &lt;chr&gt;           &lt;chr&gt;           &lt;chr&gt;
+	  #&gt;  values      :             NA 71496043-333C-~ 785AA707-7ACC-~ FD4A9B62-950E-~
+	  #&gt;                Rowantree Gill C1E710A3-ED27-~ FD4A9B62-950E-~ 323B8FBC-8D31-~
+	  #&gt;                     Lady Sike 0B92A0E8-4B7B-~ 76150301-B4E4-~ 41DAD94A-AF47-~
+	  #&gt;         form         flow fictitious length name2
+	  #&gt;        &lt;chr&gt;        &lt;chr&gt;      &lt;chr&gt;  &lt;int&gt; &lt;chr&gt;
+	  #&gt;  inlandRiver in direction      false     31    NA
+	  #&gt;  inlandRiver in direction      false    986    NA
+	  #&gt;  inlandRiver in direction      false    321    NA</code></pre>
+      <p>we see that it already contains</p>
+      <ul>
+	<li>an identifier for the foot of the reach called endNode</li>
+	<li>an identifier for the head of the reach called startNode</li>
+	<li>the reach length</li>
+	<li>a unique identifier called identifier</li>
+      </ul>
+      <p>but is composed to spatial lines rather then polygons.</p>
+      <p>The <code>dynatopGIS</code> package provides a function for
+	conveniently converting line objects to the correct format.</p>
+      <pre class="r"><code>conv_channel &lt;- convert_channel(
+	  channel,
+	  property_names = c(name = &quot;identifier&quot;, length = &quot;length&quot;, startNode = &quot;startNode&quot;,
+          endNode= &quot;endNode&quot;),
+	  default_width = 2,
+	  default_slope = 0.001
+	  )
+	  #&gt; Warning in convert_channel(channel, property_names = c(name = &quot;identifier&quot;, :
+	  #&gt; Modifying to spatial polygons using default width
+	  #&gt; Warning in convert_channel(channel, property_names = c(name = &quot;identifier&quot;, :
+	  #&gt; Adding default slope</code></pre>
+      <p>The two warning messages reveal that, since they are not specified,
+	default width and slope values are added. The width property is used to
+	buffer the channel resulting in spatial polygons.</p>
+      <pre class="r"><code>conv_channel
+	  #&gt;  class       : SpatVector 
+	  #&gt;  geometry    : polygons 
+	  #&gt;  dimensions  : 1697, 12  (geometries, attributes)
+	  #&gt;  extent      : 327612.4, 388607.5, 496530.8, 581286.4  (xmin, xmax, ymin, ymax)
+	  #&gt;  coord. ref. : OSGB36 / British National Grid (EPSG:27700) 
+	  #&gt;  names       :          name1            name       startNode         endNode
+	  #&gt;  type        :          &lt;chr&gt;           &lt;chr&gt;           &lt;chr&gt;           &lt;chr&gt;
+	  #&gt;  values      :             NA 71496043-333C-~ 785AA707-7ACC-~ FD4A9B62-950E-~
+	  #&gt;                Rowantree Gill C1E710A3-ED27-~ FD4A9B62-950E-~ 323B8FBC-8D31-~
+	  #&gt;                     Lady Sike 0B92A0E8-4B7B-~ 76150301-B4E4-~ 41DAD94A-AF47-~
+	  #&gt;         form         flow fictitious length name2 width  area slope
+	  #&gt;        &lt;chr&gt;        &lt;chr&gt;      &lt;chr&gt;  &lt;num&gt; &lt;chr&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt;
+	  #&gt;  inlandRiver in direction      false     31    NA     2 64.69 0.001
+	  #&gt;  inlandRiver in direction      false    986    NA     2  1975 0.001
+	  #&gt;  inlandRiver in direction      false    321    NA     2 645.2 0.001</code></pre>
+      <p>The converted channel data is saved for later use</p>
+      <pre class="r"><code>writeVector(conv_channel,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;channel.shp&quot;),overwrite=TRUE)</code></pre>
+      <blockquote>
+	<p>The use of polygons to represent channel sections allows the shape of
+	  water features such as lakes to be captured</p>
+      </blockquote>
+
+      <h3>Locating Gauges on the Channel Network</h3>
+      <p>Before locating the gauges on the network note that in the map of the
+	loaded data there is a single gauge outside to the catchment area. As
+	simple example of manipulating spatial data in R is to remove this by
+	cropping the gauges to the catchment area. This is done by</p>
+      <pre class="r"><code>gauges &lt;- crop(gauges,eden)</code></pre>
+      <p>To determine the location of the gauges on the river network we
+	identify for each gauge the closest reach. The identifier of this reach,
+	along with the distance to the gauge data is then added to the gauge
+	data.</p>
+      <pre class="r"><code>dst &lt;- distance(gauges,conv_channel) ## distance between gauges(row) and channels(column)
+	  idx &lt;- apply(dst,1,which.min) ## index of closest channel for each gauge
+
+	  gauges$chn_identifier &lt;- conv_channel$name[ apply(dst,1,which.min) ]
+	  gauges$chn_distance &lt;- apply(dst,1,min) ## distance to the channel
+      </code></pre>
+      <p>To check the results by plotting:</p>
+      <pre class="r"><code>selected &lt;- conv_channel[conv_channel$name %in% gauges$chn_identifier,]
+	  plot(eden) # outlines of sub-catchments in black
+	  plot(conv_channel,add=TRUE,col=&quot;blue&quot;,border=&quot;blue&quot;) # channel network in blue
+	  plot(selected,add=TRUE,col=&quot;orange&quot;,border=&quot;orange&quot;) # selected reachs in orange
+	  plot(gauges,add=TRUE,col=&quot;red&quot;,pch=21) # gauges as red filled circles</code></pre>
+      <p><img src="10_initial_gis_files/figure-html/crop_gauges_plot-1.png" width="672" /></p>
+      <p>The cropped list of gauges with channel identifier can be saved to a
+	shapefile:</p>
+      <pre class="r"><code>writeVector(gauges,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;gauges.shp&quot;),overwrite=TRUE)</code></pre>
+      <blockquote>
+	<p>The quality of results of any method used for any automatic method of
+	  locating the gauges depends upon the accuracy of the GIS data.</p>
+      </blockquote>
+      <blockquote>
+	<p>In the numeric solution used in <code>dyantop</code> it is assumed
+	  that a gauge is at the foot of a reach. This should be allowed from when
+	  conceptualising the channel reaches.</p>
+      </blockquote>
+      
+
+      </section>
+      <section id="obs-processing"> 
+      <!-- 11 -->
+
+
+      <h2 class="title toc-ignore">Processing Observed data</h2>
+
+
+
+      <h3>Aim</h3>
+      <p>To explore and pre-process the observed data for the Eden
+	catchment.</p>
+
+      <h3>Required R Packages</h3>
+      <p>Alongside the <code>terra</code> package used in the <a
+								href="./10_initial_gis.html">initial GIS processing</a>, two further
+	packages are required. The first, <code>xts</code>, allows for an
+	efficent representation of time series data. The second extra package
+	required is <code>dynatop</code>.</p>
+      <p>These are attached to the R environment so that there functions are
+	available.</p>
+      <pre class="r"><code>library(terra)
+	  library(xts)
+	  #&gt; Loading required package: zoo
+	  #&gt; 
+	  #&gt; Attaching package: &#39;zoo&#39;
+	  #&gt; The following object is masked from &#39;package:terra&#39;:
+	  #&gt; 
+	  #&gt;     time&lt;-
+	  #&gt; The following objects are masked from &#39;package:base&#39;:
+	  #&gt; 
+	  #&gt;     as.Date, as.Date.numeric
+	  library(dynatop)</code></pre>
+      <p>and remember to move to the eden_data directory e.g.</p>
+      <pre class="r"><code>setwd(&quot;../eden_data&quot;)</code></pre>
+
+      
+      <h3>Expected Data</h3>
+      <p>The data passed to <code>dynatop</code> when simulating the model is
+	expected to be a <code>xts</code> object (a special kind numeric matrix
+	whose row names give the time) with a constant time step <span
+								   class="math inline">\(\Delta t\)</span>. Each column of data should have
+	a unique name which is used to specify the time series when building the
+	model.</p>
+      <p>Two variables are used as inputs, precipitation and potential
+	evapotranspiration (PET). It is expected that the precipitation and
+	potential evapotranspiration inputs series are given in <span
+								  class="math inline">\(m\)</span> accrued over the proceeding time step.
+	So the data value given at time <span class="math inline">\(t+\Delta
+	  t\)</span> is the total accrued in the interval between time <span
+									 class="math inline">\(t\)</span> and time <span
+														     class="math inline">\(t+\Delta t\)</span>.</p>
+      <p>Since columns in the <code>xts</code> object passed to
+	<code>dynatop</code> which are not used in the model are ignored, so
+	there is no danger is combining observed discharge records in the same
+	object as the input data.</p>
+
+      <h3>Data Files</h3>
+      <p>The example contains two data files Eden_Flow.csv and Eden_Precip.nc.
+	The first is a comma seperated text file of flow data, the later a
+	netcdf file containing a time series of spatial rainfall fields.</p>
+
+      <h3>Flow Data</h3>
+      <p>Looking at the start of Eden_Flow.csv</p>
+      <pre class="r"><code>cat(readLines(file.path(&quot;.&quot;,&quot;unprocessed&quot;,&quot;Eden_Flow.csv&quot;),5),sep=&quot;\n&quot;)
+	  #&gt; &quot;Index&quot;,&quot;Sheepmount_obs&quot;
+	  #&gt; &quot;2020-02-01 00:15:00&quot;,189.4168157
+	  #&gt; &quot;2020-02-01 00:30:00&quot;,190.9998537
+	  #&gt; &quot;2020-02-01 00:45:00&quot;,192.1112028
+	  #&gt; &quot;2020-02-01 01:00:00&quot;,192.5883068</code></pre>
+      <p>we see that the Index column gives the time in an unabiguous format
+	recognised by <code>xts</code>. The second column the observed
+	discharges at the Sheepmount gauge as numeric values. We read this in
+	using function avaialbe through the xts package</p>
+      <pre class="r"><code>flow &lt;- as.xts(read.zoo(file.path(&quot;.&quot;,&quot;unprocessed&quot;,&quot;Eden_Flow.csv&quot;),header=TRUE,sep=&quot;,&quot;,drop=FALSE))
+	  head(flow)
+	  #&gt;                     Sheepmount_obs
+	  #&gt; 2020-02-01 00:15:00       189.4168
+	  #&gt; 2020-02-01 00:30:00       190.9999
+	  #&gt; 2020-02-01 00:45:00       192.1112
+	  #&gt; 2020-02-01 01:00:00       192.5883
+	  #&gt; 2020-02-01 01:15:00       192.1112
+	  #&gt; 2020-02-01 01:30:00       191.4758</code></pre>
+
+      <h3>Rainfall Data</h3>
+      <p>To explore the rainfall data open the file using the
+	<code>terra</code> package</p>
+      <pre class="r"><code>## read in as a multilayered object
+	  precip_brk &lt;- rast(file.path(&quot;.&quot;,&quot;unprocessed&quot;,&quot;Eden_Precip.nc&quot;))
+	  ## show summary
+	  precip_brk
+	  #&gt; class       : SpatRaster 
+	  #&gt; dimensions  : 9, 11, 1392  (nrow, ncol, nlyr)
+	  #&gt; resolution  : 0.1, 0.1  (x, y)
+	  #&gt; extent      : -3.2, -2.1, 54.3, 55.2  (xmin, xmax, ymin, ymax)
+	  #&gt; coord. ref. : lon/lat WGS 84 (CRS84) (OGC:CRS84) 
+	  #&gt; source      : Eden_Precip.nc 
+	  #&gt; varname     : Precipitation (IMERGv6 final precipitation over preceding 30 minutes) 
+	  #&gt; names       : Preci~ion_1, Preci~ion_2, Preci~ion_3, Preci~ion_4, Preci~ion_5, Preci~ion_6, ... 
+	  #&gt; unit        :           m,           m,           m,           m,           m,           m, ... 
+	  #&gt; time        : 2020-02-01 00:30:00 to 2020-03-01 UTC
+	  ## show start of the z values which are the time stamps as character strings
+	  head(time(precip_brk))
+	  #&gt; [1] &quot;2020-02-01 00:30:00 UTC&quot; &quot;2020-02-01 01:00:00 UTC&quot;
+	  #&gt; [3] &quot;2020-02-01 01:30:00 UTC&quot; &quot;2020-02-01 02:00:00 UTC&quot;
+	  #&gt; [5] &quot;2020-02-01 02:30:00 UTC&quot; &quot;2020-02-01 03:00:00 UTC&quot;</code></pre>
+      <p>From the properties of precip_brk we see that:</p>
+      <ul>
+	<li>there are 1392 raster layers covering February 2020</li>
+	<li>the projection and resolution of the rainfall grids are different to
+	  the DEM</li>
+	<li>the time step is different to that of the flow data</li>
+      </ul>
+      <p>To address the projection and resolution differences two approaches
+	could be taken</p>
+      <ul>
+	<li>reproject the rainfall data to match the DEM then extract a time
+	  series for each cell, so giving each DEM cell its own rainfall time
+	  series</li>
+	<li>assign each cell in the DEM to one of the rainfall data raster cells
+	  and extract the exisiting rainfall data to the give time series.</li>
+      </ul>
+      <p>Since the DEM has a higher spatial resolution then the rainfall the
+	second approach is more computationally efficent and is recommended.</p>
+      <p>To impliment the approach start by creating a raster layer of the
+	same projection and extent as the rainfall feilds but with unique
+	values</p>
+      <pre class="r"><code>rid &lt;- rast(precip_brk[[1]])
+	  rid &lt;- setValues(rid,1:ncell(rid))
+	  rid
+	  #&gt; class       : SpatRaster 
+	  #&gt; dimensions  : 9, 11, 1  (nrow, ncol, nlyr)
+	  #&gt; resolution  : 0.1, 0.1  (x, y)
+	  #&gt; extent      : -3.2, -2.1, 54.3, 55.2  (xmin, xmax, ymin, ymax)
+	  #&gt; coord. ref. : lon/lat WGS 84 (CRS84) (OGC:CRS84) 
+	  #&gt; source(s)   : memory
+	  #&gt; varname     : Precipitation (IMERGv6 final precipitation over preceding 30 minutes) 
+	  #&gt; name        : Precipitation_1 
+	  #&gt; min value   :               1 
+	  #&gt; max value   :              99 
+	  #&gt; time        : 2020-02-01 00:30:00 UTC</code></pre>
+      <p>Then extract the precipitation values to give an xts object where
+	each column is the time series for one value in rid.</p>
+      <pre class="r"><code>precip &lt;- values(precip_brk) # matrix where each row is one cell
+	  ## add row names based on unique values in rid to give time series names
+	  rownames(precip) &lt;-  paste0(&quot;precip_&quot;,values(rid))
+	  ## get times as characters and convert to R internal time representation (POSIXct)
+	  precip_datetime &lt;- time(precip_brk)
+	  ## create the xts object
+	  precip &lt;- xts(t(precip),order.by=precip_datetime)</code></pre>
+      <p>To fix the difference in time step compared with the flow data we
+	resample the precipitation data to a 15 minute timestep. The
+	resample_xts function of dynatop provides a simple method for doing
+	this</p>
+      <pre class="r"><code>## call the resample_precip function
+	  resampled_precip &lt;- resample_xts(precip,900)
+	  ## look at what it does (assigned rainfall equally between new steps in same time period)
+	  head(precip[,&quot;precip_48&quot;]) # original data
+	  #&gt; Warning: object timezone (&#39;UTC&#39;) is different from system timezone (&#39;&#39;)
+	  #&gt;   NOTE: set &#39;options(xts_check_TZ = FALSE)&#39; to disable this warning
+	  #&gt;     This note is displayed once per session
+	  #&gt;                        precip_48
+	  #&gt; 2020-02-01 00:30:00 0.0000000000
+	  #&gt; 2020-02-01 01:00:00 0.0001677525
+	  #&gt; 2020-02-01 01:30:00 0.0000000000
+	  #&gt; 2020-02-01 02:00:00 0.0000000000
+	  #&gt; 2020-02-01 02:30:00 0.0000000000
+	  #&gt; 2020-02-01 03:00:00 0.0000000000
+	  head(resampled_precip[,&quot;precip_48&quot;]) # resampled data - see how they sum to the original values
+	  #&gt; Warning: object timezone (&#39;UTC&#39;) is different from system timezone (&#39;&#39;)
+	  #&gt;                        precip_48
+	  #&gt; 2020-02-01 00:15:00 0.000000e+00
+	  #&gt; 2020-02-01 00:30:00 0.000000e+00
+	  #&gt; 2020-02-01 00:45:00 8.387624e-05
+	  #&gt; 2020-02-01 01:00:00 8.387624e-05
+	  #&gt; 2020-02-01 01:15:00 0.000000e+00
+	  #&gt; 2020-02-01 01:30:00 0.000000e+00</code></pre>
+      <p>To assign the DEM cells to rainfall series reproject the raster layer
+	of unique rainfall series numbers (rid) to match the projection and
+	resolution of the DEM using nearest neighbours, then save this for later
+	use.</p>
+      <pre class="r"><code>## load the dem
+	  eden &lt;- rast(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;eden.tif&quot;))
+	  ## call the resample_precip function
+	  reproj_rid &lt;- project(rid,eden,method=&quot;near&quot;)
+	  ## A plot for visualisation
+	  plot(reproj_rid)</code></pre>
+      <p><img src="11_observed_series_files/figure-html/resample_space-1.png" width="672" /></p>
+      <pre class="r"><code>## save
+	  writeRaster(reproj_rid,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;precip_id.tif&quot;),overwrite=TRUE)</code></pre>
+
+      <h3>Potential Evapotranspriation</h3>
+      <p>If available spatial Potential Evapotranspiration time series can be
+	handled in exactly the same way as the rainfall. However if there is
+	only a single series generatation of the map of id values can be
+	avoided. A simple sinusoidal PET series can be generated using the
+	<code>evap_est</code> function in <code>dynatop</code>.</p>
+      <pre class="r"><code>## use a maximum of 3 mm/day - output in meters
+	  pet &lt;- evap_est(index(flow), eMin = 0, eMax = 0.003)
+	  names(pet) &lt;- &quot;pet&quot; # ensure series has a name</code></pre>
+
+      <h3>Combining Series</h3>
+      <p>The xts package has a convient functions for merging xts objects by
+	the time. We will save this as an R object for later use</p>
+      <pre class="r"><code>obs &lt;- merge(flow,resampled_precip,pet,all=FALSE) ## merge by time stamp
+	  saveRDS(obs,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;obs.rds&quot;))</code></pre>
+      <blockquote>
+	<p><strong>WARNING</strong> dynatop does not allow for missing data. Any
+	  missing values must be replaced during the pre-processing</p>
+      </blockquote>
+
+      </section>
+      <section id="model-building">
+
+      <!-- 13 Model Building-->
+
+
+      <h2 class="title toc-ignore">Model Building</h2>
+
+      <h3>Aim</h3>
+      <p>To process the GIS data into a Dynamic TOPMODEL structure of the Eden
+	catchment.</p>
+
+      <h3>Required R packages</h3>
+      <p>This exercise builds upon the early <a
+					       href="./10_initial_gis.html">initial GIS</a> and <a
+												  href="./11_observed_series.html">input</a> processing, using the outputs
+	generated during those exercises.</p>
+      <p>The packages used can be attached with</p>
+      <pre class="r"><code>library(&quot;dynatopGIS&quot;)
+	  library(&quot;terra&quot;)</code></pre>
+      <p>and remember to move to the eden_data directory e.g.</p>
+      <pre class="r"><code>setwd(&quot;../eden_data&quot;)</code></pre>
+
+      <h3>Getting started</h3>
+      <p>The <code>dynatopGIS</code> packages works through a number of steps
+	to generate a dynamic TOPMODEL object suitable for use in with the
+	<code>dynatop</code> package. Each step generates one or more layers
+	which are saved as raster or shape files into the projects directory
+	(which is not necessarily the R working directory).</p>
+      <p>Initialise the analysis by creating a new <code>dynatopGIS</code>
+	object specifying the location of the project directory, which will be
+	created if it doesn’t exist.</p>
+      <pre class="r"><code>ctch &lt;- dynatopGIS$new(file.path(&quot;.&quot;,&quot;dynaGIS&quot;))
+	  #&gt; Starting new project at ./dynaGIS</code></pre>
+      <p>If existing files are present in the directory this step will try to
+	reload them as a dynatopGIS project.</p>
+
+      <h3>Adding catchment data</h3>
+      <p>The basis of the analysis is a raster catchment map. Onto this a
+	Digital Elevation Model (DEM) of the catchment and a vector
+	representation of the river network with attributes will be added.
+	Currently these can be in any format supported by the
+	<code>terra</code>package.</p>
+      <p>However, within the calculations used for sink filling, flow routing
+	and topographic index calculations the DEM is presumed to be projected
+	so that is has square cells such that the difference between the cell
+	centres (in meters) does not alter.</p>
+      <p>The catchment map needs to be loaded first</p>
+      <pre class="r"><code>ctch$add_catchment( file.path(&quot;.&quot;,&quot;processed&quot;,&quot;eden.tif&quot;) )</code></pre>
+      <p>Either the DEM or channel files can be added to the project next. In
+	this case add the DEM processed during the initial GIS analysis:</p>
+      <pre class="r"><code>ctch$add_dem(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;dem.tif&quot;))</code></pre>
+      <p>As part of loading the DEM any blocks of <code>NA</code> values
+	within the DEM that fall within the catchment are filled to appear as
+	sinks. These will be filled in a later step.</p>
+      <p>Adding the channel data is achieved with</p>
+      <pre class="r"><code>ctch$add_channel(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;channel.shp&quot;))</code></pre>
+
+      <h3>Getting and plotting catchment information</h3>
+      <p>The <code>dynatopGIS</code> class has methods for returning and
+	plotting the GIS data in the project. The names and file locations of
+	all the different GIS layers stored by dynatopGIS is returned by</p>
+      <pre class="r"><code>ctch$get_layer()
+	  #&gt;          layer
+	  #&gt; 1    catchment
+	  #&gt; 2          dem
+	  #&gt; 3      channel
+	  #&gt; 4 channel_vect
+	  #&gt;                                                                           source
+	  #&gt; 1 /home/paul/Documents/Software/dynatop_training/eden_data/dynaGIS/catchment.tif
+	  #&gt; 2       /home/paul/Documents/Software/dynatop_training/eden_data/dynaGIS/dem.tif
+	  #&gt; 3   /home/paul/Documents/Software/dynatop_training/eden_data/dynaGIS/channel.tif
+	  #&gt; 4   /home/paul/Documents/Software/dynatop_training/eden_data/dynaGIS/channel.shp</code></pre>
+      <p>Note that channel_vect layer is the vector representation of the
+	channel, while channel layer is a rasterised version.</p>
+      <p>Individual layers can be plotted (with or without the channel), for
+	example</p>
+      <pre class="r"><code>ctch$plot_layer(&quot;dem&quot;, add_channel=TRUE)</code></pre>
+      <p><img src="13_model_building_files/figure-html/plot-1.png" width="672" /></p>
+      <p>or returned to the R workspace, for example</p>
+      <pre class="r"><code>ctch$get_layer(&quot;dem&quot;)
+	  #&gt; class       : SpatRaster 
+	  #&gt; dimensions  : 865, 631, 1  (nrow, ncol, nlyr)
+	  #&gt; resolution  : 100, 100  (x, y)
+	  #&gt; extent      : 325900, 389000, 495350, 581850  (xmin, xmax, ymin, ymax)
+	  #&gt; coord. ref. : OSGB36 / British National Grid (EPSG:27700) 
+	  #&gt; source      : dem.tif 
+	  #&gt; name        :     dem 
+	  #&gt; min value   :   9.475 
+	  #&gt; max value   : 923.425</code></pre>
+
+      <h3>Filling sinks</h3>
+      <p>For the hill slope to be connected to the river network all DEM cells
+	must drain to those that intersect with the river network. The algorithm
+	implemented in the <code>sink_fill</code> method ensures this is the
+	case. In calling the <code>sink_fill</code> method a flow direction
+	algorithm is specified and the resulting flow paths recorded. If
+	sub-catchments are present in the catchment map then only flow paths
+	within the sub-catchment are considered.</p>
+      <p>Since the algorithm used by the <code>sink_fill</code> method is
+	iterative and the execution time of the function is limited by capping
+	the maximum number of iterations. If this limit is reached without
+	completion the method can call again with the “hot start” option to
+	continue from where it finished.</p>
+      <p>For the Eden the DEM is already well conditions and the algorithm
+	only alters a small areas of the catchment.</p>
+      <pre class="r"><code>ctch$sink_fill()
+
+	  terra::plot( ctch$get_layer(&#39;filled_dem&#39;) - ctch$get_layer(&#39;dem&#39;),
+	  main=&quot;Changes to height&quot;)</code></pre>
+      <p><img src="13_model_building_files/figure-html/sink_fill-1.png" width="672" /></p>
+
+      <h3>Determining Ordering</h3>
+      <p>The computational scheme in the <code>dynatop</code> package works
+	with an ordered sequence of HRUs constructed such that the sequence
+	moves downslope to catchment outlet. This is achieved by banding the
+	channel reaches and hillslope cells such that the catchment outlet(s)
+	are in band 1, those cells or reaches draining only into band 1 are in
+	band 2 and so forth. Banding is achieved by the following call</p>
+      <pre class="r"><code>ctch$compute_band()
+	  ctch$plot_layer(&quot;band&quot;)</code></pre>
+      <p><img src="13_model_building_files/figure-html/band-1.png" width="672" /></p>
+
+      <h3>Computing Properties</h3>
+      <p>Two sets of properties are required for Dynamic TOPMODEL. The first
+	set is those required within the evaluation of the Hill slope HRU;
+	gradient and contour length. The second set are those used for dividing
+	the catchment up into different response classes. Traditionally the
+	summary used for the separation of the classes is the topographic index,
+	which is the natural logarithm of the up slope area divided by
+	gradient.</p>
+      <p>These properties are computed using the formulae in <a
+							       href="https://doi.org/10.1002/hyp.3360050106">Quinn et al. 1991</a>.</p>
+      <p>The upstream area is computed by routing down slope with the fraction
+	of the area being routed to the next downstream pixel being proportional
+	to the gradient times the contour length.</p>
+      <p>The local value of the gradient is computed using the average of a
+	subset of between pixel gradients. For a normal ‘hill slope’ cell these
+	are the gradients to down-slope pixels weighted by contour length.</p>
+      <p>These properties are computed in an algorithm that passes over the
+	data once in descending height. It is called as follows</p>
+      <pre class="r"><code>ctch$compute_properties()</code></pre>
+      <p>The plot of the topographic index shows a pattern of increasing
+	values closer to the river channels</p>
+      <pre class="r"><code>##plot of topographic index (log(a/tan b))
+	  ctch$plot_layer(&#39;atb&#39;)</code></pre>
+      <p><img src="13_model_building_files/figure-html/plot_atb-1.png" width="672" /></p>
+      <p>Although not used in ordering the HRUs <code>dynatopGIS</code> also
+	provides the ability to compute flow distances for the hill slope cells.
+	The calculation of three distances is supported</p>
+      <ul>
+	<li><em>Shortest flow length</em> - the shortest length based on the
+	  pixel flow paths to a channel</li>
+	<li><em>Dominant flow length</em> - the distance to a channel moving in
+	  the dominant (largest fraction) flow direction from any grid cell</li>
+	<li><em>Expected flow length</em> - the distance to the channel based on
+	  a weighted average of the down-slope flow lengths. Weights are given by
+	  the fraction of flow in each direction.</li>
+      </ul>
+      <p>The computation, in this example for the shortest flow length, is
+	initiated with</p>
+      <pre class="r"><code>ctch$compute_flow_lengths(flow_routing=&quot;shortest&quot;)</code></pre>
+      <p>The additional layers can be examined as expected</p>
+      <pre class="r"><code>ctch$get_layer()
+	  #&gt;                   layer
+	  #&gt; 1             catchment
+	  #&gt; 2                   dem
+	  #&gt; 3               channel
+	  #&gt; 4            filled_dem
+	  #&gt; 5                  band
+	  #&gt; 6              gradient
+	  #&gt; 7          upslope_area
+	  #&gt; 8                   atb
+	  #&gt; 9  shortest_flow_length
+	  #&gt; 10         channel_vect
+	  #&gt;                                                                                       source
+	  #&gt; 1             /home/paul/Documents/Software/dynatop_training/eden_data/dynaGIS/catchment.tif
+	  #&gt; 2                   /home/paul/Documents/Software/dynatop_training/eden_data/dynaGIS/dem.tif
+	  #&gt; 3               /home/paul/Documents/Software/dynatop_training/eden_data/dynaGIS/channel.tif
+	  #&gt; 4            /home/paul/Documents/Software/dynatop_training/eden_data/dynaGIS/filled_dem.tif
+	  #&gt; 5                  /home/paul/Documents/Software/dynatop_training/eden_data/dynaGIS/band.tif
+	  #&gt; 6              /home/paul/Documents/Software/dynatop_training/eden_data/dynaGIS/gradient.tif
+	  #&gt; 7          /home/paul/Documents/Software/dynatop_training/eden_data/dynaGIS/upslope_area.tif
+	  #&gt; 8                   /home/paul/Documents/Software/dynatop_training/eden_data/dynaGIS/atb.tif
+	  #&gt; 9  /home/paul/Documents/Software/dynatop_training/eden_data/dynaGIS/shortest_flow_length.tif
+	  #&gt; 10              /home/paul/Documents/Software/dynatop_training/eden_data/dynaGIS/channel.shp
+	  ctch$plot_layer(&quot;shortest_flow_length&quot;)</code></pre>
+      <p><img src="13_model_building_files/figure-html/flow_length_plot-1.png" width="672" /></p>
+
+      <h3>Adding additional Layers</h3>
+      <p>Properties for use in the classification of HRUs or for determining
+	input series may be added as additional raster GIS layers.</p>
+      <p>In the initial GIS analysis a layer for urban area was developed,
+	while processing the input data produced a map relating to rainfall
+	input. These can now be added to the dynatopGIS project by specifying
+	the file location and name to call the layer.</p>
+      <pre class="r"><code>ctch$add_layer(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;urban.tif&quot;),&quot;urban&quot;)
+	  ctch$add_layer(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;precip_id.tif&quot;),&quot;precip_id&quot;)</code></pre>
+      <p>Calling the get_layer method shows these are added to the project</p>
+      <pre class="r"><code>ctch$get_layer()
+	  #&gt;                   layer
+	  #&gt; 1             catchment
+	  #&gt; 2                   dem
+	  #&gt; 3               channel
+	  #&gt; 4            filled_dem
+	  #&gt; 5                  band
+	  #&gt; 6              gradient
+	  #&gt; 7          upslope_area
+	  #&gt; 8                   atb
+	  #&gt; 9  shortest_flow_length
+	  #&gt; 10                urban
+	  #&gt; 11            precip_id
+	  #&gt; 12         channel_vect
+	  #&gt;                                                                                       source
+	  #&gt; 1             /home/paul/Documents/Software/dynatop_training/eden_data/dynaGIS/catchment.tif
+	  #&gt; 2                   /home/paul/Documents/Software/dynatop_training/eden_data/dynaGIS/dem.tif
+	  #&gt; 3               /home/paul/Documents/Software/dynatop_training/eden_data/dynaGIS/channel.tif
+	  #&gt; 4            /home/paul/Documents/Software/dynatop_training/eden_data/dynaGIS/filled_dem.tif
+	  #&gt; 5                  /home/paul/Documents/Software/dynatop_training/eden_data/dynaGIS/band.tif
+	  #&gt; 6              /home/paul/Documents/Software/dynatop_training/eden_data/dynaGIS/gradient.tif
+	  #&gt; 7          /home/paul/Documents/Software/dynatop_training/eden_data/dynaGIS/upslope_area.tif
+	  #&gt; 8                   /home/paul/Documents/Software/dynatop_training/eden_data/dynaGIS/atb.tif
+	  #&gt; 9  /home/paul/Documents/Software/dynatop_training/eden_data/dynaGIS/shortest_flow_length.tif
+	  #&gt; 10                /home/paul/Documents/Software/dynatop_training/eden_data/dynaGIS/urban.tif
+	  #&gt; 11            /home/paul/Documents/Software/dynatop_training/eden_data/dynaGIS/precip_id.tif
+	  #&gt; 12              /home/paul/Documents/Software/dynatop_training/eden_data/dynaGIS/channel.shp</code></pre>
+
+      <h3>Classifying into Hydrological Response Units</h3>
+      <p>Methods are provided for the classification of the catchment.
+	Multiple classifications can be produced but that used to generate the
+	<code>dynatop</code> model (see following sections) must include the
+	“band” layer.</p>
+      <p>By definition each channel length is treated as a single class with
+	its own Channel HRU. Two ways are provided for dividing the hill-slope
+	up into classes. The first way is <em>cutting</em> where a landscape
+	property is divided up into classes. The second is <em>combining</em>
+	where unique existing class layers are combined by either by pairing
+	(where unique combinations of classes form a new class) or burning
+	(which enforces classes onto distinct areas).</p>
+
+      <h4>Cutting</h4>
+      <p>To split a catchment into HRUs using cuts the breaks between the
+	classes need to be specified. The breaks can be specified as either:</p>
+      <ul>
+	<li>A single value: defines the number of splits which are automatically
+	  selected</li>
+	<li>A vector of values: treated as the breaks between classes</li>
+      </ul>
+      <p>To demonstrate the use of cuts alone dividing the topographic index
+	into 20 classes. Specifying a single value gives class breaks that are
+	equally spaced across the range of the variable.</p>
+      <pre class="r"><code>## simple equally spaced cuts
+	  ctch$classify(&quot;atb_20&quot;,&quot;atb&quot;,20)</code></pre>
+      <p>It is perhaps better to consider 20 classes with approximately equal
+	land area. it this case the breaks can be computed using the quantiles
+	of the variable</p>
+      <pre class="r"><code>## use the quantile function of the raster package to compute breaks
+	  ## note we need to include the min and max
+	  brk &lt;- global(ctch$get_layer(&quot;atb&quot;), fun=quantile,probs = seq(0, 1, length = 21),na.rm=T)
+	  ctch$classify(&quot;atb_20_equal&quot;,&quot;atb&quot;,brk)</code></pre>
+      <p>In the meta data the cuts and burns used to generate the layer are
+	recorded. These can be retrieved with</p>
+      <pre class="r"><code>head(ctch$get_method(&quot;atb_20&quot;))
+	  #&gt; $type
+	  #&gt; [1] &quot;classification&quot;
+	  #&gt; 
+	  #&gt; $layer
+	  #&gt; [1] &quot;atb&quot;
+	  #&gt; 
+	  #&gt; $cuts
+	  #&gt;  [1]  9.5986 10.3730 11.1474 11.9218 12.6962 13.4706 14.2450 15.0194 15.7938
+	  #&gt; [10] 16.5682 17.3426 18.1170 18.8914 19.6658 20.4402 21.2146 21.9890 22.7634
+	  #&gt; [19] 23.5378 24.3122 25.0866
+	  ## returns the list of break points for the classes</code></pre>
+
+      <h4>Combining</h4>
+      <p>The sub-catchments could be added alongside the banding to add a
+	further spatial separation.</p>
+      <pre class="r"><code>ctch$combine_classes(&quot;atb_20_subcatch&quot;,c(&quot;atb_20&quot;,&quot;catchment&quot;))</code></pre>
+      <p>If this is to be used to generate a model the <code>band</code> layer
+	would have to be included.</p>
+      <pre class="r"><code>ctch$combine_classes(&quot;atb_20_subcatch_band&quot;,c(&quot;atb_20_subcatch&quot;,&quot;band&quot;))</code></pre>
+      <p>A more complex combination would also include the urban area. Layers
+	burnt into the classification are added after the cuts are applied and
+	treated as directly defined HRUs. In the example it may be desirable to
+	burn in the Urban areas since these will have a different hydrological
+	behaviour.</p>
+      <p>Since the layers burnt in are applied with no alteration to their
+	values these may clash with those already defined by the cuts. One
+	method that <em>nearly</em> always avoid this is to burn in classes with
+	negative values. Let us then adapt the urban layer to have negative
+	values.</p>
+      <pre class="r"><code>tmp &lt;- -ctch$get_layer(&quot;urban&quot;)
+	  writeRaster(tmp,file.path(&quot;.&quot;,&quot;processed&quot;,&quot;neg_extended_eden.tif&quot;),overwrite=TRUE) ## write out
+	  ctch$add_layer(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;neg_extended_eden.tif&quot;),&quot;neg_urban&quot;)</code></pre>
+      <p>then burn this into the existing classification based on the
+	topographic index and sub-catchment</p>
+      <pre class="r"><code>ctch$combine_classes(&quot;atb_20_subcatch_band_burn_neg_urban&quot;,&quot;atb_20_subcatch_band&quot;,burns=&quot;neg_urban&quot;)</code></pre>
+      <p>In the meta data the classes of the original class values in the
+	combination are stored These can be retrieved with</p>
+      <pre class="r"><code>tmp &lt;- ctch$get_method(&quot;atb_20_subcatch&quot;)
+	  tmp$type
+	  #&gt; [1] &quot;combination&quot;
+	  head(tmp$groups)
+	  #&gt;   atb_20_subcatch atb_20 catchment burns
+	  #&gt; 1               1      1     76003 FALSE
+	  #&gt; 2               2      2     76003 FALSE
+	  #&gt; 3               3      3     76003 FALSE
+	  #&gt; 4               4      1     76005 FALSE
+	  #&gt; 5               5      4     76003 FALSE
+	  #&gt; 6               6      2     76005 FALSE
+	  ## returns the list of break points for the cuts and layers burnt in</code></pre>
+
+      <h4>Complexity</h4>
+      <p>The number of classes resulting from the classifications reflects the
+	complexity of the model. The number of classes can be computed from the
+	maps and is shown in the following table. Since these classes may occur
+	in any of the bands the resulting number of HRUs, which is also shown is
+	much higher.</p>
+      <table>
+	<thead>
+	  <tr class="header">
+	    <th align="left">classification</th>
+	    <th align="right">Classes</th>
+	    <th align="right">HRU</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  <tr class="odd">
+	    <td align="left">atb_20</td>
+	    <td align="right">20</td>
+	    <td align="right">3744</td>
+	  </tr>
+	  <tr class="even">
+	    <td align="left">atb_20_subcatch</td>
+	    <td align="right">136</td>
+	    <td align="right">13878</td>
+	  </tr>
+	  <tr class="odd">
+	    <td align="left">atb_20_subcatch_band_burn_neg_urban</td>
+	    <td align="right">166</td>
+	    <td align="right">13826</td>
+	  </tr>
+	</tbody>
+      </table>
+
+      <h3>Generating a dynamic TOPMODEL</h3>
+      <p>A Dynamic TOPMODEL suitable for use with the <code>dynatop</code>
+	package can be generated using the create_model method. This uses an
+	existing classification to generate the model.</p>
+      <p>For example, in the case of the division of by topographic index into
+	21 classes and the bands directly the resulting model can be generated
+	by</p>
+      <pre class="r"><code>ctch$create_model(file.path(&quot;./dyna&quot;,&quot;atb_20_model&quot;), # name of new model
+	  &quot;atb_20_band&quot;, # classification to base model on
+	  sf_opt=&quot;cnst&quot;,
+	  sz_opt=&quot;exp&quot;,
+	  rain_layer = &quot;precip_id&quot;, # layer of input precipitation series ID
+	  rain_label = &quot;precip_&quot; # characters added to values in rain_layer to get series name
+	  )</code></pre>
+      <p>Looking at the files within the folder containing the dynatopGIS
+	project</p>
+      <pre class="r"><code>list.files(file.path(&quot;./dyna&quot;),pattern=&quot;atb_20_model&quot;)
+	  #&gt; [1] &quot;atb_20_model.rds&quot; &quot;atb_20_model.tif&quot;</code></pre>
+      <p>shows that an additional raster map of the HRUs has been created in
+	<code>atb_20_model.tif</code> along with a file
+	<code>atb_20_model.rds</code> containing a model suitable for
+	<code>dynatop</code></p>
+
+      <h3>Looking at the <code>dynatopGIS</code> model output</h3>
+      <p>The model output by <code>dynatopGIS</code> should be adequate for
+	<code>dyantop</code> to run, and is more fully documented <a
+								    href="https://waternumbers.github.io/dynatop/articles/The_Model_Object.html">here</a>.
+	Looking at the output in more detail shows <code>atb_20_model.rds</code>
+	contains three variables.</p>
+      <pre class="r"><code>## load the model
+	  mdl &lt;- readRDS( file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;atb_20_model.rds&quot;)) ## read the model in
+	  names(mdl)
+	  #&gt; [1] &quot;hru&quot;         &quot;output_flux&quot; &quot;map&quot;</code></pre>
+      <p>The <code>map</code> variable contains the path of the HRU map.</p>
+      <pre class="r"><code>mdl$map
+	  #&gt; [1] &quot;./dyna/atb_20_model.tif&quot;</code></pre>
+      <p>The <code>hru</code> variable contains a description of the HRUs.
+	This is given as an list, with each list element representing the
+	properties of one HRU.</p>
+      <pre class="r"><code>names(mdl$hru[[8]])
+	  #&gt;  [1] &quot;id&quot;                &quot;states&quot;            &quot;properties&quot;       
+	  #&gt;  [4] &quot;sf&quot;                &quot;rz&quot;                &quot;uz&quot;               
+	  #&gt;  [7] &quot;sz&quot;                &quot;sf_flow_direction&quot; &quot;sz_flow_direction&quot;
+	  #&gt; [10] &quot;initialisation&quot;    &quot;precip&quot;            &quot;pet&quot;              
+	  #&gt; [13] &quot;class&quot;</code></pre>
+      <p>A summary of properties is given below, detailed descriptions are
+	found in the <a
+		       href="https://waternumbers.github.io/dynatop/articles/The_Model_Object.html"><code>dynatop</code>
+	  vignettes</a></p>
+      <table>
+	<colgroup>
+	  <col width="22%" />
+	  <col width="10%" />
+	  <col width="67%" />
+	</colgroup>
+	<thead>
+	  <tr class="header">
+	    <th>Name</th>
+	    <th>Class</th>
+	    <th>Description</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  <tr class="odd">
+	    <td>id</td>
+	    <td>integer</td>
+	    <td>The unique ID of the HRU</td>
+	  </tr>
+	  <tr class="even">
+	    <td>states</td>
+	    <td>numeric</td>
+	    <td>Named numeric vector of states</td>
+	  </tr>
+	  <tr class="odd">
+	    <td>properties</td>
+	    <td>numeric</td>
+	    <td>Named numeric vector of properties</td>
+	  </tr>
+	  <tr class="even">
+	    <td>sf</td>
+	    <td>list</td>
+	    <td>Description of the surface zone solution</td>
+	  </tr>
+	  <tr class="odd">
+	    <td>rz</td>
+	    <td>list</td>
+	    <td>Description of the surface zone solution</td>
+	  </tr>
+	  <tr class="even">
+	    <td>uz</td>
+	    <td>list</td>
+	    <td>Description of the unsaturated zone solution</td>
+	  </tr>
+	  <tr class="odd">
+	    <td>sz</td>
+	    <td>list</td>
+	    <td>Description of the saturated solution</td>
+	  </tr>
+	  <tr class="even">
+	    <td>sf_flow_direction</td>
+	    <td>list</td>
+	    <td>Description of the surface zone outflows to other HRUs</td>
+	  </tr>
+	  <tr class="odd">
+	    <td>sz_flow_direction</td>
+	    <td>list</td>
+	    <td>Description of the saturated zone outflows to other HRUs</td>
+	  </tr>
+	  <tr class="even">
+	    <td>initialisation</td>
+	    <td>numeric</td>
+	    <td>Named numeric vector of initialisation parameters</td>
+	  </tr>
+	  <tr class="odd">
+	    <td>precip</td>
+	    <td>list</td>
+	    <td>Description of the precipitation input to the HRU</td>
+	  </tr>
+	  <tr class="even">
+	    <td>pet</td>
+	    <td>list</td>
+	    <td>Description of the PET input to the HRU</td>
+	  </tr>
+	  <tr class="odd">
+	    <td>class</td>
+	    <td>list</td>
+	    <td>Classification information from dynatopGIS</td>
+	  </tr>
+	</tbody>
+      </table>
+      <p>The <code>output_flux</code> variable contains a table in the format
+	used in a call to a <code>dynatop</code> simulation to set the time
+	series output.to set the</p>
+      <pre class="r"><code>mdl$output_flux
+	  #&gt;     name id flux scale
+	  #&gt; 1 q_sf_0  0 q_sf     1
+	  #&gt; 2 q_sf_1  1 q_sf     1
+	  #&gt; 3 q_sf_2  2 q_sf     1
+	  #&gt; 4 q_sf_3  3 q_sf     1
+	  #&gt; 5 q_sf_4  4 q_sf     1</code></pre>
+      <p>By default <code>dynatopGIS</code> populates this to return the
+	lateral outflows of the surface zones (flux column set to
+	<code>q_sf</code>) of the catchment outlets (HRU number in the
+	<code>id</code> column) giving then representative names.</p>
+      <p>This can be replaced by the locations of the river gauges found in
+	the initial GIS processing.</p>
+      <pre class="r"><code>## To replace this read in the gauge locations generated mealier
+	  gauges &lt;- vect(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;gauges.shp&quot;))
+	  ## create a vector of the uid&#39;s of the HRUs
+	  hid &lt;- sapply(mdl$hru,function(h){h$id})
+	  ## create a vector of the channel names with as storaged in the class variabel
+	  cname &lt;- sapply(mdl$hru,function(h){h$class$name})
+	  idx &lt;- match(gauges$chn_identi,cname) ## index of HRU&#39;s corresponding to gauges
+	  ## create as a data.frame
+	  gauge_output &lt;- data.frame(name = gauges$Site.Name,
+	  id = as.integer(hid[idx]),
+	  flux = &quot;q_sf&quot;,
+	  scale = 1)
+	  saveRDS(gauge_output,file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;gauge_output_defn.rds&quot;)) ## save the output for later use
+	  gauge_output
+	  #&gt;                      name   id flux scale
+	  #&gt; 1          Bampton Grange 1632 q_sf     1
+	  #&gt; 2               Burnbanks 1787 q_sf     1
+	  #&gt; 3               Coal Burn 1382 q_sf     1
+	  #&gt; 4             Cummersdale   53 q_sf     1
+	  #&gt; 5            Dacre Bridge 1241 q_sf     1
+	  #&gt; 6           Eamont Bridge 1167 q_sf     1
+	  #&gt; 7             Great Corby  246 q_sf     1
+	  #&gt; 8              Greenholme  274 q_sf     1
+	  #&gt; 9           Harraby Green   14 q_sf     1
+	  #&gt; 10           Hynam Bridge  565 q_sf     1
+	  #&gt; 11         Kirkby Stephen 2157 q_sf     1
+	  #&gt; 12       Newbiggin Bridge   35 q_sf     1
+	  #&gt; 13 Pooley Bridge Upstream 1341 q_sf     1
+	  #&gt; 14             Sheepmount    1 q_sf     1
+	  #&gt; 15          Stockdalewath  282 q_sf     1
+	  #&gt; 16         Temple Sowerby 1064 q_sf     1
+	  #&gt; 17                 Udford  985 q_sf     1</code></pre>
+
+      </section>
+      <section id="simulation">
+      <!-- 14 -->
+
+
+
+      <h2 class="title toc-ignore">Running a Simulation</h2>
+
+      <h3>Aim</h3>
+      <p>To simulate a Dynamic TOPMODEL of the Eden catchment, visualise the
+	output showing how the show how the parameters may be altered.</p>
+
+      <h3>Required R packages</h3>
+      <p>This exercise builds upon the early <a
+					       href="./13_model_building.html">model creation</a>, using the outputs
+	generated during that exercise.</p>
+      <p>The packages used can be attached with</p>
+      <pre class="r"><code>library(&quot;dynatop&quot;)
+	  library(&quot;terra&quot;)
+	  library(&quot;xts&quot;)</code></pre>
+      <p>and remember to move to the eden_data directory e.g.</p>
+      <pre class="r"><code>setwd(&quot;./eden_data&quot;)</code></pre>
+
+      <h3>A Simulation</h3>
+      <p>The minimum data need to perform a simulation with dynatop is a
+	model, such as that output by <code>dynatopGIS</code> in the <a
+								       href="./13_model_building.html">previous section</a> and observed data
+	in the format introduced <a
+				   href="./11_observed_series.html">earlier</a>.</p>
+      <p>Load the previously created data</p>
+      <pre class="r"><code>mdl &lt;- readRDS(file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;atb_20_model.rds&quot;))
+	  output_defn &lt;- readRDS(file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;gauge_output_defn.rds&quot;))
+	  obs &lt;- readRDS(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;obs.rds&quot;))</code></pre>
+      <p>A dynatop object is initialised by loading the model</p>
+      <pre class="r"><code>hru &lt;- mdl$hru
+	  ctch_mdl &lt;- dynatop$new(hru)</code></pre>
+      <p>This step performs some basic checks on the model for consistency.
+	The data can then be added; again simple checks are performed.</p>
+      <pre class="r"><code>ctch_mdl$add_data(obs)</code></pre>
+      <p>The initial states of the HRUs can be specified in the model object.
+	If, as in the case of this example, the states are not specified then
+	any attempt to perform a simulation will fail.</p>
+      <pre class="r"><code>## expect a failure
+	  ctch_mdl$sim(output_defn)
+	  #&gt; Error in ctch_mdl$sim(output_defn): Model states have non-finite values</code></pre>
+      <p>The states need to be initialised using the initialise method. This
+	presumes:</p>
+      <ul>
+	<li>The surface is dry</li>
+	<li>The root zone is partially full (the s_rz0 parameter)</li>
+	<li>There is a specified (see below) recharge rate representing the flow
+	  from the unsaturated to saturated zone</li>
+	<li>the saturated zone is at a steady state</li>
+	<li>the unsaturated zone storage ensures that the recharge rate from the
+	  unsaturated zone to the saturated zone is as close to the maximum as
+	  possible</li>
+      </ul>
+      <p>The maximum recharge rate and fraction of root zone storage full for
+	each HRU forms part of its definition.</p>
+      <pre class="r"><code>hru[[1000]]$initialisation
+	  #&gt;    s_rz_0 r_uz_sz_0 
+	  #&gt;   7.5e-01   1.0e-07
+	  ## s_rz_0 - fraction of root zone full
+	  ## r_us_sz_0 - recharge unsaturated to saturated zone in m/s and</code></pre>
+      <p>A simple way of getting an initial estimate of the recharge is to
+	divide the observed discharge at the outlet of the catchment for the
+	first time step by the catchment area. This works best if the first time
+	step has no rainfall and is close to base-flow.</p>
+      <pre class="r"><code>## determining the initial recharge rate ad setting it in the model
+	  r0 &lt;- as.numeric(obs$Sheepmount_obs[1]) / sum( sapply( hru, function(x){x$properties[&quot;area&quot;]} ) )
+	  hru &lt;- lapply(hru,function(h){h$initialisation[&quot;r_uz_sz_0&quot;] &lt;- r0;h})</code></pre>
+      <p>In the following we initialise the states and then perform the
+	simulation, using the chaining of commands.</p>
+      <pre class="r"><code>## the map input is only needed for visualisation
+	  ctch_mdl &lt;- dynatop$new(hru,map=mdl$map)$add_data(obs)$initialise()$sim(output_defn)</code></pre>
+      
+      <h4>Mass balance</h4>
+      <p>It is possible to output the mass balance for each time step of the
+	simulation using the <code>get_mass_errors</code> method. The returns an
+	<code>xts</code> object giving the volumes in the hill-slope states at
+	the start and end of the time step along with the other fluxes as
+	volumes. This can easily be used to plot the errors as shown below.</p>
+      <pre class="r"><code>mb &lt;- ctch_mdl$get_mass_errors()
+	  head(mb)
+	  #&gt;                     initial_state         p e_t  outflow final_state
+	  #&gt; 2020-02-01 00:15:00    -198322986  636.1126   0 170462.6  -198492812
+	  #&gt; 2020-02-01 00:30:00    -198492812  636.1126   0 170455.0  -198662631
+	  #&gt; 2020-02-01 00:45:00    -198662631 6385.7957   0 170447.6  -198826693
+	  #&gt; 2020-02-01 01:00:00    -198826693 6385.7957   0 170440.0  -198990747
+	  #&gt; 2020-02-01 01:15:00    -198990747 2140.9939   0 170432.2  -199159038
+	  #&gt; 2020-02-01 01:30:00    -199159038 2140.9939   0 170423.9  -199327321
+	  #&gt;                             error
+	  #&gt; 2020-02-01 00:15:00 -6.854534e-07
+	  #&gt; 2020-02-01 00:30:00  7.748604e-07
+	  #&gt; 2020-02-01 00:45:00  2.980232e-08
+	  #&gt; 2020-02-01 01:00:00 -1.400709e-06
+	  #&gt; 2020-02-01 01:15:00  3.278255e-07
+	  #&gt; 2020-02-01 01:30:00 -5.960464e-08
+	  plot( mb$err , main=&quot;Mass balance error&quot;,ylab=&quot;m^3&quot;)</code></pre>
+      <p><img src="14_model_simulation_files/figure-html/mass_check-1.png" width="672" /></p>
+
+      <h3>Visualisations</h3>
+      <p>After a simulation it is possible to get or plot output. Two types of
+	output are available:</p>
+      <ul>
+	<li>the time series variable specified in the <code>output_defn</code>
+	  used in the simulation</li>
+	<li>the states of the system at end of the simulation</li>
+      </ul>
+      <p>Both have methods for plotting the data or returning in as a variable
+	as shown in the following</p>
+
+      <h4>Gauge flows</h4>
+      <pre class="r"><code>## For simulated flows at the gauge sites
+	  sim_gauge &lt;- ctch_mdl$get_output() ## extract the flow as an xts object
+	  head(sim_gauge)
+	  #&gt;                     Bampton Grange Burnbanks Coal Burn Cummersdale Dacre Bridge
+	  #&gt; 2020-02-01 00:15:00       4.928123  2.817783 0.1227015    21.63214     2.836557
+	  #&gt; 2020-02-01 00:30:00       4.926602  2.820096 0.1197231    21.62889     2.836551
+	  #&gt; 2020-02-01 00:45:00       4.925192  2.818703 0.1173275    21.62742     2.834431
+	  #&gt; 2020-02-01 01:00:00       4.922987  2.815001 0.1156495    21.62710     2.830495
+	  #&gt; 2020-02-01 01:15:00       4.919994  2.810062 0.1145420    21.62684     2.825530
+	  #&gt; 2020-02-01 01:30:00       4.916647  2.804287 0.1138176    21.62577     2.820491
+	  #&gt;                     Eamont Bridge Great Corby Greenholme Harraby Green
+	  #&gt; 2020-02-01 00:15:00      12.89632    110.4597   27.29113      14.33129
+	  #&gt; 2020-02-01 00:30:00      12.89247    110.4585   27.28848      14.32870
+	  #&gt; 2020-02-01 00:45:00      12.88853    110.4571   27.28491      14.32500
+	  #&gt; 2020-02-01 01:00:00      12.88497    110.4544   27.28030      14.32131
+	  #&gt; 2020-02-01 01:15:00      12.88187    110.4509   27.27486      14.31959
+	  #&gt; 2020-02-01 01:30:00      12.87922    110.4471   27.26884      14.32002
+	  #&gt;                     Hynam Bridge Kirkby Stephen Newbiggin Bridge
+	  #&gt; 2020-02-01 00:15:00     3.547355       5.248447         13.54109
+	  #&gt; 2020-02-01 00:30:00     3.546882       5.245908         13.54321
+	  #&gt; 2020-02-01 00:45:00     3.544828       5.242319         13.54446
+	  #&gt; 2020-02-01 01:00:00     3.541144       5.238129         13.54532
+	  #&gt; 2020-02-01 01:15:00     3.536149       5.233599         13.54379
+	  #&gt; 2020-02-01 01:30:00     3.530388       5.228567         13.53925
+	  #&gt;                     Pooley Bridge Upstream Sheepmount Stockdalewath
+	  #&gt; 2020-02-01 00:15:00               12.22210   188.7329      5.477744
+	  #&gt; 2020-02-01 00:30:00               12.22039   188.7357      5.475740
+	  #&gt; 2020-02-01 00:45:00               12.21934   188.7366      5.471281
+	  #&gt; 2020-02-01 01:00:00               12.21803   188.7354      5.466385
+	  #&gt; 2020-02-01 01:15:00               12.21524   188.7327      5.462073
+	  #&gt; 2020-02-01 01:30:00               12.21039   188.7281      5.458081
+	  #&gt;                     Temple Sowerby   Udford
+	  #&gt; 2020-02-01 00:15:00       47.70087 32.90629
+	  #&gt; 2020-02-01 00:30:00       47.69905 32.90238
+	  #&gt; 2020-02-01 00:45:00       47.69883 32.89939
+	  #&gt; 2020-02-01 01:00:00       47.69882 32.89724
+	  #&gt; 2020-02-01 01:15:00       47.69792 32.89562
+	  #&gt; 2020-02-01 01:30:00       47.69570 32.89389
+
+	  ## Plot the simulated flows at the gauges
+	  ctch_mdl$plot_output()</code></pre>
+      <p><img src="14_model_simulation_files/figure-html/gauge_flow-1.png" width="672" /></p>
+      <p>The observed gauge data is readily added and plotted</p>
+      <pre class="r"><code>plot( merge(obs$Sheepmount_obs,sim_gauge),main=&quot;Simulated and observed flows&quot;,
+	  legend.loc=&#39;topright&#39;)</code></pre>
+      <p><img src="14_model_simulation_files/figure-html/gauge_flow_merge-1.png" width="672" /></p>
+
+      <h4>Current States</h4>
+      <p>The current states of the model can be extracted and plotted.</p>
+      <pre class="r"><code>## extract the current states as a data.frame
+	  current_state &lt;- ctch_mdl$get_states()
+	  ## columns correspond to the Hill-slope HRU ID, and the storage&#39;s in each of the four zones
+	  head(current_state)
+	  #&gt;   id         s_sf s_rz s_uz s_sz
+	  #&gt; 1  0 0.0002079108  0.1    0    0
+	  #&gt; 2  1 9.9896233896  0.1    0    0
+	  #&gt; 3  2 0.0004973038  0.1    0    0
+	  #&gt; 4  3 0.0036077856  0.1    0    0
+	  #&gt; 5  4 0.0036269050  0.1    0    0
+	  #&gt; 6  5 0.5555132189  0.1    0    0
+
+	  ## a single state can be plotted at one time
+	  ctch_mdl$plot_state(&quot;s_sz&quot;)</code></pre>
+      <p><img src="14_model_simulation_files/figure-html/current_states-1.png" width="672" /></p>
+
+      <h3>Changing Parameters</h3>
+      <p>The parameters are stored within the HRU descriptions; particularly
+	the <code>sf</code>, <code>rz</code>, <code>uz</code> and
+	<code>sz</code> elements. Each of these contains a <code>type</code>
+	variable and corresponding named vector of parameters. The various types
+	and parameters for each zone are described in the (<code>dynatop</code>
+	vignettes)[<a
+		     href="https://waternumbers.github.io/dynatop/articles/HRU.html#surface-zone-representations"
+		     class="uri">https://waternumbers.github.io/dynatop/articles/HRU.html#surface-zone-representations</a>].</p>
+      <p>The most straight forward way for altering the parameters is two
+	write a function that acts on each HRU, altering the parameters with
+	reference to the properties of the HRU. The following presents a simple
+	function of setting a faster surface velocity and kinematic solution for
+	the river channels.</p>
+      <pre class="r"><code>fpar &lt;- function(h){ ## h is the hru
+	  ## test if a channel
+	  if( !is.na(h$class$startNode) ){
+	  ## change type
+	  h$sf$type &lt;- &quot;kin&quot;
+	  h$sf$param[&quot;c_sf&quot;] &lt;- 1
+	  }
+	  h
+	  }</code></pre>
+
+      <h3>Channel Inflow</h3>
+      <p>To use <code>dyantop</code> to drive a hydraulic model the inflow
+	from the subsurface and hillslope HRUs to the surface zone of each
+	channel HRU may need to be computed. The first term is (directly
+	available )[<a
+		      href="https://waternumbers.github.io/dynatop/articles/The_Model_Object.html#output_flux"
+		      class="uri">https://waternumbers.github.io/dynatop/articles/The_Model_Object.html#output_flux</a>],
+	though will the wrong sign and as a volume. Start by working out the id
+	of each channel HRU</p>
+      <pre class="r"><code>chn_id &lt;- do.call(c, lapply( hru, function(h){ if(!is.na(h$class$startNode)){ h$id } }))</code></pre>
+      <p>Next start creating an output definition for the flux from root
+	zone</p>
+      <pre class="r"><code>out_hyd &lt;-  data.frame( name = paste0(&quot;hyd_&quot;,chn_id),
+	  id = chn_id,
+	  flux = &quot;v_sf_rz&quot;, scale =-1/900) # scale is negative since flux usually downwards, 1/900 is 1/timestep</code></pre>
+      <p>Next we will construct the inflow from HRUs representing hillslopes
+	and add these to the data frame above.</p>
+      <pre class="r"><code>## function to compute the relevent part so the output definition for each potential source HRU
+	  fout &lt;- function(h){
+	  ## test if it is a channel HRU - in which case return NULL
+	  if( !is.na(h$class$startNode) ){ return(NULL) }
+	  
+	  ## index of flow directiuons going to other channels
+	  idx &lt;- h$sf_flow_direction$id %in% chn_id
+	  if(!any(idx)){ return(NULL) } ## quit if no links!
+	  ## create partial output defn
+	  data.frame(
+	  name = paste0(&quot;hyd_&quot;,h$sf_flow_direction$id[idx]), ## which inflow does it alter
+	  id = h$id, ## flux comes from this HRU
+	  flux = &quot;q_sf&quot;, # surface flux out of this HRU is input to the next
+	  scale = h$sf_flow_direction$fraction[idx] # scale is fraction of flow (since taking it away)
+	  )
+	  }
+	  ## row bind to give a data.frame
+	  tmp &lt;- do.call( rbind, lapply( hru, fout) )
+
+	  ## row bind onto the intial data frame
+	  out_hyd &lt;- rbind( out_hyd, tmp )
+
+	  ## sort this, not needed but easier to look at
+	  out_hyd &lt;- out_hyd[ order(out_hyd$name), ]</code></pre>
+      <p>In the resulting output definition multiple fluxes contribute to the
+	same output series, combined by a summation weighted by the scale value.
+	Simulation and visualisation work as before.</p>
+      <pre class="r"><code>ctch_mdl &lt;- dynatop$new(hru)$add_data(obs)$initialise()$sim(out_hyd)
+	  plot( ctch_mdl$get_output()[,1:10])</code></pre>
+      <p><img src="14_model_simulation_files/figure-html/inflow_sim-1.png" width="672" /></p>
+
+      <h3>Extracting Intermediate States</h3>
+      <p>Unless requested <code>dynatop</code> keeps only the final state
+	during a simulation. To request that states are other time steps are
+	kept a vector of times must be passed in the call to the
+	<code>sim</code> method.</p>
+      <pre class="r"><code>## Let us repeat the same simulation
+	  ## keeping the states for every other time step
+	  keep_times &lt;- index(obs)[seq(2,nrow(obs),by=96)] ## an vector of time steps
+	  ctch_mdl$initialise()$sim(output_defn,keep_states=keep_times) ## passing the vector of time steps to the call</code></pre>
+      <p>The record of the states can know be extracted. While there is an
+	entry for every time step only those request will be populated</p>
+      <pre class="r"><code>## extract the record of the states at each time step
+	  state_rec &lt;- ctch_mdl$get_states(record=TRUE) ## returns the whole record of states
+	  head(names(state_rec)) ## the elements in state_rec are named after the time
+	  #&gt; [1] &quot;2020-02-01 00:15:00&quot; &quot;2020-02-01 00:30:00&quot; &quot;2020-02-01 00:45:00&quot;
+	  #&gt; [4] &quot;2020-02-01 01:00:00&quot; &quot;2020-02-01 01:15:00&quot; &quot;2020-02-01 01:30:00&quot;
+	  head(sapply(state_rec,length)) ## those in keep_times are populated the remainder are empty
+	  #&gt; 2020-02-01 00:15:00 2020-02-01 00:30:00 2020-02-01 00:45:00 2020-02-01 01:00:00 
+	  #&gt;                   0                5322                   0                   0 
+	  #&gt; 2020-02-01 01:15:00 2020-02-01 01:30:00 
+	  #&gt;                   0                   0</code></pre>
+      <p>The visualisation of the state record is possible either as a time
+	series</p>
+      <pre class="r"><code>## Create a time series plot of the saturated zone deficit
+	  s_sz_rec &lt;- state_rec[ sapply(state_rec,length)&gt;0 ]
+	  s_sz_rec &lt;- lapply(s_sz_rec, function(x){ setNames( sapply(x,function(z){z$states[&quot;s_sz&quot;]}), sapply(x,function(z){z$id}) )} )
+	  s_sz_rec &lt;- do.call(rbind,s_sz_rec) ## bind to make matrix
+	  s_sz_rec &lt;- as.xts(s_sz_rec) ## convert to and xts object using the rownames as times
+	  ## for a the Hill-slope HRUs with IDs 2487, 3598 and 5201 the start of the time series are
+	  head(s_sz_rec[,c(&quot;2487&quot;,&quot;3598&quot;,&quot;5201&quot;)])
+	  #&gt;                     2487      3598      5201
+	  #&gt; 2020-02-01 00:30:00    0 0.1312262 0.2608164
+	  #&gt; 2020-02-02 00:30:00    0 0.1378564 0.2668815
+	  #&gt; 2020-02-03 00:30:00    0 0.1405102 0.2691382
+	  #&gt; 2020-02-04 00:30:00    0 0.1453311 0.2742745
+	  #&gt; 2020-02-05 00:30:00    0 0.1495449 0.2785347
+	  #&gt; 2020-02-06 00:30:00    0 0.1539169 0.2828957
+	  ## and a plot can be generated
+	  plot(s_sz_rec[,c(&quot;2487&quot;,&quot;3598&quot;,&quot;5201&quot;)],main=&quot;Saturated zone deficit for select HRU&quot;,legend.loc=&quot;topright&quot;)</code></pre>
+      <p><img src="14_model_simulation_files/figure-html/time_series_states-1.png" width="672" />
+	or as a map</p>
+      <pre class="r"><code>## Create a map of the root zone storage at 2020-02-03 02:00:00
+	  s_rz_val &lt;- do.call(rbind, lapply( state_rec[[&quot;2020-02-03 00:30:00&quot;]], function(x){ data.frame(id=x$id,s_rz = x$states[&quot;s_rz&quot;]) }) )
+	  ## create a map of values by substituting s_rz for the id in the hru_id map
+	  hru_id &lt;- rast( file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;atb_20_model.tif&quot;) ) ## open map from from file names stored in the model
+	  s_rz_map&lt;- subst(hru_id, from=s_rz_val$id, to = s_rz_val$s_rz) ## substitute values into the map of HRU id numbers
+	  ## and plot
+	  plot(s_rz_map,main=&quot;Root zone storage at 2020-02-03 00:30:00&quot;)</code></pre>
+      <p><img src="14_model_simulation_files/figure-html/time_series_states_map-1.png" width="672" /></p>
+
+      <h3>Hot Starting and Saving</h3>
+      <p>Hot starting; that is starting a simulation with the final states of
+	a previous simulation can be achieved by simply not re-initialising the
+	dynatop object before the next call to sim</p>
+      <pre class="r"><code>## initialise and simulate the model
+	  ctch_mdl$initialise()$sim(output_defn)
+	  r1 &lt;- ctch_mdl$get_output() ## get the output from the first run
+	  ## run again without initialising
+	  ## This will use the final states of the last simulation as the starting states
+	  ctch_mdl$sim(output_defn)
+	  r2 &lt;- ctch_mdl$get_output() ## get the output from the second
+	  plot(r1$Sheepmount)</code></pre>
+      <p><img src="14_model_simulation_files/figure-html/sim2-1.png" width="672" /></p>
+      <pre class="r"><code>lines(r2$Sheepmount,col=&quot;red&quot;)## different state values after the second run</code></pre>
+      <p><img src="14_model_simulation_files/figure-html/sim2-2.png" width="672" /></p>
+      <p>If you want to save the model and current states at the end of a
+	simulation do not save the dynatop object. Instead extract and save he
+	model including the current states and save that.</p>
+      <pre class="r"><code>new_mdl &lt;- ctch_mdl$get_model() ## get the model structure from the dynatop object
+	  new_mdl[[1]] ## as the original model but will final states included
+	  #&gt; $id
+	  #&gt; [1] 0
+	  #&gt; 
+	  #&gt; $states
+	  #&gt;         s_sf         s_rz         s_uz         s_sz 
+	  #&gt; 0.0002078958 0.1000000000 0.0000000000 0.0000000000 
+	  #&gt; 
+	  #&gt; $properties
+	  #&gt;     area    width       Dx gradient 
+	  #&gt;  1.1e+05  2.0e+00  8.4e+02  1.0e-03 
+	  #&gt; 
+	  #&gt; $sf
+	  #&gt; $sf$type
+	  #&gt; cnst 
+	  #&gt;    1 
+	  #&gt; 
+	  #&gt; $sf$parameters
+	  #&gt;  c_sf  d_sf s_raf t_raf 
+	  #&gt;   0.3   0.0   0.0 999.9 
+	  #&gt; 
+	  #&gt; 
+	  #&gt; $rz
+	  #&gt; $rz$type
+	  #&gt; orig 
+	  #&gt;    1 
+	  #&gt; 
+	  #&gt; $rz$parameters
+	  #&gt; s_rzmax 
+	  #&gt;     0.1 
+	  #&gt; 
+	  #&gt; 
+	  #&gt; $uz
+	  #&gt; $uz$type
+	  #&gt; orig 
+	  #&gt;    1 
+	  #&gt; 
+	  #&gt; $uz$parameters
+	  #&gt;   t_d 
+	  #&gt; 28800 
+	  #&gt; 
+	  #&gt; 
+	  #&gt; $sz
+	  #&gt; $sz$type
+	  #&gt; exp 
+	  #&gt;   1 
+	  #&gt; 
+	  #&gt; $sz$parameters
+	  #&gt;   t_0     m 
+	  #&gt; 0.135 0.040 
+	  #&gt; 
+	  #&gt; 
+	  #&gt; $sf_flow_direction
+	  #&gt; $sf_flow_direction$id
+	  #&gt; integer(0)
+	  #&gt; 
+	  #&gt; $sf_flow_direction$fraction
+	  #&gt; numeric(0)
+	  #&gt; 
+	  #&gt; 
+	  #&gt; $sz_flow_direction
+	  #&gt; $sz_flow_direction$id
+	  #&gt; integer(0)
+	  #&gt; 
+	  #&gt; $sz_flow_direction$fraction
+	  #&gt; numeric(0)
+	  #&gt; 
+	  #&gt; 
+	  #&gt; $initialisation
+	  #&gt;       s_rz_0    r_uz_sz_0 
+	  #&gt; 7.500000e-01 8.322539e-08 
+	  #&gt; 
+	  #&gt; $precip
+	  #&gt; $precip$name
+	  #&gt; [1] &quot;precip_76&quot; &quot;precip_75&quot;
+	  #&gt; 
+	  #&gt; $precip$fraction
+	  #&gt; [1] 0.90909091 0.09090909
+	  #&gt; 
+	  #&gt; $precip$idx
+	  #&gt; precip_76 precip_75 
+	  #&gt;        76        75 
+	  #&gt; 
+	  #&gt; 
+	  #&gt; $pet
+	  #&gt; $pet$name
+	  #&gt; [1] &quot;pet&quot;
+	  #&gt; 
+	  #&gt; $pet$fraction
+	  #&gt; [1] 1
+	  #&gt; 
+	  #&gt; $pet$idx
+	  #&gt; pet 
+	  #&gt; 100 
+	  #&gt; 
+	  #&gt; 
+	  #&gt; $class
+	  #&gt; $class$min_dst
+	  #&gt; [1] 1
+	  #&gt; 
+	  #&gt; $class$atb_20_band
+	  #&gt; [1] NA
+	  #&gt; 
+	  #&gt; $class$atb_20
+	  #&gt; [1] NA
+	  #&gt; 
+	  #&gt; $class$band
+	  #&gt; [1] NA
+	  #&gt; 
+	  #&gt; $class$burns
+	  #&gt; [1] NA
+	  #&gt; 
+	  #&gt; $class$name1
+	  #&gt; [1] &quot;Boundary Sike&quot;
+	  #&gt; 
+	  #&gt; $class$name
+	  #&gt; [1] &quot;429B7DBF-B913-4B3B-8001-4A697CFBA416&quot;
+	  #&gt; 
+	  #&gt; $class$startNode
+	  #&gt; [1] &quot;4FA23A32-772E-4B51-873C-0C033989B20A&quot;
+	  #&gt; 
+	  #&gt; $class$endNode
+	  #&gt; [1] &quot;02E2B2F3-5087-48DD-A7E9-41F9B5C7969A&quot;
+	  #&gt; 
+	  #&gt; $class$form
+	  #&gt; [1] &quot;inlandRiver&quot;
+	  #&gt; 
+	  #&gt; $class$flow
+	  #&gt; [1] &quot;in direction&quot;
+	  #&gt; 
+	  #&gt; $class$fictitious
+	  #&gt; [1] &quot;false&quot;
+	  #&gt; 
+	  #&gt; $class$length
+	  #&gt; [1] 840
+	  #&gt; 
+	  #&gt; $class$name2
+	  #&gt; [1] NA
+	  #&gt; 
+	  #&gt; $class$width
+	  #&gt; [1] 2
+	  #&gt; 
+	  #&gt; $class$area
+	  #&gt; [1] 1684.048
+	  #&gt; 
+	  #&gt; $class$slope
+	  #&gt; [1] 0.001
+	  #&gt; 
+	  #&gt; $class$up_area
+	  #&gt; [1] 392924.2
+	  #&gt; 
+	  #&gt; $class$ct_area
+	  #&gt; [1] 392924.2</code></pre>
+
+      <!-- 15 -->
+      </section>
+      <section id="monte-carlo">
+      <h2 class="title toc-ignore">Monte-Carlo Runs</h2>
+
+      <h3>Aim</h3>
+      <p>Outline how to parallelise multiple simulations effectively on one or
+	more machines.</p>
+
+      <h3>Required R packages</h3>
+      <p>This exercise builds upon the earlier examples of <a
+							     href="./14_model_simulation.html">model simulation</a>.</p>
+      <p>The packages used can be attached with</p>
+      <pre class="r"><code>library(&quot;dynatop&quot;)
+	  library(&quot;terra&quot;)
+	  library(&quot;xts&quot;)
+	  library(&quot;parallel&quot;)</code></pre>
+      <p>and remember to move to the eden_data directory e.g.</p>
+      <pre class="r"><code>setwd(&quot;../eden_data&quot;)</code></pre>
+
+      <h3>Target Problem</h3>
+      <p>The aim of this section is to address how to efficiently perform
+	multiple independent runs of <code>dynatop</code>. In the code below we
+	outline how to set up 10000 simulations with the same observed data but
+	different parameters. Since the simulations do not interact the memory
+	used (at least for storing the dynatop object) must be separate for each
+	parallel simulation. This means the problem is distinct from using
+	multiple computational processes to act on the same memory to speed up a
+	single simulation.</p>
+
+      <h3>Work Flow</h3>
+      <p>A simple but effective workflow is</p>
+      <ul>
+	<li>Construct a function for applying changes to the model.</li>
+	<li>Generate and save a random sample of new parameter values</li>
+	<li>Construct a function for evaluating the performance and saving
+	  output</li>
+	<li>Write a script using the above to perform the simulation</li>
+      </ul>
+
+      <h3>A Pattern for replacing the parameters</h3>
+      <p>As shown <a href="14_model_simulation.html">earlier</a> apply
+	parameters to a HRU is effectively done with a function that apply the
+	changes to a single HRU. In this case the function requires both a HRU
+	description and vector or new parameters.</p>
+      <pre class="r"><code>## h is the hru, p is a named vector of parameter values
+	  fparChange &lt;- function(h,p){
+	  ## change &quot;m&quot; transmissivty decay parameter depending upon atb class
+	  if( !is.na(h$class$atb_20) ){
+	  if( h$class$atb_20 &lt; 20 ){
+	  h$sz$parameters[&quot;m&quot;] &lt;- p[&quot;m1&quot;]
+	  }else{
+	  h$sz$parameters[&quot;m&quot;] &lt;- p[&quot;m2&quot;]
+	  }
+	  }
+	  ## change unsaturated zone time constant regarless of type
+	  h$uz$parameters[&quot;t_d&quot;] &lt;- p[&quot;Td&quot;]
+	  ## change surface velocity depending upon if it is a channel
+	  if( is.na(h$class$startNode) ){
+	  ## hillslope
+	  h$sf$parameters[&quot;c_sf&quot;] &lt;- p[&quot;csf&quot;]
+	  }else{
+	  ## channel
+	  h$sf$parameters[&quot;c_sf&quot;] &lt;- p[&quot;vch&quot;]
+	  }
+	  return(h)
+	  }
+
+	  ## save the function
+	  tmp &lt;- deparse(fparChange); tmp[1] &lt;- paste(&quot;fparChange &lt;-&quot;,tmp[1])
+	  writeLines(tmp,file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;fparChange.R&quot;))</code></pre>
+
+      <h3>Random Sample</h3>
+      <p>Generate a random sample of the values used in the pattern, along
+	with a sample identifier. This is stored in a numeric matrix. Generating
+	all the samples at once avoids many issues of repeatability and
+	uniqueness which may arise if they are generated separately.</p>
+      <pre class="r"><code>## start by loading the model for reference
+	  nsim &lt;- 10000
+	  sample &lt;- cbind(
+	  sid = 1:nsim, ## the simulation identifier number
+	  Td = runif(nsim,0.1,120),
+	  m1 = runif(nsim,0.005,0.06),
+	  m2 = runif(nsim,0.005,0.06),
+	  csf = runif(nsim,0.05,0.5),
+	  vch = runif(nsim,0.2,1.4))
+	  ## save the random sample
+	  saveRDS(sample,file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;sample.rds&quot;))</code></pre>
+
+      <h3>Evaluation function</h3>
+      <p>The purpose of the evaluation function is to</p>
+      <ul>
+	<li>perform the simulation</li>
+	<li>evaluate the performance of the model against the observed data</li>
+	<li>act to save data if required</li>
+      </ul>
+      <p>Below is an example of such a function</p>
+      <pre class="r"><code>## normally this function would be entered into its own file.
+	  ## Here to show it we enter it then add it to a file
+	  ## inputs are i the index of a row of sample and the model - which is altered by the function
+	  ## It expects the sample, pattern, obs and q0 to be present in the workspace fMC is called from
+	  ## it does not need its own copy of these since they are not changed
+	  fMC &lt;- function(i,sample,mdl,obs,q0,fP){
+	  x &lt;- sample[i,] # the values to substitute in
+	  ## put sample values into model
+	  hru &lt;- lapply( mdl$hru, fP,p=x) 
+	  ## put intial conditions into the model
+	  hru &lt;- lapply(hru,function(h,q0){h$initialisation[&quot;r_uz_sz_0&quot;] &lt;- q0; h},q0=q0)
+	  ## simulate the model
+	  dt &lt;- dynatop::dynatop$new(hru)$add_data(obs)$initialise()$sim(mdl$output_flux)
+	  ## get mass balance
+	  mb &lt;- dt$get_mass_errors()
+	  if( any(abs(mb$err)&gt;1e-3) ){ ## this is an error of greater then 1m^3
+	  stop(&quot;Mass Balance error in sid &quot;,x[&quot;sid&quot;])
+	  }
+	  ##ch_in &lt;- dt$get_channel_inflow()
+	  gf &lt;- dt$get_output()
+	  if(any(is.na(gf))){
+	  stop(&quot;non-finite flow returned&quot;)
+	  }
+	  ## ns = nash-sutcliffe
+	  ns &lt;- 1 - sum((obs$Sheepmount_obs-gf$Sheepmount)^2,na.rm=TRUE) /
+	  sum((obs$Sheepmount_obs - mean(obs$Sheepmount_obs,na.rm=TRUE))^2,na.rm=TRUE)
+	  ## if good performance save some outputs to use
+	  if(ns&gt;0.5){ 
+	  saveRDS(
+	  list(sid = x[&quot;sid&quot;],
+	  gauge_flow=gf,
+	  mass_balance = mb),
+	  file.path(&quot;.&quot;,&quot;dyna&quot;,paste0(&quot;Simulation_&quot;,x[&quot;sid&quot;],&quot;.rds&quot;))
+	  )
+	  }
+	  return(ns)
+	  }
+
+	  ## save the function
+	  tmp &lt;- deparse(fMC); tmp[1] &lt;- paste(&quot;fMX &lt;-&quot;,tmp[1])
+	  writeLines(tmp,file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;fMC.R&quot;))</code></pre>
+
+      <h3>Execution</h3>
+      <p>To run the simulations on a single R process an example script would
+	be</p>
+      <pre class="r"><code>rm(list=ls())
+	  library(dynatop)
+
+	  ## source function for running
+	  source( file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;fMC.R&quot;) ) ## source the function so it is available
+	  ## load model
+	  mdl &lt;- readRDS(file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;atb_20_model.rds&quot;))
+	  ## load obs
+	  obs &lt;- readRDS(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;obs.rds&quot;))
+	  ## load the parameter function
+	  source( file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;fparChange.R&quot;))
+	  ## load sample
+	  sample &lt;- readRDS(file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;sample.rds&quot;))
+	  ## load gauges
+	  mdl$output_flux &lt;- readRDS(file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;gauge_output_defn.rds&quot;))
+
+
+	  q0 &lt;- obs$Sheepmount_obs[1] / sum( sapply(mdl$hru,function(h){h$properties[&quot;area&quot;]}) )
+
+	  ## this wraps the fMC function to catch any errors and stop then killing the simulation 
+	  fout &lt;- function(i,sample,mdl,obs,q0,fP){
+	  tryCatch({fMC(i,sample,mdl,obs,q0,fP)},
+	  error=function(e){e$message}) ## if an error return the message
+	  }
+
+	  ## use lapply to iterate over the parameter sets - this will run on a single R process
+	  #out &lt;- lapply(seq_len(nrow(sample)), fout)
+
+	  ## on linux/mac use mclapply to run across multiple cores on the same machine
+	  ## alter mc.cores to match the machine being used
+	  ## out &lt;- mclapply(1:6,fMC,sample=sample,mdl=mdl,obs=obs,q0=q0,fP=fparChange,mc.cores=6,mc.preschedule = FALSE)
+
+	  ## on windows/linux/mac you could use parLapply but the set up is more complex
+	  cl &lt;- makePSOCKcluster(6) # alter number to be number of cores on machine you want to use
+	  out2 &lt;- parLapply(cl,1:6,fMC,sample=sample,mdl=mdl,obs=obs,q0=q0,fP=fparChange)
+	  stopCluster(cl)
+	  ## The `future` package offer an alternative.
+
+
+	  ## save out after naming with the simulation number
+	  names(out) &lt;- paste0(&quot;sid_&quot;,sample[,&quot;sid&quot;])
+	  saveRDS(out,&quot;output.rds&quot;)</code></pre>
+      <p>The above script could be run from a shell command line using</p>
+      <pre><code>Rscript &lt;my_script_name&gt;.R</code></pre>
+      <p>many HPC job submission systems allow for the submission of <span
+								       class="math inline">\(n_j\)</span> multiple, near identical jobs,
+	identified as job <span class="math inline">\(j\)</span> of <span
+								      class="math inline">\(n_j\)</span>.</p>
+      <p>The above script can be adapted for this using command line arguments
+	to receive <span class="math inline">\(j\)</span> and <span
+								class="math inline">\(jn\)</span></p>
+      <pre class="r"><code>## prices the command line arguments
+	  arg &lt;- as.integer(commandArgs(trailingOnly = TRUE))
+	  if(!all(is.finite(arg))){ stop(&quot;Invalid command line arguments&quot;) }
+	  j &lt;- arg[1]
+	  nj &lt;- arg[2]
+	  
+
+	  library(dynatop)
+	  source( file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;fMC.R&quot;) ) ## source the function so it is available
+	  ## load model
+	  mdl &lt;- readRDS(file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;atb_20_model.rds&quot;))
+	  ## load obs
+	  obs &lt;- readRDS(file.path(&quot;.&quot;,&quot;processed&quot;,&quot;obs.rds&quot;))
+	  ## load the parameter function
+	  source( file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;fparChange.R&quot;))
+	  ## load sample
+	  sample &lt;- readRDS(file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;sample.rds&quot;))
+	  ## load gauges
+	  mdl$output_flux &lt;- readRDS(file.path(&quot;.&quot;,&quot;dyna&quot;,&quot;gauge_output_defn.rds&quot;))
+
+	  q0 &lt;- as.numeric(obs$Sheepmount_obs[1]) / sum( sapply(mdl$hru,function(h){h$properties[&quot;area&quot;]}) )
+
+	  ## this wraps the fMC function to catch any errors and stop then killing the simulation 
+	  fout &lt;- function(i){
+	  tryCatch({fMC(i,sample,mdl,obs,q0,fP)},
+	  error=function(e){e$message}) ## if an error return the message
+	  }
+
+	  ## use lapply to iterate over the parameter sets - this will run on a single R process
+	  idx &lt;- seq(j,nrow(sample),by=nj) ## evaluate every nj rows
+	  out &lt;- lapply(idx, fout)
+
+	  ## save out after naming with the simulation number
+	  names(out) &lt;- paste0(&quot;sid_&quot;,sample[idx,&quot;sid&quot;])
+	  saveRDS(out,paste0(&quot;output_&quot;,j,&quot;.rds&quot;))</code></pre>
+      <p>This script could be run from a shell command line for job <span
+								      class="math inline">\(j=1\)</span> of <span
+													      class="math inline">\(n_j=10\)</span> with</p>
+      <pre><code>Rscript &lt;my_script_name&gt;.R 1 10</code></pre>
+      </article>
+    </main> <!-- end main -->
+  </body>
+
+
+</html>
